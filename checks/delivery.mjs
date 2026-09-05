@@ -46,7 +46,36 @@ export const STATES = Object.freeze(['clean', 'findings', 'ABSENT', 'UNEVALUABLE
    tags and the perspective names already obey. */
 export const DEFAULT_STATES = Object.freeze(['Modified', 'Proposal']);
 
-export const statesOf = (theme) => (theme?.deliveryStates ?? DEFAULT_STATES);
+/**
+ * THE STATES COME FROM THE MACHINE, and the fallback is REPORTED rather than silent.
+ *
+ * theme.json declares `delivery` — a machine adapted from design-loop's core/machines.json, where
+ * every state names what makes it OBSERVABLE: the fact on disk that proves a component is in it. A
+ * tag nobody can check is an assertion; a state with an observable is a measurement. Two of its four
+ * guards say NOT BUILT, which is the honest shape — a machine whose later states cannot be observed
+ * would sit in its third state forever and read as progress.
+ *
+ * `tagFor` maps a state to the tag the DSL actually writes, because Proposal and proposed are one
+ * concept and two spellings is the inconsistency this repo keeps paying for.
+ *
+ * MEASURED WHILE BUILDING THIS: deleting `deliveryStates` and adding the machine left `statesOf`
+ * reading a field that no longer existed and falling through to DEFAULT_STATES. It kept working and
+ * said nothing — a silent divergence between what the palette declares and what the checker reads,
+ * which is exactly the two-homes fault the machine was added to end. The fallback now announces
+ * itself in the returned `basis`.
+ */
+export function statesOf(theme) {
+  const tagFor = theme?.delivery?.tagFor;
+  if (tagFor && Object.keys(tagFor).length) return Object.values(tagFor);
+  if (Array.isArray(theme?.deliveryStates)) return theme.deliveryStates;
+  return DEFAULT_STATES;
+}
+
+export function basisOf(theme) {
+  if (theme?.delivery?.tagFor) return 'delivery machine';
+  if (Array.isArray(theme?.deliveryStates)) return 'deliveryStates list (no machine declared)';
+  return 'DEFAULT_STATES — the theme declares neither a machine nor a list';
+}
 
 /** The delivery state an element declares, or null for one that ships as-is. */
 export function stateOf(el, states) {
@@ -84,6 +113,35 @@ export function inspect(ws, theme) {
   for (const v of views(ws)) for (const e of v.elements ?? []) drawn.add(String(e.id));
 
   const findings = [];
+
+  /* ── THE STATE MUST REACH THE READER, NOT JUST THE ELEMENT (CF-106) ─────────────────────────
+     A diagram is read one level at a time. Agent runtime held the payload-compose guard and
+     Observability held the injection scorer and the chain invariant, and BOTH containers rendered
+     as plain violet boxes with the ordinary stroke — so on the container view, the plate a reviewer
+     opens to ask what this project changes, every box we touch looked exactly like the ones we did
+     not. The tags were correct on the components; nothing carried the fact upward.
+     A parent holding a changed child must say so. */
+  const markedIds = new Set(marked.map((x) => x.el.id));
+  const childrenOf = new Map();
+  for (const e of els) {
+    const parent = e.containerId ?? (e.kind === 'Container' ? e.systemId : null);
+    if (!parent) continue;
+    if (!childrenOf.has(String(parent))) childrenOf.set(String(parent), []);
+    childrenOf.get(String(parent)).push(e);
+  }
+  for (const e of els) {
+    const kids = childrenOf.get(e.id) ?? [];
+    const changed = kids.filter((k) => markedIds.has(k.id));
+    if (!changed.length) continue;
+    if (stateOf(e, states).state) continue;
+    findings.push({
+      rule: 'change-not-surfaced',
+      where: `${e.name} holds ${changed.map((k) => k.name).join(', ')}`,
+      why: `${changed.length === 1 ? 'a child carries' : `${changed.length} children carry`} a delivery state and this parent carries none, `
+         + 'so one level up — the plate a reviewer actually opens to ask what changed — it is drawn as untouched',
+      cite: 'ours, not the book — a state that only exists on a plate the reader has to open is invisible to the reader who stops above it',
+    });
+  }
   for (const m of marked) {
     if (m.all.length > 1) {
       findings.push({
@@ -102,7 +160,22 @@ export function inspect(ws, theme) {
         cite: 'ch10 — notation is described with a diagram key, and a colour nobody can decode on the box is a key nobody opened',
       });
     }
-    if (!governed.has(m.el.id)) {
+    /* A DERIVED STATE INHERITS ITS ARGUMENT. A parent is marked because its CHILDREN are (CF-106),
+       and the decision that justifies the change already sits beside the child that makes it. Asking
+       the parent for its own ADR would put one argument in two places — the duplication row 24 of
+       the review catalogue exists to catch — and the second copy is the one that goes stale.
+       An element with no marked child still needs its own decision: that is the original rule and
+       it is untouched. */
+    /* TRANSITIVE, because the levels are. The system dsh harness is marked BECAUSE its containers
+       are, and their argument sits on a COMPONENT two levels down. A one-level lookup asked the
+       system for its own ADR and would have grown a duplicate at every level of nesting. */
+    const inheritsFrom = (id, depth = 0) => {
+      if (depth > 8) return false;
+      return (childrenOf.get(id) ?? []).some((k) =>
+        (markedIds.has(k.id) && governed.has(k.id)) || inheritsFrom(k.id, depth + 1));
+    };
+    const inherits = inheritsFrom(m.el.id);
+    if (!governed.has(m.el.id) && !inherits) {
       findings.push({
         rule: 'unstated-proposal',
         where: `${m.el.name} · ${m.state}`,
@@ -154,8 +227,11 @@ if (IS_MAIN) {
     const rules = (ws, t = theme) => inspect(ws, t).findings.map((f) => f.rule);
 
     const build = ({ tags, decided = true, drawn = true }) => ({
-      model: { softwareSystems: [{ id: 's1', name: 'Guard', containers: [{ id: 'c1', name: 'Scorer', tags, documentation: decided ? { decisions: [{ id: '1', title: 'why', status: 'Accepted', content: 'because' }] } : undefined }] }] },
-      views: { containerViews: [{ key: 'Containers', elements: drawn ? [{ id: 'c1' }] : [] }] },
+      /* THE SYSTEM CARRIES THE STATE ITS CONTAINER DOES (CF-106). This fixture predates that rule
+         and the rule caught it: a Guard system holding a marked Scorer, drawn as untouched. */
+      model: { softwareSystems: [{ id: 's1', name: 'Guard', tags: `Element,Software System${/Proposal|Modified/.test(tags) ? ',' + (tags.match(/Proposal|Modified/) ?? [''])[0] : ''}`, description: 'modified — hover for details. holder',
+        containers: [{ id: 'c1', name: 'Scorer', tags, description: 'modified — hover for details. leaf', documentation: decided ? { decisions: [{ id: '1', title: 'why', status: 'Accepted', content: 'because' }] } : undefined }] }] },
+      views: { containerViews: [{ key: 'Containers', elements: drawn ? [{ id: 's1' }, { id: 'c1' }] : [] }] },
     });
 
     say('a model marking nothing is ABSENT, which is an answer and not a pass', inspect(build({ tags: 'Element,Container' }), theme).state === 'ABSENT', inspect(build({ tags: 'Element,Container' }), theme).state);
@@ -189,8 +265,56 @@ if (IS_MAIN) {
     say('a repo that renames its states is measured on its own words', inspect(spiked, own).marked[0]?.state === 'Spike', inspect(spiked, own).marked);
     say('and a box carrying another repo\'s word is then not marked at all', inspect(good, own).state === 'ABSENT', inspect(good, own).state);
 
-    console.log(`\n${ok} of 11 held`);
-    process.exit(ok === 11 ? 0 : 1);
+    /* ── CF-106: THE STATE MUST REACH THE READER ─────────────────────────────────────────────── */
+    /* THE SYSTEM IS A PARENT TOO, and the first draft of these fixtures forgot it: tagging only the
+       container left the SYSTEM holding a marked child and saying nothing, so the rule fired and the
+       assertion read as a bug in the rule. It is not — it is the rule working two levels up, which
+       is exactly what it did on the live model when dsh harness turned up beside its containers.
+       `sysTags` makes the level explicit rather than implied. */
+    const nested = (childTags, parentTags = 'Element,Container', withAdr = true, sysTags = 'Element,Software System') => ({
+      documentation: {},
+      model: { softwareSystems: [{ id: 's1', name: 'Sys', tags: sysTags,
+        containers: [{ id: 'c1', name: 'Obs', tags: parentTags, description: 'modified — hover for details. x',
+          components: [{ id: 'k1', name: 'Scorer', tags: childTags, description: 'modified — hover for details. y',
+            documentation: withAdr ? { decisions: [{ id: '1', title: 'why', status: 'Accepted', content: 'because' }] } : undefined }] }] }] },
+      views: { componentViews: [{ key: 'C', elements: [{ id: 'c1' }, { id: 'k1' }] }] },
+    });
+    const rulesIn = (ws, th = theme) => inspect(ws, th).findings.map((f) => f.rule);
+
+    /* THE DEFECT: a parent holding a marked child and carrying nothing itself. */
+    const unsurfaced = nested('Element,Component,Modified', 'Element,Container');
+    say('the incident fires — a parent holding a changed child and saying nothing',
+      rulesIn(unsurfaced).includes('change-not-surfaced'), inspect(unsurfaced, theme).findings.map((f) => f.where));
+    say('and it names WHAT the parent holds, so the fix is obvious from the line',
+      /Obs holds Scorer/.test(inspect(unsurfaced, theme).findings.find((f) => f.rule === 'change-not-surfaced')?.where ?? ''),
+      inspect(unsurfaced, theme).findings.find((f) => f.rule === 'change-not-surfaced')?.where);
+
+    /* THE FIX PASSES: the parent carries the state too. */
+    const surfaced = nested('Element,Component,Modified', 'Element,Container,Modified', true, 'Element,Software System,Modified');
+    say('a parent that carries the state is clean', !rulesIn(surfaced).includes('change-not-surfaced'), rulesIn(surfaced));
+
+    /* AND A DERIVED STATE INHERITS ITS ARGUMENT rather than needing a second ADR. */
+    say('the parent is not asked for its own decision when its marked child has one',
+      !rulesIn(surfaced).includes('unstated-proposal'), rulesIn(surfaced));
+    const orphan = nested('Element,Component,Modified', 'Element,Container,Modified', false, 'Element,Software System,Modified');
+    say('but with NO decision anywhere on the branch it is still unstated',
+      rulesIn(orphan).includes('unstated-proposal'), rulesIn(orphan));
+
+    /* A PARENT HOLDING NOTHING MARKED MUST NOT FIRE — the rule is about containment, not depth. */
+    const plain = nested('Element,Component', 'Element,Container');
+    say('a parent whose children are all unchanged is not asked to claim anything',
+      !rulesIn(plain).includes('change-not-surfaced'), rulesIn(plain));
+
+    /* THE VOCABULARY COMES FROM THE MACHINE, and a silent fallback was the bug that shipped it. */
+    say('statesOf reads the delivery machine when the theme declares one',
+      JSON.stringify(statesOf({ delivery: { tagFor: { proposed: 'P', modified: 'M' } } })) === JSON.stringify(['P', 'M']),
+      statesOf({ delivery: { tagFor: { proposed: 'P', modified: 'M' } } }));
+    say('and the BASIS says which source answered, so a fallback cannot pass for a declaration',
+      basisOf({}) !== basisOf({ delivery: { tagFor: { a: 'A' } } }) && /DEFAULT_STATES/.test(basisOf({})),
+      { none: basisOf({}), machine: basisOf({ delivery: { tagFor: { a: 'A' } } }) });
+
+    console.log(`\n${ok} of 18 held`);
+    process.exit(ok === 18 ? 0 : 1);
   }
 
   let theme;
