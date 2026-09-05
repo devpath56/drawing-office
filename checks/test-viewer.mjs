@@ -89,10 +89,18 @@ export function inspect(src) {
      would need it too. */
   const frames = clean.match(/<iframe\b[^>]*>/g) ?? [];
   const framesWithoutFullscreen = frames.filter((f) => !/allowfullscreen|allow\s*=\s*["'][^"']*fullscreen/.test(f)).length;
+  /* PROGRESSIVE DISCLOSURE HAS ONE WRITER, and the defect it replaces is why this is counted.
+     A branch unfolds for two different reasons — the reader CLICKED it, or it is on the path to the
+     view on screen — and the first draft wrote both into the same Set. That turned "you are looking
+     at this" into "you asked for this, forever": every branch that had ever held the current view
+     stayed open, and the payments rail came up with the trace, three decisions and seven containers
+     listed at once, which is a list rather than a rail. The remembered state now has exactly one
+     writer, in the click handler; the path is recomputed on every draw and never stored. */
+  const opens = (clean.match(/\bopen\.add\s*\(/g) ?? []).length;
   const mentions = (clean.match(/\bsayLayer\s*\(/g) ?? []).length;
   const defined = /function\s+sayLayer\s*\(/.test(clean);
   const sayLayerCalls = mentions - (defined ? 1 : 0);
-  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext, sayLayerCalls, frames: frames.length, framesWithoutFullscreen };
+  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext, sayLayerCalls, frames: frames.length, framesWithoutFullscreen, opens };
 }
 
 /* ── CLI ─────────────────────────────────────────────────────────────────────────────────────── */
@@ -141,6 +149,15 @@ if (IS_MAIN) {
     const modeNever = mode.replace('fillOrder(k); sayLayer(k);', 'fillOrder(k);');
     say('a mode notice that is never called is caught', inspect(modeNever).sayLayerCalls === 0, inspect(modeNever));
 
+    /* ONE WRITER FOR THE REMEMBERED FOLD STATE. */
+    const fold = `<script>const ASKED=(location.hash||'').replace(/^#/,'')||null;
+      const t=document.createElement('span'); t.className='rowtext';
+      const unfolded = node.children.length > 0 && (open.has(id) || holdsHere(node));
+      b.addEventListener('click', () => { if (node.children.length) { if (open.has(id)) open.delete(id); else open.add(id); } });</script>`;
+    say('a rail that remembers only what was clicked is clean', inspect(fold).opens === 1, inspect(fold).opens);
+    const sticky = fold.replace('(open.has(id) || holdsHere(node));', '(open.has(id) || holdsHere(node));\n      if (unfolded) open.add(id);');
+    say('an auto-unfold written into the remembered state is caught', inspect(sticky).opens === 2, inspect(sticky).opens);
+
     /* THE WRAPPER MUST NOT WITHHOLD FULL SCREEN. */
     const bare = `<script>const ASKED=(location.hash||'').replace(/^#/,'')||null; const t=document.createElement('span'); t.className='rowtext';</script><iframe title="x"></iframe>`;
     say('an iframe with no fullscreen permission is caught', inspect(bare).framesWithoutFullscreen === 1, inspect(bare));
@@ -154,8 +171,8 @@ if (IS_MAIN) {
     const silent = `<script>const ASKED = null;</script>`;
     say('a wrapper that never reads the hash is UNEVALUABLE, not clean', inspect(silent).statement === null, inspect(silent));
 
-    console.log(`\n${held} of 14 held`);
-    process.exit(held === 14 ? 0 : 1);
+    console.log(`\n${held} of 16 held`);
+    process.exit(held === 16 ? 0 : 1);
   }
 
   const file = path.join(ROOT, 'architecture', 'viewer.html');
@@ -176,6 +193,8 @@ if (IS_MAIN) {
     r.sayLayerCalls === 1, `${r.sayLayerCalls} call site(s) of sayLayer`);
   ok('every iframe passes full screen through, so a key the renderer advertises is not withheld here',
     r.framesWithoutFullscreen === 0, `${r.framesWithoutFullscreen} of ${r.frames} iframe(s) withhold it`);
+  ok('the fold state is written in exactly one place, so being somewhere cannot be mistaken for asking for it',
+    r.opens === 1, `${r.opens} writer(s) of open.add`);
 
   console.log(`\n${bad ? `${bad} FAIL` : 'all ok'}`);
   process.exit(bad ? 1 : 0);

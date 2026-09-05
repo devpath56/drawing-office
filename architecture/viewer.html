@@ -857,7 +857,11 @@
          node unfolded was the one whose own view matched — and the container view sits one level
          BELOW the system, whose row was therefore folded shut over it. A tree that hides your
          position is worse than no tree: it says the level you are reading does not exist. */
-      const holdsHere = (n) => (!!n.view && n.view === here) || n.children.some(holdsHere);
+      /* THE PATH TO WHERE YOU ARE, and no wider than that: a branch is on the path when it or one of
+         its descendants is the view on screen. A row's OWN view being the current one does not open
+         its children — standing on the container diagram does not mean you asked to see every
+         container listed, and the reader can click for that. */
+      const holdsHere = (n) => n.children.some((c) => (!!c.view && c.view === here) || holdsHere(c));
       /* ONE LABEL FOR BOTH KINDS OF ROW, and it is one function because it was two.
          A row with children is built in one branch below and a leaf in the other, and each built its
          own name and kind spans — so the queue chip, added to the first, was invisible on exactly the
@@ -894,8 +898,17 @@
            answer about the plate. Two kinds of current state, one marker, because a reader looking
            at the rail is asking one question: what am I looking at right now. */
         const isHere = (!!node.view && node.view === here) || (!!node.perspective && node.perspective === LAYER);
+        /* PROGRESSIVE DISCLOSURE, AND THE SECOND LINE IS WHY IT WAS NOT. An auto-unfold used to be
+           WRITTEN INTO `open`, which turned a transient "you are looking at this" into permanent
+           state — so a branch the reader never touched stayed unfolded for the rest of the session,
+           and every branch that had ever held the current view accumulated. On the payments model
+           that meant the trace, all three decisions and all seven containers on screen at once,
+           which is a list rather than a rail.
+
+           Two states now, and only one of them is remembered. `open` holds branches the reader
+           CLICKED. The path to the view on screen is computed fresh on every draw and never stored,
+           so it closes behind you when you navigate away. Everything else stays folded. */
         const unfolded = node.children.length > 0 && (open.has(id) || holdsHere(node));
-        if (unfolded) open.add(id);
         const pad = (12 + depth * 12) + 'px';
 
         /* A ROW WITH CHILDREN AND NO VIEW OF ITS OWN still has to fold and unfold — otherwise a
