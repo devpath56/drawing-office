@@ -144,6 +144,31 @@ function rawOf(ws, id) {
   return hunt(ws?.model?.deploymentNodes);
 }
 
+/** The decisions the workspace declares, workspace-scoped and element-scoped alike. */
+export function decisions(ws) {
+  const out = [];
+  const take = (holder, owner) => {
+    for (const d of holder?.documentation?.decisions ?? []) {
+      out.push({
+        id: String(d.id),
+        title: d.title,
+        status: d.status ?? null,
+        date: d.date ?? null,
+        format: d.format ?? null,
+        content: d.content ?? '',
+        /* THE ELEMENT IT GOVERNS, or null for a decision about the whole workspace. Structurizr does
+           not put an elementId on the record — it nests the decision UNDER the element — so the link
+           is the position in the tree, and it is read here once rather than rediscovered. */
+        elementId: owner ? owner.id : null,
+        elementName: owner ? owner.name : null,
+      });
+    }
+  };
+  take(ws, null);
+  for (const e of elements(ws)) take(rawOf(ws, e.id), e);
+  return out;
+}
+
 /** Every view the workspace declares, each labelled with the kind of view it is. */
 export function views(ws) {
   const out = [];

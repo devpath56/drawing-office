@@ -166,6 +166,28 @@
      A trace is not a level: the rest of the rail is structure, and this is a story through it. */
   .dot--flow { border-radius: 2px; background: var(--edge); border-color: var(--edge); transform: rotate(45deg); }
   .dot--env { border-radius: 2px; background: transparent; border-color: var(--edge); }
+  /* ── THE DECISION PANEL ──────────────────────────────────────────────────────────────────────
+     Checkpoint 12's first preregistered death fired: the static export drops every decision,
+     workspace-scoped and element-scoped alike, while workspace.json carries them in full. So the
+     reasoning is read from the file that has it and shown here.
+
+     IT IS A PANEL RATHER THAN A TOOLTIP because an ADR is paragraphs, not a phrase — the tooltip
+     this page already softens tops out at 320px for two short lines. */
+  .adr {
+    position: absolute; right: 18px; top: 96px; bottom: 18px; width: min(460px, 45vw);
+    background: #22262c; border: 1px solid #39404a; border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(0,0,0,.5); overflow: auto; padding: 18px 20px; z-index: 5;
+  }
+  .adr[hidden] { display: none; }
+  /* THE CLOSE BUTTON IS ABSOLUTE, SO THE TITLE HAS TO KNOW IT IS THERE. Without this the heading
+     runs under it and a decision reads "1. Each queue and topic is a container; the mes ... bus is
+     not" — the one line a reader needs whole. */
+  .adr h2 { margin: 0 0 2px; padding-right: 76px; font-size: 15px; line-height: 1.35; }
+  .adr .adr-meta { color: #97a1b0; font-size: 12px; margin-bottom: 14px; }
+  .adr h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #b9bdf5; margin: 16px 0 4px; }
+  .adr p { margin: 0 0 10px; font-size: 13px; line-height: 1.55; color: #dfe4ea; }
+  .adr .adr-close { position: absolute; top: 12px; right: 14px; }
+  .adr code { background: #2b3038; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
   .chip {
     flex: none; margin-left: auto; padding: 1px 7px; border-radius: 999px;
     background: color-mix(in srgb, var(--edge) 18%, transparent);
@@ -223,6 +245,7 @@
          broken, when it is this file. Both spellings are given — the attribute for older engines,
          the allow= policy for current ones. -->
     <iframe title="Architecture diagrams" allowfullscreen allow="fullscreen"></iframe>
+    <aside class="adr" data-adr hidden aria-label="Architecture decision"></aside>
   </main>
 
 <script>
@@ -311,6 +334,21 @@
          each container. It stops there on the ruling that components are read in the picture. */
       /* THE NAMES COME OFF THE ELEMENTS, which is the same place the renderer's own picker reads
          them, so the rail cannot offer a layer the diagram does not have. */
+      /* EVERY DECISION, and the element each one governs. Read here so the rail and the panel
+         share one list rather than each finding its own. */
+      ADRS = [];
+      const takeAdrs = (holder, owner) => {
+        for (const d of holder?.documentation?.decisions ?? []) {
+          ADRS.push({ ...d, id: String(d.id), elementId: owner ? String(owner.id) : null, elementName: owner ? owner.name : null });
+        }
+      };
+      takeAdrs(ws, null);
+      for (const p of ws.model?.people ?? []) takeAdrs(p, p);
+      for (const s of ws.model?.softwareSystems ?? []) {
+        takeAdrs(s, s);
+        for (const c of s.containers ?? []) { takeAdrs(c, c); for (const k of c.components ?? []) takeAdrs(k, k); }
+      }
+
       const layers = new Set();
       const seek = (e) => { for (const p of e.perspectives ?? []) layers.add(p.name); };
       for (const p of ws.model.people ?? []) seek(p);
@@ -327,6 +365,13 @@
         if (!contextView && !containerView) continue;          // a system nobody drew
         const node = { name: s.name, kind: 'Software System', view: contextView || containerView, children: [] };
         for (const f of flowsFor(s.id)) node.children.push({ name: f.title || f.key, kind: 'Feature trace', view: f.key, children: [] });
+        /* WHY, beside the levels rather than under them: a decision is not a deeper view of the
+           system, it is the reason the system looks like this. Workspace-scoped records sit at the
+           top; one governing an element also appears on that element's own row. */
+        if (ADRS.length) node.children.push({
+          name: 'Why', kind: ADRS.length + ' decision' + (ADRS.length === 1 ? '' : 's'), view: null,
+          children: ADRS.map((d) => ({ name: d.id + '. ' + d.title, kind: 'Decision', decision: d, view: null, children: [] })),
+        });
         if (layers.size) node.children.push({
           name: 'Layers', kind: layers.size + ' perspective' + (layers.size === 1 ? '' : 's'), view: null,
           children: [...layers].sort().map((n) => ({ name: n, kind: 'Perspective', perspective: n, view: null, children: [] })),
@@ -344,7 +389,12 @@
               chip: chipFor(ws, c),
               kind: 'Container' + (c.technology ? ' · ' + c.technology : ''),
               view: viewFor('components', c.id),
-              children: flowsFor(c.id).map((f) => ({ name: f.title || f.key, kind: 'Feature trace', view: f.key, children: [] })),
+              children: [
+                ...flowsFor(c.id).map((f) => ({ name: f.title || f.key, kind: 'Feature trace', view: f.key, children: [] })),
+                /* THE DECISION IS REACHED FROM THE ELEMENT IT GOVERNS, which is the half of
+                   checkpoint 12 the static export dropped. */
+                ...ADRS.filter((d) => d.elementId === String(c.id)).map((d) => ({ name: d.id + '. ' + d.title, kind: 'Decision', decision: d, view: null, children: [] })),
+              ],
             })),
           });
         }
@@ -448,6 +498,59 @@
     frame.addEventListener('load', tint);
 
     const goto = (key) => { try { frame.contentWindow.location.hash = key; } catch { frame.src = SITE + '#' + key; } };
+
+    /* ── DECISIONS: THE WHY, READ FROM THE FILE THAT STILL HAS IT ────────────────────────────────
+       Chapter 12: the C4 views "show the outcome of the decision-making process. The diagrams don't
+       tell you why those decisions were made." Measured 2026-09-04: `!adrs` puts every record into
+       workspace.json — workspace-scoped and nested under the element it governs — and the static
+       export drops all of it, so the site alone cannot answer why. This page reads workspace.json
+       already, for the rail, so the records are one field away.
+
+       THE RENDERING IS DELIBERATELY SMALL. An ADR is Nygard's four headings and prose paragraphs;
+       what a reader needs is the headings and the words, not a markdown engine. Anything richer
+       would be a second renderer to keep, and this file already refuses to carry a second design. */
+    let ADRS = [];
+    const adrPanel = document.querySelector('[data-adr]');
+
+    const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    function adrHtml(d) {
+      const lines = String(d.content ?? '').split('\n');
+      const out = [];
+      let para = [];
+      const flush = () => { if (para.length) { out.push('<p>' + esc(para.join(' ')) + '</p>'); para = []; } };
+      for (const line of lines) {
+        const h = line.match(/^#{2,3}\s+(.*)$/);
+        if (h) { flush(); out.push('<h3>' + esc(h[1]) + '</h3>'); continue; }
+        if (/^#\s+/.test(line)) continue;            // the title, already in the heading
+        if (/^Date:/i.test(line)) continue;          // already in the meta line
+        if (!line.trim()) { flush(); continue; }
+        para.push(line.trim());
+      }
+      flush();
+      return out.join('');
+    }
+
+    function showAdr(d) {
+      adrPanel.innerHTML = '';
+      const close = document.createElement('button');
+      close.type = 'button'; close.className = 'btn btn--quiet adr-close'; close.textContent = 'Close';
+      close.addEventListener('click', () => { adrPanel.hidden = true; });
+      const h = document.createElement('h2');
+      h.textContent = d.id + '. ' + d.title;
+      const meta = document.createElement('div');
+      meta.className = 'adr-meta';
+      /* THE SCOPE IS PART OF THE RECORD. A decision about one container and a decision about the
+         whole workspace are different claims, and the panel says which without the reader guessing
+         from the rail row they happened to click. */
+      meta.textContent = [d.status || 'no status', d.elementName ? 'governs ' + d.elementName : 'governs the whole workspace',
+                          d.date ? String(d.date).slice(0, 10) : null].filter(Boolean).join(' · ');
+      const body = document.createElement('div');
+      body.innerHTML = adrHtml(d);
+      adrPanel.append(close, h, meta, body);
+      adrPanel.hidden = false;
+      adrPanel.scrollTop = 0;
+    }
 
     /* A PERSPECTIVE IS A LAYER, AND A LAYER NOBODY CAN FIND IS NOT ONE. The renderer already does the
        work — pressing p opens a picker built from the model, and choosing one dims every element with
@@ -777,6 +880,7 @@
         const isLayer = !!node.perspective;
         const chip = isFlow ? 'trace' : isEnv ? 'deploy'
           : isLayer ? (node.perspective === LAYER ? 'on' : 'layer')
+          : node.decision ? 'why'
           : node.chip || null;
         const kind = document.createElement('span');
         kind.className = chip ? 'chip' : 'kind';
@@ -800,7 +904,7 @@
         /* A LAYER ROW HAS NEITHER A VIEW NOR CHILDREN and must still be a button. Without this it
            rendered as an inert leaf — present in the rail, describing a real layer, and doing
            nothing when clicked, which is worse than not listing it. */
-        if (node.view || node.children.length || node.perspective) {
+        if (node.view || node.children.length || node.perspective || node.decision) {
           const b = document.createElement('button');
           b.type = 'button'; b.className = 'btn btn--row'; b.style.paddingLeft = pad;
           if (isHere) b.setAttribute('aria-current', 'true');
@@ -826,6 +930,7 @@
             /* CLICKING THE LIT LAYER TURNS IT OFF, because the alternative is a rail that can switch
                a layer on and offers no way back to the plain diagram except a key nobody knew about. */
             if (node.perspective) layer(LAYER === node.perspective ? null : node.perspective);
+            if (node.decision) showAdr(node.decision);
             if (node.view) goto(node.view);
             draw();
           });

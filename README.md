@@ -28,6 +28,7 @@ They were one directory until a review pointed out that one folder was carrying 
 | `diagram-contrast` | a workspace whose colours drifted from `architecture/theme.json` · any text-on-fill or stroke-on-canvas pair under its floor · a lightness ladder that would not survive black-and-white printing · a dynamic view whose steps are not 1..n, contiguous, in DSL order |
 | `test-viewer` | a wrapper whose opening view is a typed-in view key rather than the model's own · a row label written in two places, so a chip reaches only half the rail |
 | `diagram-key` | a tag a view draws that the theme never styles, so it renders in the renderer's default and lands on the key unexplained · a palette row no workspace draws · an exported key that omits a style its view uses |
+| `decisions` | a decision with no status, or one outside Nygard's vocabulary · a decision governing an element no view draws · a Superseded record that names no successor |
 | `perspectives` | a perspective declared on a single element, which is a tooltip rather than a layer. Coverage per view is reported, never gated |
 | `pubsub` | a message bus modelled as a container · a queue or topic drawn as a plain box · a hop through one drawn as a solid line · "Sends messages to" and other labels that name no message · a channel with only one end drawn · a queue joining two systems with no declared owner |
 | `tools/reading-aids` | nothing on its own — it *measures* which of the keys the renderer advertises actually do something in your export, and refuses to call a key dead when the embedding was what blocked it |
@@ -251,6 +252,41 @@ tag" of one workspace at a time, which reported the bank's `Existing System` as 
 draws it, and payments' `Channel` and `Asynchronous` as unused while the bank has no queues. Three
 findings, all false, all from the right question against the wrong denominator. One theme serves every
 workspace, so the tags are unioned across all of them before the palette is judged.
+
+## Why, not just what
+
+Chapter 12 puts it in one sentence: the C4 views *"show the outcome of the decision-making process.
+The diagrams don't tell you why those decisions were made."* Its recommendation is a collection of
+architecture decision records beside them.
+
+```
+!adrs adrs                 # beside the workspace
+container "Checkout" {
+    !adrs adrs-checkout    # or beside the element it governs
+}
+```
+
+**Measured 2026-09-04, and this is the checkpoint where a preregistered death FIRED.**
+
+| claim | verdict |
+|---|---|
+| `!adrs` reaches `workspace.json` | **true** — every record, in full, at both scopes |
+| a decision links to the element it governs | **true in the model** — nested under that element, not an `elementId` field |
+| `!adrs` content survives the static export | **FALSE** — the site's bundle carries `documentation: {}`, zero decisions at either scope |
+
+So the panel is ours, which the plan preregistered as the fallback. `architecture/viewer.html` reads
+the records out of `workspace.json` — the file that still has them — and the rail gains a **Why**
+branch. A decision scoped to a container also appears on that container's own row, so the reasoning
+is reached from the element it governs rather than from a list.
+
+```bash
+npm run why
+```
+
+**The check guards what a panel cannot** — whether the decisions are worth reaching. A record with no
+status reads as Accepted to anyone skimming; one governing an element no view draws can only be found
+by reading the DSL, which is the opposite of putting it beside the diagram; and a `Superseded` record
+naming no successor tells a reader the rule is dead but not what replaced it.
 
 ## Honest limits
 

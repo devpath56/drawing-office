@@ -18,7 +18,11 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
 
         payments = softwareSystem "Payments Platform" "Takes payments, settles them, and tells people what happened." {
 
-            checkout = container "Checkout service" "Takes a payment instruction and validates it." "Java and Spring Boot"
+            checkout = container "Checkout service" "Takes a payment instruction and validates it." "Java and Spring Boot" {
+                /* SCOPED TO THIS CONTAINER, to measure whether a decision can be reached FROM the
+                   element it governs — the second of checkpoint 12's two preregistered deaths. */
+                !adrs adrs-checkout
+            }
 
             /* THE QUEUE IS A CONTAINER, not a bus. It is named for itself, and its technology names
                the broker that happens to host it — which is why the check reads it as a channel
@@ -45,6 +49,13 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
         notifications -> statementEvents "Subscribes to statement line events from" "JSON over SNS" "Asynchronous"
         auditArchive -> statementEvents "Subscribes to statement line events from" "JSON over SNS" "Asynchronous"
     }
+
+    /* THE DIAGRAMS SHOW THE OUTCOME, NOT THE REASONING. Chapter 12 is blunt about it: the C4 views
+       "show the outcome of the decision-making process. The diagrams don't tell you why those
+       decisions were made", and recommends a collection of architecture decision records beside
+       them. These two are real decisions this repo made and can be argued with — modelling every
+       queue as a container, and letting hue carry ownership while lightness carries depth. */
+    !adrs adrs
 
     views {
         systemContext payments "Context" "Who uses the platform." {
