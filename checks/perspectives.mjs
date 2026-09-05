@@ -57,6 +57,49 @@ export const TOOLTIP_PROPERTY = 'structurizr.tooltips';
 
 export const tooltipsOn = (view) => String(view?.properties?.[TOOLTIP_PROPERTY] ?? '') === 'true';
 
+/**
+ * STAMP `structurizr.tooltips` ON EVERY VIEW THAT LACKS IT. Returns { added, views }.
+ *
+ * EXPORTED BECAUSE IT WAS NOT, and that is why its defect survived. The writer lived inline in the
+ * CLI block, so nothing could call it and no planted fault could reach it — while the READER beside
+ * it had fourteen. Measured 2026-09-05: it sliced a FIXED 400 characters after each view's head
+ * line to ask "does this view already have the property", so a view shorter than that read its
+ * NEIGHBOUR's answer. On the No-Leak-MCP model it reported "all of them already had it" while
+ * SystemContext sat bare, and the check failed on that very view — the writer and the reader
+ * disagreeing about one file, with only the reader under test.
+ *
+ * The window is now the view's own block, counted by brace depth so a nested `properties` block
+ * does not end it early.
+ */
+export function stampTooltips(dsl, { read = fs, write = fs } = {}) {
+  const src = read.readFileSync(dsl, 'utf8');
+  const HEAD = /^([ \t]*)(systemLandscape|systemContext|container|component|dynamic|deployment)\b[^\n{]*\{[ \t]*$/gm;
+  const blockEnd = (s, open) => {
+    let depth = 0;
+    for (let i = open; i < s.length; i++) {
+      if (s[i] === '{') depth++;
+      else if (s[i] === '}' && --depth === 0) return i;
+    }
+    return s.length;
+  };
+  const already = new RegExp(TOOLTIP_PROPERTY.replace('.', '\\.'));
+  let added = 0, out = '', at = 0;
+  const views = [];
+  for (const m of src.matchAll(HEAD)) {
+    const lineEnd = src.indexOf('\n', m.index + m[0].length) + 1;
+    const window = src.slice(lineEnd, blockEnd(src, src.indexOf('{', m.index)));
+    views.push(m[0].trim());
+    if (already.test(window)) continue;
+    const pad = m[1] + '    ';
+    out += src.slice(at, lineEnd) + `${pad}properties {\n${pad}    "${TOOLTIP_PROPERTY}" "true"\n${pad}}\n`;
+    at = lineEnd;
+    added++;
+  }
+  out += src.slice(at);
+  if (added) write.writeFileSync(dsl, out);
+  return { added, views: views.length };
+}
+
 /** Every static view, with the ids it draws — the population a layer is measured against. */
 export function viewsOf(ws) {
   const out = [];
@@ -239,8 +282,38 @@ if (IS_MAIN) {
     mixed.model.softwareSystems[1].perspectives = mixed.model.softwareSystems[1].perspectives.filter(Boolean);
     say('a perspective carried by one element while another is carried by two fires on only the first', inspect(mixed).findings.filter((f) => f.rule === 'layer-of-one').length === 1, inspect(mixed).findings);
 
-    console.log(`\n${ok} of 14 held`);
-    process.exit(ok === 14 ? 0 : 1);
+    /* ── THE WRITER'S OWN WINDOW ──────────────────────────────────────────────────────────────
+       A SHORT VIEW FOLLOWED BY A STAMPED ONE. The first draft sliced a fixed 400 characters after
+       the head line, so a view shorter than that read its NEIGHBOUR's property and was skipped.
+       Measured on the No-Leak-MCP model: --write reported "all of them already had it" while
+       SystemContext sat bare and the check failed on that same view. The fixture below is that
+       shape, in miniature, and it is the writer that is under test rather than the reader. */
+    const twoViews = [
+      '    views {',
+      '        systemContext dsh "Short" {',
+      '            include *',
+      '        }',
+      '        container dsh "Stamped" {',
+      '            properties {',
+      '                "structurizr.tooltips" "true"',
+      '            }',
+      '            include *',
+      '        }',
+      '    }',
+    ].join('\n');
+    const tmp = path.join(fs.mkdtempSync(path.join(process.env.TMPDIR ?? '/tmp', 'persp-')), 'w.dsl');
+    fs.writeFileSync(tmp, twoViews);
+    const before = fs.readFileSync(tmp, 'utf8');
+    stampTooltips(tmp);
+    const after = fs.readFileSync(tmp, 'utf8');
+    const stampsIn = (s) => (s.match(/structurizr\.tooltips/g) ?? []).length;
+    say('a view shorter than the old fixed window still gets stamped, rather than reading its neighbour',
+      stampsIn(after) === 2 && stampsIn(before) === 1, { before: stampsIn(before), after: stampsIn(after) });
+    say('and the view that already had it is not stamped twice',
+      (after.match(/"structurizr\.tooltips" "true"/g) ?? []).length === 2, after.slice(0, 200));
+
+    console.log(`\n${ok} of 16 held`);
+    process.exit(ok === 16 ? 0 : 1);
   }
 
   const dir = path.join(root, 'architecture');
@@ -264,23 +337,8 @@ if (IS_MAIN) {
        operator hovering a dynamic view with tooltips off — which reads exactly like the tooltip
        being broken rather than being disabled on that view. A trace is where a reader most wants
        to hover: the steps are numbered and the boxes are dimmed. */
-    const HEAD = /^([ \t]*)(systemLandscape|systemContext|container|component|dynamic|deployment)\b[^\n{]*\{[ \t]*$/gm;
-    const already = new RegExp(TOOLTIP_PROPERTY.replace('.', '\\.'));
-    let added = 0, out = '', at = 0;
-    for (const m of src.matchAll(HEAD)) {
-      const lineEnd = src.indexOf('\n', m.index + m[0].length) + 1;
-      /* Look only as far as this view's own block, so a property on the NEXT view is not mistaken
-         for one on this one. */
-      const window = src.slice(lineEnd, lineEnd + 400);
-      if (already.test(window)) continue;
-      const pad = m[1] + '    ';
-      out += src.slice(at, lineEnd) + `${pad}properties {\n${pad}    "${TOOLTIP_PROPERTY}" "true"\n${pad}}\n`;
-      at = lineEnd;
-      added++;
-    }
-    out += src.slice(at);
-    if (added) fs.writeFileSync(dsl, out);
-    console.log(`${added} view(s) gained ${TOOLTIP_PROPERTY} in ${path.relative(process.cwd(), dsl)}${added ? ' — re-export before checking' : ' (all of them already had it)'}`);
+    const r = stampTooltips(dsl);
+    console.log(`${r.added} view(s) gained ${TOOLTIP_PROPERTY} in ${path.relative(process.cwd(), dsl)}${r.added ? ' — re-export before checking' : ' (all of them already had it)'}`);
     process.exit(0);
   }
 
