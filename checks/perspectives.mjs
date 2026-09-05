@@ -66,8 +66,37 @@ export function viewsOf(ws) {
   return out;
 }
 
+/**
+ * HOW MANY CHARACTERS FIT ON ONE LINE OF THE TOOLTIP, read from the wrapper rather than guessed.
+ *
+ * The operator's rule is that a bullet should not wrap. Whether it wraps is decided by two numbers
+ * that live in architecture/viewer.html — the tooltip's max-width and its font-size — so this reads
+ * them out of that file instead of keeping a second copy that drifts the first time either changes.
+ *
+ * The character estimate is honest about being one: SVG and HTML have no measuring without a
+ * renderer, so this uses the average advance of a proportional face at that size, 0.5em, and says so.
+ * It is deliberately GENEROUS — an over-wide estimate lets a borderline bullet through, and a
+ * false finding on a line that fits would teach its reader to ignore the rule.
+ *
+ * AND IT MEASURES THE MAXIMUM, WHICH IS NOT ALWAYS THE ACTUAL. The renderer places the tooltip at the
+ * cursor and squeezes it against the viewport edge, so a bullet inside this budget can still wrap on
+ * a box near the right-hand side. Measured 2026-09-05: two 95- and 101-character bullets fitted the
+ * budget and wrapped in place. The rule is a floor on legibility, not a promise about placement, and
+ * the practical advice it cannot enforce is to write the bullet shorter than the number says.
+ */
+export function lineBudget(root = HERE) {
+  try {
+    const src = fs.readFileSync(path.join(root, 'architecture', 'viewer.html'), 'utf8');
+    const width = Number(src.match(/max-width:\s*(\d+)px\s*!important/)?.[1]);
+    const size = Number(src.match(/font-size:\s*(\d+)px\s*!important/)?.[1]);
+    if (!width || !size) return null;
+    const PADDING = 32;                       // 16px each side, from the same rule
+    return { width, size, chars: Math.floor((width - PADDING) / (size * 0.5)) };
+  } catch { return null; }
+}
+
 /** Coverage per perspective per view, plus the layer-of-one refusal. */
-export function inspect(ws) {
+export function inspect(ws, { root = HERE } = {}) {
   const els = elements(ws);
   const byId = new Map(els.map((e) => [e.id, e]));
   const names = [...new Set(els.flatMap((e) => e.perspectives.map((p) => p.name)))].sort();
@@ -76,6 +105,7 @@ export function inspect(ws) {
   const findings = [];
   const coverage = [];
   const reported = new Set();
+  const budget = lineBudget(root);
 
   for (const name of names) {
     const carriers = els.filter((e) => e.perspectives.some((p) => p.name === name));
@@ -94,6 +124,27 @@ export function inspect(ws) {
       const drawn = [...v.ids].map((id) => byId.get(id)).filter(Boolean);
       const lit = drawn.filter((e) => e.perspectives.some((p) => p.name === name));
       coverage.push({ perspective: name, view: v.key, lit: lit.length, of: drawn.length, dark: drawn.filter((e) => !lit.includes(e)).map((e) => e.name) });
+      /* A BULLET THAT WRAPS IS A BULLET THAT STOPS SCANNING. The operator's rule, and it is
+         enforceable because the tooltip's width and type size are declared in one place. A heading
+         line is exempt: it carries no bullet marker and is meant to be short anyway. */
+      for (const e of lit) {
+        for (const p of e.perspectives.filter((x) => x.name === name)) {
+          for (const line of String(p.description ?? '').split('\n')) {
+            const text = line.trim();
+            if (!text.startsWith('·') || !budget || text.length <= budget.chars) continue;
+            const key = `${e.name}|${text}`;
+            if (reported.has(key)) continue;
+            reported.add(key);
+            findings.push({
+              rule: 'bullet-wraps',
+              where: `${e.name} · ${text.slice(0, 56)}…`,
+              why: `${text.length} characters against a ${budget.chars}-character line — ${budget.width}px at ${budget.size}px, read from architecture/viewer.html — so it wraps and stops being scannable`,
+              cite: 'ours — a hover is read at a glance or not at all',
+            });
+          }
+        }
+      }
+
       /* A LAYER THAT LIGHTS BOXES AND CANNOT BE READ. The dimming works without the tooltip, so this
          view would pass every other rule while carrying nothing a reader can reach. */
       if (lit.length && !v.tooltips && !reported.has(v.key)) {
@@ -147,6 +198,24 @@ if (IS_MAIN) {
 
     say('coverage names the denominator, so a reader can tell "no owner" from "not written down"', typeof cov.of === 'number' && cov.of > cov.lit, cov);
 
+    /* A BULLET THAT WRAPS. The budget is read from the wrapper's own CSS, so these cases build a
+       fake one rather than pinning a number that moves the day the tooltip is resized. */
+    const wide = { ...inspect(two), }; void wide;
+    const budget = lineBudget();
+    say('the line budget is derived from the wrapper, not typed here', budget && budget.chars > 40 && budget.width > 0, budget);
+    const longOne = JSON.parse(JSON.stringify(two));
+    longOne.model.softwareSystems[0].perspectives = [{ name: 'Ownership', description: '· ' + 'x'.repeat((budget?.chars ?? 100) + 20) }];
+    longOne.views.systemLandscapeViews[0].properties = { 'structurizr.tooltips': 'true' };
+    say('a bullet longer than one line is caught', inspect(longOne).findings.some((f) => f.rule === 'bullet-wraps'), inspect(longOne).findings.map((f) => f.rule));
+    const shortOne = JSON.parse(JSON.stringify(longOne));
+    shortOne.model.softwareSystems[0].perspectives = [{ name: 'Ownership', description: '· ' + 'x'.repeat(20) }];
+    say('one that fits is accepted', !inspect(shortOne).findings.some((f) => f.rule === 'bullet-wraps'), inspect(shortOne).findings.map((f) => f.rule));
+    /* A HEADING IS NOT A BULLET. It carries no marker and is meant to be short; refusing a long one
+       would be measuring the wrong line. */
+    const heading = JSON.parse(JSON.stringify(longOne));
+    heading.model.softwareSystems[0].perspectives = [{ name: 'Ownership', description: 'x'.repeat((budget?.chars ?? 100) + 20) }];
+    say('a heading line is exempt, because it carries no bullet marker', !inspect(heading).findings.some((f) => f.rule === 'bullet-wraps'), inspect(heading).findings.map((f) => f.rule));
+
     /* THE LAYER MUST BE READABLE. Measured: the renderer's tooltip is off by default, so a view that
        lights boxes and does not turn it on shows the reader a dimming and nothing else. */
     say('a view that lights a layer and leaves tooltips off is caught', inspect(two).findings.some((f) => f.rule === 'layer-cannot-be-read'), inspect(two).findings.map((f) => f.rule));
@@ -170,8 +239,8 @@ if (IS_MAIN) {
     mixed.model.softwareSystems[1].perspectives = mixed.model.softwareSystems[1].perspectives.filter(Boolean);
     say('a perspective carried by one element while another is carried by two fires on only the first', inspect(mixed).findings.filter((f) => f.rule === 'layer-of-one').length === 1, inspect(mixed).findings);
 
-    console.log(`\n${ok} of 10 held`);
-    process.exit(ok === 10 ? 0 : 1);
+    console.log(`\n${ok} of 14 held`);
+    process.exit(ok === 14 ? 0 : 1);
   }
 
   const dir = path.join(root, 'architecture');
@@ -220,7 +289,7 @@ if (IS_MAIN) {
     let ws;
     try { ws = JSON.parse(fs.readFileSync(f, 'utf8')); }
     catch (e) { console.log(`UNEVALUABLE — ${f} does not parse: ${e.message}`); process.exit(3); }
-    const r = inspect(ws);
+    const r = inspect(ws, { root });
     console.log(`\n  perspectives · ${path.relative(process.cwd(), f)}`);
     if (r.state === 'ABSENT') { console.log('    ABSENT — this workspace declares no perspective, which is an answer, not a pass'); continue; }
     for (const c of r.coverage) {
