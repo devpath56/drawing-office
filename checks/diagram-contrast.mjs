@@ -86,7 +86,7 @@ function readTheme(file) {
    as objects that happen to have the same keys in a different order. */
 const norm = (row) => {
   const out = {};
-  for (const k of ['tag', 'background', 'stroke', 'color', 'shape', 'fontSize', 'strokeWidth']) {
+  for (const k of ['tag', 'background', 'stroke', 'color', 'shape', 'fontSize', 'strokeWidth', 'dashed']) {
     if (row[k] === undefined || row[k] === null) continue;
     out[k] = typeof row[k] === 'string' && row[k].startsWith('#') ? row[k].toLowerCase() : row[k];
   }
@@ -222,6 +222,9 @@ function stylesBlock(theme, indent = '        ') {
     lines.push(`${i2}relationship "${rel.tag}" {`);
     if (rel.color) lines.push(`${i2}    color ${rel.color}`);
     if (rel.fontSize) lines.push(`${i2}    fontSize ${rel.fontSize}`);
+    /* dashed is written even when false: the renderer's default is not this repo's default, and a
+       style that depends on the renderer's taste is a style the theme does not actually own. */
+    if (rel.dashed !== undefined) lines.push(`${i2}    dashed ${rel.dashed === true || rel.dashed === 'true'}`);
     lines.push(`${i2}}`);
   }
   lines.push(`${indent}}`);

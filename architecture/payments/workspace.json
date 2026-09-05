@@ -1,0 +1,393 @@
+{
+  "configuration" : { },
+  "description" : "A message-driven architecture, modelled per chapter 11 of the C4 model.",
+  "documentation" : { },
+  "id" : 0,
+  "model" : {
+    "people" : [ {
+      "description" : "Someone paying for something.",
+      "id" : "1",
+      "name" : "Cardholder",
+      "properties" : {
+        "structurizr.dsl.identifier" : "cardholder"
+      },
+      "relationships" : [ {
+        "description" : "Submits a payment using",
+        "destinationId" : "3",
+        "id" : "10",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Submits a payment using",
+        "destinationId" : "2",
+        "id" : "11",
+        "linkedRelationshipId" : "10",
+        "sourceId" : "1"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "containers" : [ {
+        "description" : "Takes a payment instruction and validates it.",
+        "documentation" : { },
+        "id" : "3",
+        "name" : "Checkout service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "checkout"
+        },
+        "relationships" : [ {
+          "description" : "Sends payment requested events to",
+          "destinationId" : "4",
+          "id" : "12",
+          "sourceId" : "3",
+          "tags" : "Relationship,Asynchronous",
+          "technology" : "JSON over SQS"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Java and Spring Boot"
+      }, {
+        "description" : "One message per payment awaiting settlement.",
+        "documentation" : { },
+        "id" : "4",
+        "name" : "Payment requested queue",
+        "properties" : {
+          "structurizr.dsl.identifier" : "paymentRequests"
+        },
+        "relationships" : [ {
+          "description" : "Delivers payment requested events to",
+          "destinationId" : "5",
+          "id" : "13",
+          "sourceId" : "4",
+          "tags" : "Relationship,Asynchronous",
+          "technology" : "JSON over SQS"
+        } ],
+        "tags" : "Element,Container,Channel",
+        "technology" : "Amazon SQS"
+      }, {
+        "description" : "Moves money and records the outcome.",
+        "documentation" : { },
+        "id" : "5",
+        "name" : "Settlement service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "settlement"
+        },
+        "relationships" : [ {
+          "description" : "Records the settled payment in",
+          "destinationId" : "6",
+          "id" : "14",
+          "sourceId" : "5",
+          "tags" : "Relationship",
+          "technology" : "JSON over HTTPS"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Java and Spring Boot"
+      }, {
+        "description" : "The book of record for every settled payment.",
+        "documentation" : { },
+        "id" : "6",
+        "name" : "Ledger service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ledger"
+        },
+        "relationships" : [ {
+          "description" : "Publishes statement line events to",
+          "destinationId" : "7",
+          "id" : "15",
+          "sourceId" : "6",
+          "tags" : "Relationship,Asynchronous",
+          "technology" : "JSON over SNS"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Java and Spring Boot"
+      }, {
+        "description" : "One event per line added to the book of record.",
+        "documentation" : { },
+        "id" : "7",
+        "name" : "Statement events topic",
+        "properties" : {
+          "structurizr.dsl.identifier" : "statementEvents"
+        },
+        "tags" : "Element,Container,Channel",
+        "technology" : "Amazon SNS"
+      }, {
+        "description" : "Tells a cardholder what happened to their money.",
+        "documentation" : { },
+        "id" : "8",
+        "name" : "Notification service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "notifications"
+        },
+        "relationships" : [ {
+          "description" : "Subscribes to statement line events from",
+          "destinationId" : "7",
+          "id" : "16",
+          "sourceId" : "8",
+          "tags" : "Relationship,Asynchronous",
+          "technology" : "JSON over SNS"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Keeps every statement event for seven years.",
+        "documentation" : { },
+        "id" : "9",
+        "name" : "Audit archive",
+        "properties" : {
+          "structurizr.dsl.identifier" : "auditArchive"
+        },
+        "relationships" : [ {
+          "description" : "Subscribes to statement line events from",
+          "destinationId" : "7",
+          "id" : "17",
+          "sourceId" : "9",
+          "tags" : "Relationship,Asynchronous",
+          "technology" : "JSON over SNS"
+        } ],
+        "tags" : "Element,Container,Data Store",
+        "technology" : "Amazon S3"
+      } ],
+      "description" : "Takes payments, settles them, and tells people what happened.",
+      "documentation" : { },
+      "id" : "2",
+      "name" : "Payments Platform",
+      "properties" : {
+        "structurizr.dsl.identifier" : "payments"
+      },
+      "tags" : "Element,Software System"
+    } ]
+  },
+  "name" : "Payments Platform",
+  "properties" : {
+    "structurizr.inspection.error" : "6",
+    "structurizr.dsl" : "LyoKICogQSBNRVNTQUdFLURSSVZFTiBBUkNISVRFQ1RVUkUsIG1vZGVsbGVkIHRoZSB3YXkgY2hhcHRlciAxMSBzYXlzIHRvIG1vZGVsIG9uZS4KICoKICogSXQgZXhpc3RzIHRvIGJlIHRoZSB3b3JrZWQgZXhhbXBsZSBiZWhpbmQgY2hlY2tzL3B1YnN1Yi5tanMsIHNvIGl0IGNhcnJpZXMgYm90aCBzaGFwZXMgdGhlIGNoYXB0ZXIKICogZGlzdGluZ3Vpc2hlczogYSBQT0lOVC1UTy1QT0lOVCBjb3VwbGluZyB0aHJvdWdoIGEgcXVldWUgKEZpZ3VyZSAxMS0yMCkgYW5kIGEgT05FLVRPLU1BTlkgZmFuLW91dAogKiB0aHJvdWdoIGEgdG9waWMgKEZpZ3VyZSAxMS0yMikuIFdoYXQgaXQgZGVsaWJlcmF0ZWx5IGRvZXMgTk9UIGNhcnJ5IGlzIGEgbWVzc2FnZSBidXMgY29udGFpbmVyIOKAlAogKiB0aGF0IGlzIEZpZ3VyZSAxMS0xOSwgd2hpY2ggdGhlIGNoYXB0ZXIncyBvd24gY2FwdGlvbiBjYWxscyBpbmNvcnJlY3QsIGFuZCB0aGUgY2hlY2sgcmVmdXNlcyBpdC4KICoKICogRXZlcnkgcXVldWUgYW5kIHRvcGljIGlzIGEgY29udGFpbmVyIGJlY2F1c2UgY2hhcHRlciAxMSBydWxlcyB0aGF0ICJhIG1lc3NhZ2UgcXVldWUgb3IgdG9waWMgaXMKICogZXNzZW50aWFsbHkgYSBkYXRhIHN0b3JlIHRvbyIuIEV2ZXJ5IG1lc3NhZ2UgbGFiZWwgbmFtZXMgaXRzIG1lc3NhZ2UgcmF0aGVyIHRoYW4gc2F5aW5nICJzZW5kcwogKiBtZXNzYWdlcyB0byIsIHdoaWNoIGlzIHRoZSBpbXByb3ZlbWVudCB0aGUgY2hhcHRlciBzcGVsbHMgb3V0LiBFdmVyeSBob3AgdGhyb3VnaCBhIGNoYW5uZWwgaXMKICogdGFnZ2VkIEFzeW5jaHJvbm91cywgd2hpY2ggYXJjaGl0ZWN0dXJlL3RoZW1lLmpzb24gcmVuZGVycyBkYXNoZWQuCiAqLwp3b3Jrc3BhY2UgIlBheW1lbnRzIFBsYXRmb3JtIiAiQSBtZXNzYWdlLWRyaXZlbiBhcmNoaXRlY3R1cmUsIG1vZGVsbGVkIHBlciBjaGFwdGVyIDExIG9mIHRoZSBDNCBtb2RlbC4iIHsKCiAgICBtb2RlbCB7CiAgICAgICAgY2FyZGhvbGRlciA9IHBlcnNvbiAiQ2FyZGhvbGRlciIgIlNvbWVvbmUgcGF5aW5nIGZvciBzb21ldGhpbmcuIgoKICAgICAgICBwYXltZW50cyA9IHNvZnR3YXJlU3lzdGVtICJQYXltZW50cyBQbGF0Zm9ybSIgIlRha2VzIHBheW1lbnRzLCBzZXR0bGVzIHRoZW0sIGFuZCB0ZWxscyBwZW9wbGUgd2hhdCBoYXBwZW5lZC4iIHsKCiAgICAgICAgICAgIGNoZWNrb3V0ID0gY29udGFpbmVyICJDaGVja291dCBzZXJ2aWNlIiAiVGFrZXMgYSBwYXltZW50IGluc3RydWN0aW9uIGFuZCB2YWxpZGF0ZXMgaXQuIiAiSmF2YSBhbmQgU3ByaW5nIEJvb3QiCgogICAgICAgICAgICAvKiBUSEUgUVVFVUUgSVMgQSBDT05UQUlORVIsIG5vdCBhIGJ1cy4gSXQgaXMgbmFtZWQgZm9yIGl0c2VsZiwgYW5kIGl0cyB0ZWNobm9sb2d5IG5hbWVzCiAgICAgICAgICAgICAgIHRoZSBicm9rZXIgdGhhdCBoYXBwZW5zIHRvIGhvc3QgaXQg4oCUIHdoaWNoIGlzIHdoeSB0aGUgY2hlY2sgcmVhZHMgaXQgYXMgYSBjaGFubmVsCiAgICAgICAgICAgICAgIHJhdGhlciB0aGFuIGFzIHRoZSBidXMuICovCiAgICAgICAgICAgIHBheW1lbnRSZXF1ZXN0cyA9IGNvbnRhaW5lciAiUGF5bWVudCByZXF1ZXN0ZWQgcXVldWUiICJPbmUgbWVzc2FnZSBwZXIgcGF5bWVudCBhd2FpdGluZyBzZXR0bGVtZW50LiIgIkFtYXpvbiBTUVMiICJDaGFubmVsIgoKICAgICAgICAgICAgc2V0dGxlbWVudCA9IGNvbnRhaW5lciAiU2V0dGxlbWVudCBzZXJ2aWNlIiAiTW92ZXMgbW9uZXkgYW5kIHJlY29yZHMgdGhlIG91dGNvbWUuIiAiSmF2YSBhbmQgU3ByaW5nIEJvb3QiCgogICAgICAgICAgICBsZWRnZXIgPSBjb250YWluZXIgIkxlZGdlciBzZXJ2aWNlIiAiVGhlIGJvb2sgb2YgcmVjb3JkIGZvciBldmVyeSBzZXR0bGVkIHBheW1lbnQuIiAiSmF2YSBhbmQgU3ByaW5nIEJvb3QiCgogICAgICAgICAgICAvKiBUSEUgVE9QSUMgSVMgVEhFIE9ORS1UTy1NQU5ZIENBU0UuIFR3byBzdWJzY3JpYmVycywgYW5kIHRoZSBjaGFwdGVyIHNheXMgdGhlIGF1dGhvciBtYXkKICAgICAgICAgICAgICAgcG9pbnQgdGhlIGFycm93cyBlaXRoZXIgd2F5IHRvIHNob3cgdGhlIHN1YnNjcmlwdGlvbjsgdGhleSBwb2ludCBpbndhcmQgaGVyZS4gKi8KICAgICAgICAgICAgc3RhdGVtZW50RXZlbnRzID0gY29udGFpbmVyICJTdGF0ZW1lbnQgZXZlbnRzIHRvcGljIiAiT25lIGV2ZW50IHBlciBsaW5lIGFkZGVkIHRvIHRoZSBib29rIG9mIHJlY29yZC4iICJBbWF6b24gU05TIiAiQ2hhbm5lbCIKCiAgICAgICAgICAgIG5vdGlmaWNhdGlvbnMgPSBjb250YWluZXIgIk5vdGlmaWNhdGlvbiBzZXJ2aWNlIiAiVGVsbHMgYSBjYXJkaG9sZGVyIHdoYXQgaGFwcGVuZWQgdG8gdGhlaXIgbW9uZXkuIgogICAgICAgICAgICBhdWRpdEFyY2hpdmUgPSBjb250YWluZXIgIkF1ZGl0IGFyY2hpdmUiICJLZWVwcyBldmVyeSBzdGF0ZW1lbnQgZXZlbnQgZm9yIHNldmVuIHllYXJzLiIgIkFtYXpvbiBTMyIgIkRhdGEgU3RvcmUiCiAgICAgICAgfQoKICAgICAgICBjYXJkaG9sZGVyIC0+IGNoZWNrb3V0ICJTdWJtaXRzIGEgcGF5bWVudCB1c2luZyIKICAgICAgICBjaGVja291dCAtPiBwYXltZW50UmVxdWVzdHMgIlNlbmRzIHBheW1lbnQgcmVxdWVzdGVkIGV2ZW50cyB0byIgIkpTT04gb3ZlciBTUVMiICJBc3luY2hyb25vdXMiCiAgICAgICAgcGF5bWVudFJlcXVlc3RzIC0+IHNldHRsZW1lbnQgIkRlbGl2ZXJzIHBheW1lbnQgcmVxdWVzdGVkIGV2ZW50cyB0byIgIkpTT04gb3ZlciBTUVMiICJBc3luY2hyb25vdXMiCiAgICAgICAgc2V0dGxlbWVudCAtPiBsZWRnZXIgIlJlY29yZHMgdGhlIHNldHRsZWQgcGF5bWVudCBpbiIgIkpTT04gb3ZlciBIVFRQUyIKICAgICAgICBsZWRnZXIgLT4gc3RhdGVtZW50RXZlbnRzICJQdWJsaXNoZXMgc3RhdGVtZW50IGxpbmUgZXZlbnRzIHRvIiAiSlNPTiBvdmVyIFNOUyIgIkFzeW5jaHJvbm91cyIKICAgICAgICBub3RpZmljYXRpb25zIC0+IHN0YXRlbWVudEV2ZW50cyAiU3Vic2NyaWJlcyB0byBzdGF0ZW1lbnQgbGluZSBldmVudHMgZnJvbSIgIkpTT04gb3ZlciBTTlMiICJBc3luY2hyb25vdXMiCiAgICAgICAgYXVkaXRBcmNoaXZlIC0+IHN0YXRlbWVudEV2ZW50cyAiU3Vic2NyaWJlcyB0byBzdGF0ZW1lbnQgbGluZSBldmVudHMgZnJvbSIgIkpTT04gb3ZlciBTTlMiICJBc3luY2hyb25vdXMiCiAgICB9CgogICAgdmlld3MgewogICAgICAgIHN5c3RlbUNvbnRleHQgcGF5bWVudHMgIkNvbnRleHQiICJXaG8gdXNlcyB0aGUgcGxhdGZvcm0uIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0IGxyIDUwMCA0MDAKICAgICAgICB9CgogICAgICAgIGNvbnRhaW5lciBwYXltZW50cyAiQ29udGFpbmVycyIgIlRoZSBzZXJ2aWNlcywgYW5kIHRoZSB0d28gY2hhbm5lbHMgdGhleSB0YWxrIHRocm91Z2guIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0IGxyIDUwMCA0MDAKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgcGF5bWVudHMgIlNldHRsZSIgIk9uZSBwYXltZW50LCBmcm9tIHN1Ym1pc3Npb24gdG8gdGhlIGNhcmRob2xkZXIgYmVpbmcgdG9sZC4iIHsKICAgICAgICAgICAgY2FyZGhvbGRlciAtPiBjaGVja291dCAiU3VibWl0cyBhIHBheW1lbnQiCiAgICAgICAgICAgIGNoZWNrb3V0IC0+IHBheW1lbnRSZXF1ZXN0cyAiU2VuZHMgYSBwYXltZW50IHJlcXVlc3RlZCBldmVudCIKICAgICAgICAgICAgcGF5bWVudFJlcXVlc3RzIC0+IHNldHRsZW1lbnQgIkRlbGl2ZXJzIHRoZSBwYXltZW50IHJlcXVlc3RlZCBldmVudCIKICAgICAgICAgICAgc2V0dGxlbWVudCAtPiBsZWRnZXIgIlJlY29yZHMgdGhlIHNldHRsZWQgcGF5bWVudCIKICAgICAgICAgICAgbGVkZ2VyIC0+IHN0YXRlbWVudEV2ZW50cyAiUHVibGlzaGVzIGEgc3RhdGVtZW50IGxpbmUgZXZlbnQiCiAgICAgICAgICAgIG5vdGlmaWNhdGlvbnMgLT4gc3RhdGVtZW50RXZlbnRzICJQaWNrcyB1cCB0aGUgc3RhdGVtZW50IGxpbmUgZXZlbnQiCiAgICAgICAgICAgIGF1dG9MYXlvdXQgbHIgNTAwIDQwMAogICAgICAgIH0KCiAgICAgICAgLyogR0VORVJBVEVEIEZST00gYXJjaGl0ZWN0dXJlL3RoZW1lLmpzb24gYnkgY2hlY2tzL2RpYWdyYW0tY29udHJhc3QubWpzIC0td3JpdGUuCiAgICAgICAgICAgRWRpdCB0aGUgdGhlbWUsIG5vdCB0aGlzIGJsb2NrOiB0aGUgY2hlY2sgcmVmdXNlcyBhbnkgZHJpZnQgYmV0d2VlbiB0aGVtLiAqLwogICAgICAgIHN0eWxlcyB7CiAgICAgICAgICAgIGVsZW1lbnQgIkVsZW1lbnQiIHsKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgICAgIHN0cm9rZVdpZHRoIDIKICAgICAgICAgICAgICAgIGZvbnRTaXplIDI2CiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiUGVyc29uIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBQZXJzb24KICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzJiM2EzMwogICAgICAgICAgICAgICAgc3Ryb2tlICM2ZmE1ODgKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJFeGlzdGluZyBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzJiM2EzMwogICAgICAgICAgICAgICAgc3Ryb2tlICM2ZmE1ODgKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJTb2Z0d2FyZSBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzNmNDM4MwogICAgICAgICAgICAgICAgc3Ryb2tlICNhNWE5ZjAKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJDb250YWluZXIiIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzVhNWZhNgogICAgICAgICAgICAgICAgc3Ryb2tlICNiOWJkZjUKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJDb21wb25lbnQiIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzhiOTJjZQogICAgICAgICAgICAgICAgc3Ryb2tlICNkMmQ1ZmEKICAgICAgICAgICAgICAgIGNvbG9yICMxNDE2MmIKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJEYXRhIFN0b3JlIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBDeWxpbmRlcgogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjNWE1ZmE2CiAgICAgICAgICAgICAgICBzdHJva2UgI2I5YmRmNQogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkNoYW5uZWwiIHsKICAgICAgICAgICAgICAgIHNoYXBlIFBpcGUKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzVhNWZhNgogICAgICAgICAgICAgICAgc3Ryb2tlICNiOWJkZjUKICAgICAgICAgICAgfQogICAgICAgICAgICByZWxhdGlvbnNoaXAgIlJlbGF0aW9uc2hpcCIgewogICAgICAgICAgICAgICAgY29sb3IgI2Q3ZGJlMwogICAgICAgICAgICAgICAgZm9udFNpemUgMjQKICAgICAgICAgICAgfQogICAgICAgICAgICByZWxhdGlvbnNoaXAgIkFzeW5jaHJvbm91cyIgewogICAgICAgICAgICAgICAgY29sb3IgI2Q3ZGJlMwogICAgICAgICAgICAgICAgZm9udFNpemUgMjQKICAgICAgICAgICAgICAgIGRhc2hlZCB0cnVlCiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9Cn0=",
+    "structurizr.inspection.info" : "0",
+    "structurizr.inspection.ignore" : "0",
+    "structurizr.inspection.warning" : "0"
+  },
+  "views" : {
+    "configuration" : {
+      "branding" : { },
+      "styles" : {
+        "elements" : [ {
+          "background" : "#5a5fa6",
+          "shape" : "Pipe",
+          "stroke" : "#b9bdf5",
+          "tag" : "Channel"
+        }, {
+          "background" : "#8b92ce",
+          "color" : "#14162b",
+          "stroke" : "#d2d5fa",
+          "tag" : "Component"
+        }, {
+          "background" : "#5a5fa6",
+          "stroke" : "#b9bdf5",
+          "tag" : "Container"
+        }, {
+          "background" : "#5a5fa6",
+          "shape" : "Cylinder",
+          "stroke" : "#b9bdf5",
+          "tag" : "Data Store"
+        }, {
+          "color" : "#ffffff",
+          "fontSize" : 26,
+          "strokeWidth" : 2,
+          "tag" : "Element"
+        }, {
+          "background" : "#2b3a33",
+          "stroke" : "#6fa588",
+          "tag" : "Existing System"
+        }, {
+          "background" : "#2b3a33",
+          "shape" : "Person",
+          "stroke" : "#6fa588",
+          "tag" : "Person"
+        }, {
+          "background" : "#3f4383",
+          "stroke" : "#a5a9f0",
+          "tag" : "Software System"
+        } ],
+        "relationships" : [ {
+          "color" : "#d7dbe3",
+          "dashed" : true,
+          "fontSize" : 24,
+          "tag" : "Asynchronous"
+        }, {
+          "color" : "#d7dbe3",
+          "fontSize" : 24,
+          "tag" : "Relationship"
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The services, and the two channels they talk through.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "Containers",
+      "name" : "Container View: Payments Platform",
+      "order" : 2,
+      "relationships" : [ {
+        "id" : "10"
+      }, {
+        "id" : "12"
+      }, {
+        "id" : "13"
+      }, {
+        "id" : "14"
+      }, {
+        "id" : "15"
+      }, {
+        "id" : "16"
+      }, {
+        "id" : "17"
+      } ],
+      "softwareSystemId" : "2"
+    } ],
+    "dynamicViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "One payment, from submission to the cardholder being told.",
+      "elementId" : "2",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "Settle",
+      "name" : "Dynamic View: Payments Platform",
+      "order" : 3,
+      "relationships" : [ {
+        "description" : "Submits a payment",
+        "id" : "10",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Sends a payment requested event",
+        "id" : "12",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Delivers the payment requested event",
+        "id" : "13",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "Records the settled payment",
+        "id" : "14",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "Publishes a statement line event",
+        "id" : "15",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "Picks up the statement line event",
+        "id" : "16",
+        "order" : "6",
+        "response" : false
+      } ]
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "Who uses the platform.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "Context",
+      "name" : "System Context View: Payments Platform",
+      "order" : 1,
+      "relationships" : [ {
+        "id" : "11"
+      } ],
+      "softwareSystemId" : "2"
+    } ]
+  }
+}

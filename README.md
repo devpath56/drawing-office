@@ -26,6 +26,7 @@ They were one directory until a review pointed out that one folder was carrying 
 | check | refuses |
 |---|---|
 | `diagram-contrast` | a workspace whose colours drifted from `architecture/theme.json` · any text-on-fill or stroke-on-canvas pair under its floor · a lightness ladder that would not survive black-and-white printing · a dynamic view whose steps are not 1..n, contiguous, in DSL order |
+| `pubsub` | a message bus modelled as a container · a queue or topic drawn as a plain box · a hop through one drawn as a solid line · "Sends messages to" and other labels that name no message · a channel with only one end drawn · a queue joining two systems with no declared owner |
 | `tools/diagram-collisions` | a label lying across a box, across another label, or escaping its own box |
 | `tools/trace-suggest` | nothing — it *recommends*. Which features deserve a trace is a product judgement |
 | `tools/trace-animate` | nothing — it writes the animation frames the exporter does not |
@@ -109,6 +110,41 @@ The palette came from a NotebookLM mindmap and then had to earn it: its own fill
 against its ground, so every element carries a stroke measured against the canvas instead.
 
 ---
+
+## Queues and topics
+
+Chapter 11 opens its message-driven section by naming the mistake everyone makes, in a figure caption:
+**Figure 11-19, "incorrectly representing the message bus as a C4 container"**. Figure 11-20 is the
+same architecture done right. `checks/pubsub.mjs` exists to tell those two models apart.
+
+The chapter's ruling is short: **a queue or topic is a C4 container; the bus is not.** A container is
+an application or a data store, and a bus is neither — but a single queue is "essentially a data store
+too … with producers adding data and consumers taking it away". One box per queue, none for the broker.
+
+```bash
+npm run pubsub
+```
+
+| rule | comes from |
+|---|---|
+| the bus is not a container | ch11, Figure 11-19 — by its own caption |
+| a queue or topic is drawn as a pipe | ch10, "Pipes to represent message queues/topics" |
+| a hop through one is drawn dashed | ch10, "solid for synchronous, dashed for asynchronous" |
+| the label names the message | ch11, "'Sends messages to' is very generic" |
+| a queue crossing two systems declares an owner | ch11, "consider who owns the queues and topics" |
+| a channel has both ends drawn | **ours, not the book's**, and it says so in every finding |
+
+**Two of those the book offers rather than requires.** C4 is notation independent and chapter 10 says
+so in its first paragraph; the pipe and the dashed line are conventions this repo picks up and then
+holds everything to, because a convention nobody enforces buys a reader nothing. They live in
+`architecture/theme.json` — change them there, not in the check.
+
+**The arrows may point either way.** Chapter 11 says to flip them to show publisher and subscriber
+roles, so the half-open rule counts a channel's *neighbours*, never its inbound against its outbound.
+A topic with two subscribers both drawn inward is Figure 11-22 and is clean.
+
+`architecture/payments/` is the worked example: a point-to-point queue and a topic with two
+subscribers, on one plate.
 
 ## Honest limits
 
