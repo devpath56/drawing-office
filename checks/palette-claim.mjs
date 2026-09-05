@@ -34,6 +34,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { boundaryTags } from './model.mjs';
+
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 export const STATES = Object.freeze(['clean', 'findings', 'UNEVALUABLE']);
@@ -41,7 +43,7 @@ export const OWNERSHIP = Object.freeze(['ours', 'not ours']);
 
 export const norm = (c) => String(c ?? '').trim().toLowerCase();
 
-export function inspect(theme) {
+export function inspect(theme, { boundaries = new Set() } = {}) {
   const hues = theme?.hues;
   if (!hues || !Object.keys(hues).length) {
     return { state: 'UNEVALUABLE', why: 'theme.json declares no `hues`, so nothing says what a fill claims', findings: [], rows: 0 };
@@ -62,6 +64,15 @@ export function inspect(theme) {
         why: 'this fill is not in theme.json\'s `hues`, so the palette cannot say what it claims and nobody can check whether it is true',
       });
       continue;
+    }
+    if (noClaim.has(row.tag) && !boundaries.has(row.tag) && boundaries.size) {
+      findings.push({
+        rule: 'not-a-boundary',
+        where: `${row.tag} · declared noClaim`,
+        why: 'nothing in the model that carries this tag CONTAINS anything, so it is a leaf rather than a '
+           + 'boundary, and the frame treatment draws a thing that runs as an empty box. Only a container of '
+           + 'other elements may decline to make a hue claim',
+      });
     }
     if (noClaim.has(row.tag) && OWNERSHIP.includes(claim.get(fill))) {
       findings.push({
@@ -126,13 +137,44 @@ if (IS_MAIN) {
     say('and the report says how many rows it judged, so clean is not empty',
       inspect(base).rows === 2, inspect(base).rows);
 
+    /* ── THE EXEMPTION MUST BE EARNED, NOT TYPED ──────────────────────────────────────────────
+       "Infrastructure Node" sat in noClaim because its author put it there by analogy, one commit
+       after this check shipped claiming to guard the palette. It holds nothing, so the detection
+       worker rendered as a 450x300 empty box and the operator found it by hand. */
+    const model = { model: { deploymentNodes: [
+      { name: 'Render', tags: 'Element,Deployment Node', infrastructureNodes: [{ name: 'Worker', tags: 'Element,Infrastructure Node' }] },
+    ] } };
+    const bounds = boundaryTags(model);
+    say('a tag that CONTAINS something is a boundary', bounds.has('Deployment Node'), [...bounds]);
+    say('and a tag that holds nothing is NOT, however it was declared', !bounds.has('Infrastructure Node'), [...bounds]);
+
+    const typed = { ...base, noClaim: ['Deployment Node', 'Infrastructure Node'],
+      elements: [...base.elements, { tag: 'Infrastructure Node', background: '#1f2226' }] };
+    say('the defect fires — a leaf declared noClaim takes the frame treatment',
+      inspect(typed, { boundaries: bounds }).findings.some((f) => f.rule === 'not-a-boundary'), inspect(typed, { boundaries: bounds }).findings);
+    say('and a real boundary in the same list does not fire',
+      !inspect({ ...base, noClaim: ['Deployment Node'], elements: [...base.elements, { tag: 'Deployment Node', background: '#1f2226' }] }, { boundaries: bounds })
+        .findings.some((f) => f.rule === 'not-a-boundary'), 'boundary ok');
+    say('with no model to read the rule stays silent rather than guessing',
+      !inspect(typed, { boundaries: new Set() }).findings.some((f) => f.rule === 'not-a-boundary'), 'NOT-CHECKED');
+
     /* THE LIVE PALETTE. Asserted CLEAN here on purpose: unlike a tree full of other people's
        modules, this file is the subject and its state is the thing under test. */
     const live = JSON.parse(fs.readFileSync(path.join(HERE, 'architecture', 'theme.json'), 'utf8'));
-    say('the shipped palette makes no false ownership claim', inspect(live).state === 'clean', inspect(live).findings);
+    /* THE DENOMINATOR IS EVERY MODEL IN THE ROOT, which is what the CLI does. The first draft read
+       payments alone — a model with no deployment nodes — so "Deployment Node" was not a boundary
+       there and the shipped palette failed its own rule. A narrower denominator than the caller's
+       is a fixture that tests a different question. */
+    const liveBounds = new Set();
+    for (const d of fs.readdirSync(path.join(HERE, 'architecture'), { withFileTypes: true })) {
+      if (!d.isDirectory()) continue;
+      const f = path.join(HERE, 'architecture', d.name, 'workspace.json');
+      if (fs.existsSync(f)) for (const t of boundaryTags(JSON.parse(fs.readFileSync(f, 'utf8')))) liveBounds.add(t);
+    }
+    say('the shipped palette makes no false ownership claim', inspect(live, { boundaries: liveBounds }).state === 'clean', inspect(live, { boundaries: liveBounds }).findings);
 
-    console.log(`\n${ok} of 11 held`);
-    process.exit(ok === 11 ? 0 : 1);
+    console.log(`\n${ok} of 16 held`);
+    process.exit(ok === 16 ? 0 : 1);
   }
 
   const file = path.join(root, 'architecture', 'theme.json');
@@ -140,7 +182,19 @@ if (IS_MAIN) {
   try { theme = JSON.parse(fs.readFileSync(file, 'utf8')); }
   catch (e) { console.log(`UNEVALUABLE — ${file} could not be read: ${e.message}`); process.exit(3); }
 
-  const r = inspect(theme);
+  /* THE BOUNDARY DENOMINATOR comes from the models in this root. With none readable the third rule
+     stays silent, which is NOT-CHECKED rather than clean. */
+  const dir = path.join(root, 'architecture');
+  let boundaries = new Set();
+  if (fs.existsSync(dir)) {
+    for (const d of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (!d.isDirectory()) continue;
+      const f = path.join(dir, d.name, 'workspace.json');
+      if (!fs.existsSync(f)) continue;
+      try { for (const t of boundaryTags(JSON.parse(fs.readFileSync(f, 'utf8')))) boundaries.add(t); } catch { /* a model that will not parse is another check's finding */ }
+    }
+  }
+  const r = inspect(theme, { boundaries });
   if (r.state === 'UNEVALUABLE') { console.log(`UNEVALUABLE — ${r.why}`); process.exit(3); }
   console.log(`\n  palette-claim · ${r.rows} filled row(s)`);
   for (const f of r.findings) console.log(`    FAIL ${f.rule}\n         ${f.where}\n         ${f.why}`);

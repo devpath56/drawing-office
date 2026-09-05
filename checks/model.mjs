@@ -244,6 +244,41 @@ export function views(ws) {
   return out;
 }
 
+/**
+ * WHICH TAGS ACTUALLY CONTAIN SOMETHING, read from a model rather than declared.
+ *
+ * THE LIST WAS CALIBRATED TO ITS AUTHOR'S MISTAKE, which is why this exists. `noClaim` names the
+ * rows allowed to decline a hue, and its argument is that a BOUNDARY says where something runs
+ * rather than whose it is. "Infrastructure Node" was written into that list by analogy with the
+ * line above it — and an infrastructure node holds nothing. The detection worker then rendered as a
+ * 450x300 empty-looking box, and the operator found it by hand, one commit after this very check
+ * shipped claiming to guard the palette. A rule whose exemptions are a hand-typed list inherits
+ * every error in that list.
+ *
+ * So the exemption is now EARNED against the model: a tag whose elements never contain another
+ * element is not a boundary and may not take the frame treatment. With no model to read the rule
+ * stays silent rather than guessing — `boundaries.size` is the denominator, and an empty one means
+ * NOT-CHECKED rather than clean.
+ */
+export function boundaryTags(ws) {
+  const tags = new Set();
+  const of = (o) => String(o?.tags ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+  const walk = (list) => {
+    for (const n of list ?? []) {
+      const holds = (n.children?.length ?? 0) + (n.containerInstances?.length ?? 0)
+        + (n.softwareSystemInstances?.length ?? 0) + (n.infrastructureNodes?.length ?? 0);
+      if (holds > 0) for (const t of of(n)) tags.add(t);
+      walk(n.children);
+    }
+  };
+  walk(ws?.model?.deploymentNodes);
+  for (const s of ws?.model?.softwareSystems ?? []) {
+    if ((s.containers?.length ?? 0) > 0) for (const t of of(s)) tags.add(t);
+    for (const c of s.containers ?? []) if ((c.components?.length ?? 0) > 0) for (const t of of(c)) tags.add(t);
+  }
+  return tags;
+}
+
 /** The styles the export carries, which is the theme after the CLI has resolved it. */
 export function styles(ws) {
   return {
