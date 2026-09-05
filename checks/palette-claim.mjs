@@ -34,7 +34,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { boundaryTags } from './model.mjs';
+import { boundaryTags, elements as modelElements, styles as modelStyles } from './model.mjs';
+import { resolve } from './style-resolve.mjs';
 
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -43,7 +44,46 @@ export const OWNERSHIP = Object.freeze(['ours', 'not ours']);
 
 export const norm = (c) => String(c ?? '').trim().toLowerCase();
 
-export function inspect(theme, { boundaries = new Set() } = {}) {
+/**
+ * RULE 4 — an INSTANCE must not claim something different from the thing it instances.
+ *
+ * THE ONE RULE HERE THAT IS NOT SELF-REFERENTIAL, and that is the whole reason it exists. Rules 1
+ * and 2 read `hues` and `noClaim` out of the very file they judge: an adversarial author declares a
+ * fill means whatever suits and both go green. Measured — a palette calling our own container
+ * "not ours" passes rule 1, and deleting a tag from `noClaim` silences rule 2. They are tier D
+ * attention mechanisms and are declared as such.
+ *
+ * This one joins TWO facts from the MODEL. An exported instance carries only its own tag —
+ * "Container Instance", "Software System Instance" — and not the tags of the element it instances.
+ * So if that row makes an ownership claim, the instance says it while the thing it points at says
+ * something else. That is exactly the defect of 2026-09-05: the OTel collector, the attacker's
+ * listener, the attacker's agent and the corporate network controls resolved to violet="ours"
+ * through their instance rows while every one of those systems carries Existing System.
+ *
+ * IT RESTS ON A FALSIFIED-THEN-CORRECTED RESOLVER (PR-039). The first version of resolve() assumed
+ * fill is a function of tags alone; the renderer disagreed on an element that is a view's SCOPE and
+ * is drawn as a boundary. Scope is skipped here for that reason, not from caution.
+ */
+export function instanceClaims(elements, styleRows, hues) {
+  const claim = new Map(Object.entries(hues ?? {}).map(([k, v]) => [norm(k), v]));
+  const byId = new Map(elements.map((e) => [e.id, e]));
+  const out = [];
+  for (const e of elements) {
+    if (!e.ofId) continue;
+    const target = byId.get(String(e.ofId));
+    if (!target) continue;
+    const mine = claim.get(norm(resolve(e.tags.join(','), styleRows).background));
+    const theirs = claim.get(norm(resolve(target.tags.join(','), styleRows).background));
+    if (!mine || !OWNERSHIP.includes(mine)) continue;      // no claim of its own: the renderer resolves through
+    if (!theirs || !OWNERSHIP.includes(theirs)) continue;  // nothing to disagree with
+    /* AN INSTANCE HAS NO NAME OF ITS OWN in the export, so naming it by id would send a reader
+       hunting through a file for a number. It is identified by what it instances. */
+    if (mine !== theirs) out.push({ instance: `the ${String(e.kind).toLowerCase()} of ${target.name}`, of: target.name, mine, theirs });
+  }
+  return out;
+}
+
+export function inspect(theme, { boundaries = new Set(), elements = null, styleRows = null } = {}) {
   const hues = theme?.hues;
   if (!hues || !Object.keys(hues).length) {
     return { state: 'UNEVALUABLE', why: 'theme.json declares no `hues`, so nothing says what a fill claims', findings: [], rows: 0 };
@@ -84,7 +124,20 @@ export function inspect(theme, { boundaries = new Set() } = {}) {
       });
     }
   }
-  return { state: findings.length ? 'findings' : 'clean', findings, rows };
+  /* RULE 4, and it only runs when a model was supplied — a claim it cannot join is NOT-CHECKED. */
+  if (elements && styleRows) {
+    for (const c of instanceClaims(elements, styleRows, hues)) {
+      findings.push({
+        rule: 'instance-contradicts-its-target',
+        where: `${c.instance} claims "${c.mine}" · ${c.of} says "${c.theirs}"`,
+        why: 'an instance carries only its own tag, so an ownership fill on that row speaks for every '
+           + 'instance of everything — including the things we do not own. The picture then says we own '
+           + 'what the model says we do not',
+      });
+    }
+  }
+
+  return { state: findings.length ? 'findings' : 'clean', findings, rows, joined: elements ? elements.filter((e) => e.ofId).length : null };
 }
 
 /* ── CLI ─────────────────────────────────────────────────────────────────────────────────────── */
@@ -158,6 +211,45 @@ if (IS_MAIN) {
     say('with no model to read the rule stays silent rather than guessing',
       !inspect(typed, { boundaries: new Set() }).findings.some((f) => f.rule === 'not-a-boundary'), 'NOT-CHECKED');
 
+    /* ── RULE 4: THE ONE THAT IS NOT SELF-REFERENTIAL ────────────────────────────────────────── */
+    const sysRows = [
+      { tag: 'Software System', background: '#3f4383' },
+      { tag: 'Existing System', background: '#2b3a33' },
+      { tag: 'Software System Instance' },
+    ];
+    const els = [
+      { id: '1', name: 'OTel collector', kind: 'Software System', tags: ['Element', 'Software System', 'Existing System'] },
+      { id: '2', name: 'Our harness', kind: 'Software System', tags: ['Element', 'Software System'] },
+      { id: '9', name: null, kind: 'Software System Instance', tags: ['Software System Instance'], ofId: '1' },
+      { id: '10', name: null, kind: 'Software System Instance', tags: ['Software System Instance'], ofId: '2' },
+    ];
+    const hues4 = { '#3f4383': 'ours', '#2b3a33': 'not ours' };
+
+    say('a colourless instance row contradicts nothing — the renderer resolves through it',
+      instanceClaims(els, sysRows, hues4).length === 0, instanceClaims(els, sysRows, hues4));
+
+    /* THE DEFECT OF 2026-09-05, REPLAYED: the instance row given the ownership fill. */
+    const violet = sysRows.map((r) => (r.tag === 'Software System Instance' ? { ...r, background: '#3f4383' } : r));
+    const caught = instanceClaims(els, violet, hues4);
+    say('an ownership fill on the instance row contradicts every not-ours target',
+      caught.length === 1 && caught[0].of === 'OTel collector', caught);
+    say('and it does NOT fire on the instance of something that really is ours',
+      !caught.some((c) => c.of === 'Our harness'), caught.map((c) => c.of));
+    say('the finding names what the instance instances, not an id a reader must hunt for',
+      /software system instance of OTel collector/.test(caught[0].instance), caught[0].instance);
+
+    /* THE JOIN NEEDS BOTH SIDES. An instance pointing at nothing is skipped, not guessed at. */
+    say('an instance whose target is missing from the model is skipped rather than judged',
+      instanceClaims([{ id: '9', kind: 'Software System Instance', tags: ['Software System Instance'], ofId: 'gone' }], violet, hues4).length === 0, 'dangling');
+    say('and a fill with no declared claim on either side is skipped, never guessed',
+      instanceClaims(els, violet, { '#3f4383': 'no claim', '#2b3a33': 'no claim' }).length === 0, 'undeclared');
+
+    /* THE DENOMINATOR: rule 4 without a model is NOT-CHECKED, and must not read as clean. */
+    say('with no model supplied the join reports null rather than zero',
+      inspect(base).joined === null, inspect(base).joined);
+    say('and with a model it says how many instances it actually joined',
+      inspect(base, { elements: els, styleRows: sysRows }).joined === 2, inspect(base, { elements: els, styleRows: sysRows }).joined);
+
     /* THE LIVE PALETTE. Asserted CLEAN here on purpose: unlike a tree full of other people's
        modules, this file is the subject and its state is the thing under test. */
     const live = JSON.parse(fs.readFileSync(path.join(HERE, 'architecture', 'theme.json'), 'utf8'));
@@ -173,8 +265,8 @@ if (IS_MAIN) {
     }
     say('the shipped palette makes no false ownership claim', inspect(live, { boundaries: liveBounds }).state === 'clean', inspect(live, { boundaries: liveBounds }).findings);
 
-    console.log(`\n${ok} of 16 held`);
-    process.exit(ok === 16 ? 0 : 1);
+    console.log(`\n${ok} of 24 held`);
+    process.exit(ok === 24 ? 0 : 1);
   }
 
   const file = path.join(root, 'architecture', 'theme.json');
@@ -194,7 +286,24 @@ if (IS_MAIN) {
       try { for (const t of boundaryTags(JSON.parse(fs.readFileSync(f, 'utf8')))) boundaries.add(t); } catch { /* a model that will not parse is another check's finding */ }
     }
   }
-  const r = inspect(theme, { boundaries });
+  /* THE MODEL FOR RULE 4. Its elements and the styles the export resolved, from the same file, so
+     the join is between two facts the exporter agreed on rather than two of our guesses. */
+  let elements = null, styleRows = null;
+  if (fs.existsSync(dir)) {
+    const all = [];
+    for (const d of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (!d.isDirectory()) continue;
+      const f = path.join(dir, d.name, 'workspace.json');
+      if (!fs.existsSync(f)) continue;
+      try {
+        const ws = JSON.parse(fs.readFileSync(f, 'utf8'));
+        all.push(...modelElements(ws));
+        styleRows = styleRows ?? modelStyles(ws).elements;
+      } catch { /* a model that will not parse is another check's finding */ }
+    }
+    if (all.length) elements = all;
+  }
+  const r = inspect(theme, { boundaries, elements, styleRows });
   if (r.state === 'UNEVALUABLE') { console.log(`UNEVALUABLE — ${r.why}`); process.exit(3); }
   console.log(`\n  palette-claim · ${r.rows} filled row(s)`);
   for (const f of r.findings) console.log(`    FAIL ${f.rule}\n         ${f.where}\n         ${f.why}`);
