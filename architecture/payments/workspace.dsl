@@ -105,6 +105,10 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
            Edit the theme, not this block: the check refuses any drift between them. */
         /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
            Edit the theme, not this block: the check refuses any drift between them. */
+        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
+           Edit the theme, not this block: the check refuses any drift between them. */
+        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
+           Edit the theme, not this block: the check refuses any drift between them. */
         styles {
             element "Element" {
                 color #ffffff
@@ -113,19 +117,19 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
             }
             element "Person" {
                 shape Person
-                background #2b3a33
+                background #32433b
                 stroke #6fa588
             }
             element "Existing System" {
-                background #2b3a33
+                background #32433b
                 stroke #6fa588
             }
             element "Software System" {
-                background #3f4383
+                background #494d97
                 stroke #a5a9f0
             }
             element "Container" {
-                background #5a5fa6
+                background #5f64af
                 stroke #b9bdf5
             }
             element "Component" {
@@ -135,12 +139,12 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
             }
             element "Data Store" {
                 shape Cylinder
-                background #5a5fa6
+                background #5f64af
                 stroke #b9bdf5
             }
             element "Channel" {
                 shape Pipe
-                background #5a5fa6
+                background #5f64af
                 stroke #b9bdf5
             }
             element "Deployment Node" {
@@ -149,7 +153,7 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
                 color #ffffff
             }
             element "Infrastructure Node" {
-                background #5a5fa6
+                background #5f64af
                 stroke #b9bdf5
                 color #ffffff
             }

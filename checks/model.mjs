@@ -279,6 +279,35 @@ export function boundaryTags(ws) {
   return tags;
 }
 
+/**
+ * THE IDS THAT ACTUALLY CONTAIN SOMETHING — per ELEMENT, not per tag.
+ *
+ * boundaryTags answers "is this tag ever a boundary", which is the right question for a style row
+ * and the WRONG one for an element. Measured 2026-09-05: "Software System" is a boundary tag
+ * because dsh harness holds containers, so OTel collector — a system that holds nothing — inherited
+ * the exemption and its invisible fill was waved through. A red proof that should have fired did
+ * not, and the reason was a tag standing in for an element.
+ *
+ * A boundary is a thing that CONTAINS. That is a fact about the element, and this is where it lives.
+ */
+export function holders(ws) {
+  const ids = new Set();
+  for (const s of ws?.model?.softwareSystems ?? []) {
+    if ((s.containers?.length ?? 0) > 0) ids.add(String(s.id));
+    for (const c of s.containers ?? []) if ((c.components?.length ?? 0) > 0) ids.add(String(c.id));
+  }
+  const walk = (list) => {
+    for (const n of list ?? []) {
+      const holds = (n.children?.length ?? 0) + (n.containerInstances?.length ?? 0)
+        + (n.softwareSystemInstances?.length ?? 0) + (n.infrastructureNodes?.length ?? 0);
+      if (holds > 0) ids.add(String(n.id));
+      walk(n.children);
+    }
+  };
+  walk(ws?.model?.deploymentNodes);
+  return ids;
+}
+
 /** The styles the export carries, which is the theme after the CLI has resolved it. */
 export function styles(ws) {
   return {
