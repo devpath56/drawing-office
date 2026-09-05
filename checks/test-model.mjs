@@ -39,7 +39,12 @@ const WS = {
     }],
     deploymentNodes: [{
       id: 'd1', name: 'AWS', environment: 'Live',
-      children: [{ id: 'd2', name: 'Fargate', children: [{ id: 'd3', name: 'Task' }] }],
+      children: [{ id: 'd2', name: 'Fargate', children: [{ id: 'd3', name: 'Task' }],
+        /* THE KIND THE FIXTURE DID NOT HAVE (CF-104). A deployment view is mostly instances, and
+           because none was here the control pinned a count that was 12 short on the real model and
+           called it right. A fixture missing the case is coverage that delivers none. */
+        containerInstances: [{ id: 'ci1', containerId: 'c1', tags: 'Container Instance' }],
+        softwareSystemInstances: [{ id: 'si1', softwareSystemId: 's1', tags: 'Software System Instance' }] }],
       infrastructureNodes: [{ id: 'i1', name: 'Load balancer' }],
     }],
   },
@@ -49,12 +54,37 @@ const WS = {
 const els = model.elements(WS);
 const named = (n) => els.find((e) => e.name === n);
 
-/* NINE: one person, one system, two containers, one component, three deployment nodes and one
-   infrastructure node. The count is spelled out because the first draft said eight and the failure
-   was the assertion's arithmetic rather than the module's — a pinned number nobody can re-derive is
-   a number that gets edited to match whatever the code did. */
-ok('every declared element is read, people and deployment nodes included',
-  els.length === 9, els.map((e) => e.name));
+/* ELEVEN: one person, one system, two containers, one component, three deployment nodes, one
+   infrastructure node, one container instance and one software system instance. The count is
+   spelled out because the first draft said eight and the failure was the assertion's arithmetic
+   rather than the module's — a pinned number nobody can re-derive is a number that gets edited to
+   match whatever the code did. It moved from nine to eleven when CF-104 added the two instance
+   kinds, and it moved because the FIXTURE gained them, which is the only honest reason for a pinned
+   count to change. */
+ok('every declared element is read, people, deployment nodes and instances included',
+  els.length === 11, els.map((e) => e.name));
+
+/* ── THE CLASS, NOT THE INSTANCE ──────────────────────────────────────────────────────────────
+   CF-104 was two missing lines in a walk, and fixing only those would leave the next node kind free
+   to disappear the same way: a shared reader's omissions are inherited by every consumer and none
+   of them can see past it. coverage() reports what this walk read against the keys the export
+   ACTUALLY carries, so an unread key is a NAME in an array rather than a silence. */
+const cov = model.coverage(WS);
+ok('the reader reports its own coverage, and ignores nothing in a fixture holding every kind',
+  cov.ignored.length === 0, cov);
+ok('and it names the instance keys among what it read, so the report is not empty either',
+  cov.read.node.includes('containerInstances') && cov.read.node.includes('softwareSystemInstances'), cov.read);
+
+/* THE COVERAGE REPORT MUST BE ABLE TO FIRE, or a green line here means nothing. A workspace
+   carrying a key this walk does not know must name it. */
+const withUnknown = structuredClone(WS);
+withUnknown.model.deploymentNodes[0].somethingNewStructurizrAdded = [{ id: 'x1', name: 'Future' }];
+ok('a node key this reader does not know is REPORTED rather than dropped in silence',
+  model.coverage(withUnknown).ignored.includes('node.somethingNewStructurizrAdded'),
+  model.coverage(withUnknown).ignored);
+ok('and an unknown key at the model level is caught too, not only under a node',
+  (() => { const w = structuredClone(WS); w.model.customElements = [{ id: 'z' }];
+    return model.coverage(w).ignored.includes('model.customElements'); })(), 'model level');
 
 /* THE DEPTH DIAGRAM-KEY'S OWN WALKER MISSED. It read ws.model.deploymentNodes one level deep, so a
    node nested two down was outside the model and a deployment plate could look fully judged. */

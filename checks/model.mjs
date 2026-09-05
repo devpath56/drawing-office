@@ -75,13 +75,71 @@ export function elements(ws) {
      instances inside them — which is how a deployment plate can look complete and be half-read. */
   const nodes = (list, environment) => {
     for (const n of list ?? []) {
-      push(n, 'Deployment Node', { systemId: null, systemName: null, environment: n.environment ?? environment ?? null });
-      nodes(n.children, n.environment ?? environment);
-      for (const i of n.infrastructureNodes ?? []) push(i, 'Infrastructure Node', { systemId: null, systemName: null, environment: n.environment ?? environment ?? null });
+      const env = n.environment ?? environment ?? null;
+      push(n, 'Deployment Node', { systemId: null, systemName: null, environment: env });
+      nodes(n.children, env);
+      for (const i of n.infrastructureNodes ?? []) push(i, 'Infrastructure Node', { systemId: null, systemName: null, environment: env });
+      /* INSTANCES ARE ELEMENTS THE RENDERER DRAWS AND THIS WALK DID NOT READ (CF-104). A deployment
+         view is mostly instances — 12 of them in the No-Leak-MCP model — and because they never
+         reached this list, checks/diagram-key.mjs was never offered their tags, the theme styled
+         neither, and 26 shapes rendered in Structurizr's default #1abc9c while all seven checks
+         exited 0. An instance carries its OWN tags ("Container Instance", "Software System
+         Instance"), which is what the renderer styles on, so those are the kinds returned. */
+      for (const i of n.containerInstances ?? []) push(i, 'Container Instance', { systemId: null, systemName: null, environment: env, ofId: String(i.containerId), name: i.name ?? null });
+      for (const i of n.softwareSystemInstances ?? []) push(i, 'Software System Instance', { systemId: null, systemName: null, environment: env, ofId: String(i.softwareSystemId), name: i.name ?? null });
     }
   };
   nodes(ws?.model?.deploymentNodes, null);
   return out;
+}
+
+/**
+ * WHAT THIS READER READ, AND WHAT IT IGNORED — the denominator for its own walk.
+ *
+ * CF-104 IS THE REASON, and adding two lines to the walk would have fixed the instance and left the
+ * CLASS open: a shared reader's omissions are inherited by every consumer and none of them can see
+ * past it. Five checks ask this module what the model contains; when it silently returned 30 of 42
+ * elements, five checks were wrong at once and all five said clean.
+ *
+ * So the reader reports its own coverage against the keys the export ACTUALLY carries, rather than
+ * against a list of keys someone remembered. A key present in the workspace and absent from
+ * READS is returned in `ignored`, and checks/test-model.mjs refuses a non-empty one. The next node
+ * kind Structurizr adds cannot be silently dropped: it arrives as a name in that array.
+ */
+export const READS = Object.freeze({
+  model: ['people', 'softwareSystems', 'deploymentNodes'],
+  element: ['containers', 'components'],
+  node: ['children', 'infrastructureNodes', 'containerInstances', 'softwareSystemInstances'],
+});
+
+export function coverage(ws) {
+  const ignored = new Set();
+  const seen = { model: new Set(), element: new Set(), node: new Set() };
+
+  const note = (obj, where) => {
+    for (const k of Object.keys(obj ?? {})) {
+      if (!Array.isArray(obj[k]) || !obj[k].length) continue;
+      seen[where].add(k);
+      if (!READS[where].includes(k)) ignored.add(`${where}.${k}`);
+    }
+  };
+  /* `relationships`, `perspectives`, `documentation` and `tags` are READ by other exports of this
+     module and are not element containers, so they are not part of this walk's population. */
+  const NOT_A_CHILD_LIST = ['relationships', 'perspectives', 'properties'];
+  const drop = (s) => [...s].filter((k) => !NOT_A_CHILD_LIST.includes(k));
+
+  note(ws?.model, 'model');
+  for (const s of ws?.model?.softwareSystems ?? []) {
+    note(s, 'element');
+    for (const c of s.containers ?? []) note(c, 'element');
+  }
+  const walk = (list) => { for (const n of list ?? []) { note(n, 'node'); walk(n.children); } };
+  walk(ws?.model?.deploymentNodes);
+
+  return {
+    read: { model: drop(seen.model), element: drop(seen.element), node: drop(seen.node) },
+    ignored: [...ignored].filter((k) => !NOT_A_CHILD_LIST.includes(k.split('.')[1])),
+  };
 }
 
 /** The same, keyed by id, for the callers that resolve a view's element references. */

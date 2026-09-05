@@ -207,6 +207,10 @@
           "tag" : "Container"
         }, {
           "background" : "#5a5fa6",
+          "stroke" : "#b9bdf5",
+          "tag" : "Container Instance"
+        }, {
+          "background" : "#5a5fa6",
           "shape" : "Cylinder",
           "stroke" : "#b9bdf5",
           "tag" : "Data Store"
@@ -246,6 +250,10 @@
           "background" : "#3f4383",
           "stroke" : "#a5a9f0",
           "tag" : "Software System"
+        }, {
+          "background" : "#3f4383",
+          "stroke" : "#a5a9f0",
+          "tag" : "Software System Instance"
         } ],
         "relationships" : [ {
           "color" : "#d7dbe3",
