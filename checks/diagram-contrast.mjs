@@ -286,7 +286,15 @@ function report(r) {
   }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
+/* THE ENTRY-POINT GUARD RESOLVES SYMLINKS, and it did not. On macOS a temp directory is
+   /var/folders/... to a caller and /private/var/folders/... once the module URL is resolved, so a
+   plain string comparison said 'not main', the CLI never ran, and the process exited 0 with no
+   output at all — the shape of a check that passed. Found by the control that runs these modules
+   from a copied location, which is exactly what a fresh repo does. */
+const real = (p) => { try { return fs.realpathSync(p); } catch { return path.resolve(p); } };
+const IS_MAIN = process.argv[1] && real(path.resolve(process.argv[1])) === real(fileURLToPath(import.meta.url));
+
+if (IS_MAIN) {
   const argv = process.argv.slice(2);
   const flag = (name, fallback) => {
     const i = argv.indexOf(name);

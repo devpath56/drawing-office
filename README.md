@@ -11,13 +11,25 @@ diagram quietly goes wrong.
 
 ---
 
+## Two kinds of module, and the directory says which
+
+| directory | contract |
+|---|---|
+| `checks/` | **refuses.** Exits non-zero when something is wrong, and every one has a `--negative` that plants faults it must catch |
+| `tools/` | **produces or recommends.** Writes files, prints suggestions, drives a browser. Never a verdict |
+| `bin/` | the command that seeds a repo and tells you when its copy has gone stale |
+
+They were one directory until a review pointed out that one folder was carrying three contracts.
+
 ## What it refuses
 
 | check | refuses |
 |---|---|
 | `diagram-contrast` | a workspace whose colours drifted from `architecture/theme.json` · any text-on-fill or stroke-on-canvas pair under its floor · a lightness ladder that would not survive black-and-white printing · a dynamic view whose steps are not 1..n, contiguous, in DSL order |
-| `diagram-collisions` | a label lying across a box, or across another label, in the rendered page |
-| `trace-suggest` | nothing — it *recommends*. Which features deserve a trace is a product judgement |
+| `tools/diagram-collisions` | a label lying across a box, across another label, or escaping its own box |
+| `tools/trace-suggest` | nothing — it *recommends*. Which features deserve a trace is a product judgement |
+| `tools/trace-animate` | nothing — it writes the animation frames the exporter does not |
+| `tools/diagram-export` | nothing — it writes one SVG per view, with its diagram key |
 
 Every one of them has a `--negative` that plants faults and must catch all of them. Run it: a check
 nobody has seen refuse is a check nobody should trust.
@@ -44,7 +56,7 @@ macOS: `brew install structurizr-cli graphviz && npm install && npx playwright i
 npm run write     # regenerate the DSL's styles block from architecture/theme.json
 npm run export    # DSL -> workspace.json, and -> the interactive site
 npm run index     # write the project list the viewer reads
-npm run check     # palette, ladder, step order, and the suggester's own control
+npm run check     # palette, ladder, step order, and the controls over tools/
 npm run serve     # then open http://localhost:8015/architecture/viewer.html
 ```
 
@@ -124,3 +136,46 @@ it is checked. ch07's caution that traces are for interesting interactions, used
 
 The example model is that book's Internet Banking System, so every element can be checked against a
 page rather than taken on trust.
+
+---
+
+## Putting it in another repo
+
+```
+npx drawing-office init  --root ../your-repo    # writes architecture/theme.json and viewer.html
+npx drawing-office check --root ../your-repo    # names every file that has drifted from the package
+```
+
+Only those two files are written into your repo: the palette, which you are meant to edit, and the
+viewer, which has to be served from your own origin to read your own workspace. Everything else runs
+from the package, so a bug has one home.
+
+**`init` never overwrites without `--force`.** Silently replacing an edited palette would be the
+worst behaviour for a command whose whole purpose is that copies drift.
+
+**Why this exists.** The machine was distributed by `cp` across three repos. Measured: five modules,
+the viewer and the theme identical — and `trace-animate.mjs` simply missing from one of them,
+because a hand copy is a step someone has to remember. On its first run against a real repo,
+`check` found a stale viewer nobody knew was stale.
+
+## Adding a feature trace
+
+```
+npm run suggest   # ranked candidates, with pasteable DSL that compiles as pasted
+npm run animate   # write animation frames into the export and the site bundle
+```
+
+Then open the trace in the viewer and press **N**. The walk frames each step's two elements, dims
+everything not yet reached, and stops at both ends — a kill chain that wrapped would be a lie about
+the system. **B** goes back, **Escape** puts the whole picture back.
+
+## Sending a diagram to someone
+
+```
+npm run svg       # one SVG per view, plus its diagram key
+```
+
+Self-contained, real text rather than outlines, and grounded on the theme's own canvas — a fresh
+headless browser reports `prefers-color-scheme: light`, which once baked a white background behind
+a palette built for a dark one and dropped the relationship labels to about 1.3:1 in the file people
+were sent.

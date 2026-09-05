@@ -63,7 +63,7 @@
   body {
     margin: 0; background: var(--canvas); color: var(--ink);
     font: 400 var(--t3)/1.5 "Google Sans Text", system-ui, -apple-system, sans-serif;
-    display: grid; grid-template-rows: auto 1fr; height: 100vh;
+    display: grid; grid-template-rows: auto auto 1fr; height: 100vh;
   }
 
   header {
@@ -177,6 +177,25 @@
   .leaf { display: flex; align-items: center; gap: var(--s1); min-height: 34px; padding: 0 var(--s2); color: var(--ink-2); font-size: var(--t2); }
   .caret { flex: none; width: 10px; color: var(--ink-2); font-size: 10px; transition: transform .14s ease; }
   .caret--open { transform: rotate(90deg); }
+  /* THE ORDER BAR. A static view has no order and cannot say so on its own — the operator looked at
+     a component view, saw six sentences, and asked where to start and which order to follow. The
+     rail already knew the answer: it lists the traces over these same elements. The canvas did not,
+     and the canvas is what a reader is looking at. This says it there, and it is generated from the
+     export like everything else, so any repo's static views get it. */
+  .orderbar {
+    display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap;
+    padding: var(--s1) var(--s3); border-bottom: 1px solid var(--hairline);
+    background: var(--surface); color: var(--ink-2); font-size: var(--t2);
+  }
+  .orderbar[hidden] { display: none; }
+  .orderbar b { color: var(--ink); font-weight: 500; }
+  .orderbar .step { color: var(--ink); font-weight: 500; }
+  .orderbar kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 20px; padding: 0 5px; margin: 0 2px;
+    background: var(--surface-2); color: var(--ink); border: 1px solid var(--hairline);
+    border-bottom-width: 2px; border-radius: 4px; font: 500 11px/1 "IBM Plex Mono", ui-monospace, monospace;
+  }
   .note { color: var(--ink-2); font-size: var(--t1); line-height: 1.45; padding: 0 var(--s1); white-space: normal; }
   .note strong { color: var(--ink); font-weight: 500; }
   @media (prefers-reduced-motion: reduce) { .rail, .caret { transition: none; } }
@@ -186,6 +205,8 @@
   <header>
     <h1 data-title>Architecture</h1>
   </header>
+
+  <p class="orderbar" data-orderbar hidden></p>
 
   <main>
     <nav class="rail" aria-label="Diagram levels">
@@ -231,9 +252,20 @@
          current marker, because the tree was built from three view kinds and there are four. Every
          repo with a feature trace would have had a rail that cannot reach it — a gap in the machine,
          not in this bank's diagram. A dynamic view hangs off whatever it is scoped to. */
-      for (const v of ws.views.dynamicViews ?? []) views.push({ key: v.key, level: 'flow', scope: v.elementId, title: v.description || v.key });
+      for (const v of ws.views.dynamicViews ?? []) views.push({ key: v.key, level: 'flow', scope: v.elementId, title: v.description || v.key, elements: new Set((v.elements ?? []).map((e) => e.id)) });
       const viewFor = (level, scope) => views.find((v) => v.level === level && v.scope === scope)?.key ?? null;
       const flowsFor = (scope) => views.filter((v) => v.level === 'flow' && v.scope === scope);
+      /* Which traces walk the elements THIS view draws — by element overlap, not by scope, because a
+         trace scoped to a container still explains half of the container view above it. */
+      const staticElements = new Map();
+      for (const k of ['systemContextViews', 'containerViews', 'componentViews']) {
+        for (const v of ws.views[k] ?? []) staticElements.set(v.key, new Set((v.elements ?? []).map((e) => e.id)));
+      }
+      const tracesOver = (key) => {
+        const els = staticElements.get(key);
+        if (!els) return [];
+        return views.filter((v) => v.level === 'flow' && [...(v.elements ?? [])].filter((id) => els.has(id)).length >= 2);
+      };
 
       /* THE SHAPE IS THE MODEL'S, NOT ONE INVENTED HERE: a system, the view of its containers, and
          each container. It stops there on the ruling that components are read in the picture. */
@@ -260,7 +292,7 @@
         }
         roots.push(node);
       }
-      return { roots };
+      return { roots, tracesOver };
     }
 
     /* THE WRAPPER OWNS THE ADDRESS BAR. It did not, and that made a whole class of link impossible:
@@ -308,7 +340,202 @@
     const mirror = (key) => { if (key && key !== (location.hash || '').replace(/^#/, '')) { try { history.replaceState(null, '', '#' + key); } catch { /* ignore */ } } };
 
     const open = new Set();       // which branches are unfolded, keyed by their path through the tree
-    let ROOTS = [], here = null;
+    let ROOTS = [], here = null, TRACES = () => [], WS = null;
+    const orderbar = document.querySelector('[data-orderbar]');
+
+    /* ── THE WALK ────────────────────────────────────────────────────────────────────────────────
+       A trace is a sequence, and a reader wants to be taken along it rather than hunt a wide plate
+       for "3". N moves forward, B moves back, Escape ends it. On each step the camera frames that
+       step's two elements and everything not yet reached is dimmed.
+
+       WHY THE CAMERA IS OURS. The viewer exposes centreSelectedElements(), and measured against this
+       page it moved neither the layer transform nor the scroll position — at a zoom where the whole
+       diagram already fits there is nothing to centre. So the walk reads the rendered rectangles
+       itself and scrolls to them, which works at any zoom and needs nothing but the DOM.
+
+       WHY ELEMENTS ARE FOUND BY NAME. The SVG's model-id is a JointJS cell id, not the workspace
+       element id, so the two cannot be joined directly. The name is in the group's text, and
+       matching on it is the same handle this repo's navigation probe already uses. */
+    let WALK = null;
+
+    const groupsIn = () => { try { return [...frame.contentDocument.querySelectorAll('#diagram-canvas g[model-id]')]; } catch { return []; } };
+
+    /* THE RENDERER WRITES NON-BREAKING SPACES AND THE MODEL WRITES ORDINARY ONES. Every label in the
+       SVG is built from tspans whose spaces are &nbsp; — U+00A0 — so "Session store" from the model
+       never matches "Session\u00A0store" on the canvas. The symptom was silent and total: the walk
+       lit its relationship, dimmed both of the elements it was meant to be showing, and the element
+       heads printed identically in a log because the two characters look the same. Both sides are
+       folded to plain spaces before any comparison. */
+    const flat = (s) => String(s ?? '').replace(/[\u00A0\u2007\u202F\s]+/g, ' ').trim();
+    const groupFor = (name) => groupsIn().find((g) => flat(g.textContent).startsWith(flat(name)));
+
+    /* Ordered steps for one trace, each carrying the NAMES of the two elements it joins: the export
+       gives a step a relationship id, and the model gives that id a source and a destination. */
+    function stepsOf(ws, key) {
+      const view = (ws?.views?.dynamicViews ?? []).find((v) => v.key === key);
+      if (!view) return [];
+      const name = new Map(), rel = new Map();
+      const take = (o) => {
+        name.set(String(o.id), o.name);
+        for (const r of o.relationships ?? []) rel.set(String(r.id), { from: String(o.id), to: String(r.destinationId) });
+      };
+      for (const p of ws.model?.people ?? []) take(p);
+      for (const s of ws.model?.softwareSystems ?? []) {
+        take(s);
+        for (const c of s.containers ?? []) { take(c); for (const k of c.components ?? []) take(k); }
+      }
+      return [...(view.relationships ?? [])]
+        .sort((a, b) => Number(a.order) - Number(b.order))
+        .map((s) => { const r = rel.get(String(s.id)); return r ? { from: name.get(r.from), to: name.get(r.to), description: s.description } : null; })
+        .filter(Boolean);
+    }
+
+    /* Frame the current step: dim what has not been reached, then move onto its two elements. Two
+       passes, because a rectangle read before the scroll is a rectangle in the old frame — the first
+       sizes the zoom, the second lands the position. */
+    /* THE ORDER OF THESE THREE PHASES IS THE WHOLE FIX. zoomTo() makes JointJS re-render, which
+       REPLACES the group nodes — so a dim pass written before the zoom styles elements that no
+       longer exist, and the walk came up with all seventeen groups dimmed including the two it was
+       supposed to be lighting. Camera first, settle, then dim what is on the canvas NOW. Every
+       phase re-queries; nothing holds a node across a render. */
+    async function showStep() {
+      if (!WALK) return;
+      const d = frame.contentDocument;
+      const dg = frame.contentWindow.structurizr && frame.contentWindow.structurizr.diagram;
+      const cur = WALK.steps[WALK.at];
+      const vp = d.querySelector('#diagram-viewport') || d.querySelector('#diagram');
+      sayOrder(WALK.key);
+
+      if (vp && dg) {
+        const boxOf = () => {
+          const r = [cur.from, cur.to].map(groupFor).filter(Boolean).map((g) => g.getBoundingClientRect());
+          if (r.length < 2) return null;
+          return { left: Math.min(...r.map((b) => b.left)), right: Math.max(...r.map((b) => b.right)),
+                   top: Math.min(...r.map((b) => b.top)), bottom: Math.max(...r.map((b) => b.bottom)) };
+        };
+        const first = boxOf();
+        if (first) {
+          /* Fit the pair with room around it: framed edge to edge it reads as a crop rather than a
+             camera move, and the surrounding context is what makes a walk legible. */
+          const layer = d.querySelector('.joint-layers');
+          const m = (layer && layer.getAttribute('transform') || '').match(/matrix\(([0-9.]+)/);
+          const scale = m ? Number(m[1]) : 1;
+          const w = Math.max(1, (first.right - first.left) / scale * 1.7);
+          const h = Math.max(1, (first.bottom - first.top) / scale * 1.7);
+          try { dg.zoomTo(Math.max(0.15, Math.min(2.2, Math.min(vp.clientWidth / w, vp.clientHeight / h)))); } catch { /* leave the zoom as found */ }
+          await new Promise((r) => setTimeout(r, 120));
+          const after = boxOf();
+          if (after) {
+            vp.scrollLeft += (after.left + after.right) / 2 - vp.clientWidth / 2;
+            vp.scrollTop += (after.top + after.bottom) / 2 - vp.clientHeight / 2;
+          }
+        }
+      }
+
+      const reached = new Set();
+      for (let i = 0; i <= WALK.at; i++) { reached.add(WALK.steps[i].from); reached.add(WALK.steps[i].to); }
+      for (const g of groupsIn()) {
+        const t = flat(g.textContent);
+        const kind = g.getAttribute('data-type') || '';
+        /* A boundary and the diagram's own caption are never dimmed: they are the page, not a step. */
+        if (/boundary|diagramTitle|diagramDescription|diagramMetadata/i.test(kind)) continue;
+        const lit = /^link$/i.test(kind)
+          ? Number((t.match(/^(\d+):/) || [])[1]) <= WALK.at + 1
+          : [...reached].some((n) => n && t.startsWith(flat(n)));
+        g.style.transition = 'opacity .25s ease';
+        g.style.opacity = lit ? '1' : '0.12';
+      }
+    }
+
+    function walkTo(n) {
+      if (!WALK) return;
+      /* IT STOPS AT BOTH ENDS RATHER THAN WRAPPING. A sequence that loops from the last step back to
+         the first with no seam tells the reader the chain is a cycle, which for a kill chain is a
+         lie about the system. */
+      WALK.at = Math.max(0, Math.min(WALK.steps.length - 1, n));
+      showStep();
+    }
+
+    function startWalk(key) {
+      const steps = stepsOf(WS, key);
+      if (!steps.length) return;
+      WALK = { key, steps, at: 0 };
+      showStep();
+    }
+
+    function endWalk() {
+      if (!WALK) return;
+      for (const g of groupsIn()) g.style.opacity = '1';
+      try { frame.contentWindow.structurizr.diagram.zoomFitContent(); } catch { /* the view may have gone */ }
+      WALK = null;
+    }
+
+    /* THE KEYS ARE BOUND IN BOTH DOCUMENTS. Focus is usually inside the diagram — that is where a
+       reader clicks — so a listener on the wrapper alone would stop working after the first click.
+       N and B were chosen because the viewer already binds c w h i t d m f p, space and the arrows. */
+    function onKey(e) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = String(e.key).toLowerCase();
+      if (k !== 'n' && k !== 'b' && k !== 'escape') return;
+      const onTrace = !!here && ROOTS.some(function look(n) { return (n.kind === 'Feature trace' && n.view === here) || n.children.some(look); });
+      if (!onTrace) return;
+      if (k === 'escape') { endWalk(); sayOrder(here); e.preventDefault(); return; }
+      if (!WALK || WALK.key !== here) startWalk(here);
+      else walkTo(WALK.at + (k === 'n' ? 1 : -1));
+      e.preventDefault();
+    }
+    addEventListener('keydown', onKey);
+    frame.addEventListener('load', () => { try { frame.contentDocument.addEventListener('keydown', onKey); } catch { /* the wrapper's own listener still serves */ } });
+
+    /* A STATIC VIEW SAYS IT HAS NO ORDER, and names the ones that do. On a trace it says where to
+       start instead, because that is the same reader's next question. */
+    function sayOrder(key) {
+      if (!key) { orderbar.hidden = true; return; }
+      const isFlow = ROOTS.some(function walk(n) { return (n.kind === 'Feature trace' && n.view === key) || n.children.some(walk); });
+      if (isFlow) {
+        orderbar.hidden = false;
+        orderbar.textContent = '';
+        const mk = (text, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn--quiet'; b.textContent = text; b.addEventListener('click', fn); orderbar.append(b); return b; };
+        if (WALK && WALK.key === key) {
+          const s = WALK.steps[WALK.at];
+          const label = document.createElement('span');
+          label.innerHTML = '<span class="step">Step ' + (WALK.at + 1) + ' of ' + WALK.steps.length + '</span> · ';
+          label.append(document.createTextNode(s.from + ' → ' + s.to + ': ' + s.description));
+          orderbar.append(label);
+          mk('Back', () => walkTo(WALK.at - 1)).disabled = WALK.at === 0;
+          mk('Next', () => walkTo(WALK.at + 1)).disabled = WALK.at === WALK.steps.length - 1;
+          mk('Show all', () => { endWalk(); sayOrder(key); });
+          const keys = document.createElement('span');
+          keys.innerHTML = '<kbd>N</kbd> next <kbd>B</kbd> back <kbd>esc</kbd> all';
+          orderbar.append(keys);
+        } else {
+          const lead = document.createElement('span');
+          lead.innerHTML = '<b>This one is ordered.</b> Walk it a step at a time: ';
+          orderbar.append(lead);
+          mk('Start the walk', () => startWalk(key));
+          const keys = document.createElement('span');
+          keys.innerHTML = '<kbd>N</kbd> starts it too';
+          orderbar.append(keys);
+        }
+        return;
+      }
+      const t = TRACES(key);
+      orderbar.hidden = false;
+      orderbar.textContent = '';
+      const lead = document.createElement('span');
+      lead.innerHTML = t.length
+        ? '<b>No order here.</b> This view is structure. For a sequence over these elements: '
+        : '<b>No order here.</b> This view is structure, and no trace covers these elements yet.';
+      orderbar.append(lead);
+      t.forEach((v, i) => {
+        if (i) orderbar.append(document.createTextNode(' · '));
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'btn btn--quiet';
+        b.textContent = v.key;
+        b.addEventListener('click', () => goto(v.key));
+        orderbar.append(b);
+      });
+    }
 
     function draw() {
       treeEl.textContent = '';
@@ -412,11 +639,14 @@
         unevaluable('workspace.json could not be fetched (' + (e.message || 'blocked') + '), which is what happens when this page is opened from disk rather than served.');
         return;
       }
-      ROOTS = index(ws).roots;
+      const ix = index(ws);
+      ROOTS = ix.roots;
+      TRACES = ix.tracesOver;
+      WS = ws;
       /* The heading is the workspace's own name, so the picture and its title cannot disagree. */
       if (ws.name) { document.querySelector('[data-title]').textContent = ws.name; document.title = ws.name; }
       body.dataset.railState = 'ready';
-      const tick = () => { tint(); const k = currentKey(); if (k !== here) { here = k; mirror(k); draw(); } };
+      const tick = () => { tint(); const k = currentKey(); if (k !== here) { if (WALK && WALK.key !== k) endWalk(); here = k; mirror(k); draw(); sayOrder(k); } };
       frame.addEventListener('load', tick);
       tick(); draw();
       /* A POLL, not only a hashchange listener: the diagram changes its own hash when a box is

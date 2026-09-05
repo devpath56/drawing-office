@@ -11,6 +11,14 @@
  * WHAT IT COUNTS, per drawing:
  *   textOverText     pairs of visible text boxes whose rectangles intersect
  *   textCrossingBox  a text that is neither inside any box nor clear of every box — it straddles an edge
+ *   textOutsideOwnBox  a label that has escaped the element it belongs to
+ *
+ * THE THIRD RULE EXISTS BECAUSE THE FIRST TWO REPORTED 1 ON A PLATE THE OPERATOR CALLED UNREADABLE.
+ * Measured 2026-09-04 on a component view whose descriptions were long: the text ran off the bottom
+ * of its own rectangle and printed over the element name below it, and neither rule saw it — it was not
+ * over another text it had been paired with, and it was not straddling a DIFFERENT box. A label
+ * escaping its OWN box needs ownership, which the flat pass threw away. The DOM keeps it: an
+ * element is one <g model-id> holding its rect and its texts together.
  * A drawing with no text is UNEVALUABLE, never clean: an unrendered sheet must not pass by being empty.
  *
  * Exit 0 clean · 1 collisions above --allow (default 0) · 2 usage · 3 UNEVALUABLE (no drawing rendered) */
@@ -57,6 +65,19 @@ export const STATES = Object.freeze(['clean', 'COLLIDES', 'UNEVALUABLE']);
 const MEASURE = () => {
   const inter = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
   const contains = (o, i) => i.left >= o.left && i.right <= o.right && i.top >= o.top && i.bottom <= o.bottom;
+  const OWNED = (svg) => {
+    /* One row per element group: its box, and the texts that belong to it. */
+    const out = [];
+    for (const g of svg.querySelectorAll('g[model-id]')) {
+      const box = g.querySelector('rect, path');
+      if (!box) continue;
+      const r = box.getBoundingClientRect();
+      if (r.width < 40 || r.height < 20) continue;
+      const texts = [...g.querySelectorAll('text')].map((t) => ({ r: t.getBoundingClientRect(), s: (t.textContent || '').trim() })).filter((t) => t.r.width > 0 && t.s);
+      if (texts.length) out.push({ box: r, texts });
+    }
+    return out;
+  };
   const svgs = [...document.querySelectorAll('.drawing svg')];
   const pool = svgs.length ? svgs : [...document.querySelectorAll('svg')];
   return pool.map((svg, n) => {
@@ -77,7 +98,18 @@ const MEASURE = () => {
       const crossing = rects.some((r) => inter(r, t.r) && !contains(r, t.r));
       if (!inside && crossing) { textCrossingBox++; if (examples.length < 8) examples.push(`crosses a box: ${t.s.slice(0, 40)}`); }
     }
-    return { sheet: n + 1, texts: texts.length, boxes: rects.length, textOverText, textCrossingBox, examples };
+    /* A LABEL THAT LEFT ITS OWN BOX. One pixel of slack: a glyph's reported box is a hair taller
+       than its ink, and a rule that fires on that measures the font, not the diagram. */
+    let textOutsideOwnBox = 0;
+    for (const g of OWNED(svg)) {
+      for (const t of g.texts) {
+        const out = (t.r.bottom > g.box.bottom + 1) || (t.r.top < g.box.top - 1) || (t.r.left < g.box.left - 1) || (t.r.right > g.box.right + 1);
+        if (!out) continue;
+        textOutsideOwnBox++;
+        if (examples.length < 12) examples.push(`escapes its own box: ${t.s.slice(0, 44)}`);
+      }
+    }
+    return { sheet: n + 1, texts: texts.length, boxes: rects.length, textOverText, textCrossingBox, textOutsideOwnBox, examples };
   });
 };
 
@@ -95,13 +127,13 @@ const rows = await page.evaluate(MEASURE);
 await browser.close();
 
 const drawn = rows.filter((r) => r.texts > 0);
-const total = drawn.reduce((n, r) => n + r.textOverText + r.textCrossingBox, 0);
+const total = drawn.reduce((n, r) => n + r.textOverText + r.textCrossingBox + (r.textOutsideOwnBox ?? 0), 0);
 const state = !drawn.length ? 'UNEVALUABLE' : total > flags.allow ? 'COLLIDES' : 'clean';
 
 if (flags.json) { console.log(JSON.stringify({ state, target, allow: flags.allow, total, rows }, null, 2)); }
 else {
   console.log(`\n  diagram-collisions · ${target}`);
-  for (const r of rows) console.log(`    sheet ${r.sheet}  ${String(r.texts).padStart(4)} texts · ${String(r.boxes).padStart(3)} boxes · ${r.textOverText} over text · ${r.textCrossingBox} crossing a box${r.examples.length ? '\n      ' + r.examples.join('\n      ') : ''}`);
+  for (const r of rows) console.log(`    sheet ${r.sheet}  ${String(r.texts).padStart(4)} texts · ${String(r.boxes).padStart(3)} boxes · ${r.textOverText} over text · ${r.textCrossingBox} crossing a box · ${r.textOutsideOwnBox ?? 0} escaping its own box${r.examples.length ? '\n      ' + r.examples.join('\n      ') : ''}`);
   console.log(`\n  ${state}${state === 'UNEVALUABLE' ? ' — no drawing rendered any text; an empty sheet is not a clean one' : ` — ${total} collision(s), allowed ${flags.allow}`}`);
 }
 process.exit(state === 'clean' ? 0 : state === 'COLLIDES' ? 1 : 3);

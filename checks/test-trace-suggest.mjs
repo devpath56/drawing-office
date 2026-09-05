@@ -17,7 +17,7 @@
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { STATES, suggest, dslFor, identifiers } from './trace-suggest.mjs';
+import { STATES, suggest, dslFor, identifiers } from '../tools/trace-suggest.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let bad = 0;
@@ -25,7 +25,7 @@ const ok = (n, c, saw) => { console.log(`  ${c ? 'ok  ' : 'FAIL'} ${n}${c || saw
 
 /* The module's own planted cases, run through its CLI so this control cannot drift from them. */
 let negCode = 0, negOut = '';
-try { negOut = execFileSync('node', [path.join(ROOT, 'checks', 'trace-suggest.mjs'), '--negative'], { encoding: 'utf8' }); }
+try { negOut = execFileSync('node', [path.join(ROOT, 'tools', 'trace-suggest.mjs'), '--negative'], { encoding: 'utf8' }); }
 catch (e) { negCode = e.status ?? 1; negOut = (e.stdout ?? '') + (e.stderr ?? ''); }
 /* THE COUNT IS COMPARED TO ITSELF, not to a number typed here. Pinning "6 of 6" meant this control
    broke the moment a seventh case was added — a green control turning red for a reason that is not
