@@ -70,7 +70,14 @@
     display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap;
     padding: var(--s2) var(--s3); border-bottom: 1px solid var(--hairline); background: var(--surface);
   }
-  header h1 { font: 500 var(--t3)/1.3 "Google Sans Text", system-ui, sans-serif; margin: 0; }
+  /* THE NAME IS ITS OWN ZONE. Once the order line moved up beside it, the project name and the
+     sentence about the current view ran together as one strip of text and the eye had nothing to
+     anchor on. A hairline and a wider gap separate the two without adding a second bar back. */
+  header h1 {
+    font: 500 var(--t3)/1.3 "Google Sans Text", system-ui, sans-serif; margin: 0;
+    padding-right: var(--s3); border-right: 1px solid var(--hairline); align-self: stretch;
+    display: flex; align-items: center; white-space: nowrap;
+  }
 
   /* ONE BUTTON RECIPE, AND THE PROBE IS WHY. core/doc/design-probe.mjs read an earlier draft of this
      page as "4 button(s), 2 variants — diverge on backgroundColor, color, borderStyle, borderWidth,
@@ -207,8 +214,8 @@
      export like everything else, so any repo's static views get it. */
   .orderbar {
     display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap;
-    padding: var(--s1) var(--s3); border-bottom: 1px solid var(--hairline);
-    background: var(--surface); color: var(--ink-2); font-size: var(--t2);
+    margin: 0; min-width: 0; flex: 1 1 auto;
+    color: var(--ink-2); font-size: var(--t2);
   }
   .orderbar[hidden] { display: none; }
   .orderbar b { color: var(--ink); font-weight: 500; }
@@ -225,11 +232,14 @@
 </style>
 </head>
 <body data-rail="shut">
+  <!-- ONE BAR, NOT THREE. The title, the order line and the layer notice were three stacked strips
+       eating 96px before the diagram started, on a plate that is mostly diagram. The operator's
+       ruling was to move the order line up beside the name; the layer notice is gone entirely, and
+       the rail's own `on` chip is now the only place a live layer is announced. -->
   <header>
     <h1 data-title>Architecture</h1>
+    <p class="orderbar" data-orderbar hidden></p>
   </header>
-
-  <p class="orderbar" data-orderbar hidden></p>
 
   <main>
     <nav class="rail" aria-label="Diagram levels">
@@ -470,17 +480,22 @@
        view changes, so this runs again on every load and on the tick. */
     const SOFTEN_ID = 'drawing-office-tooltip';
     const SOFTEN = `
+      /* WIDE, BECAUSE THE PAYLOAD IS ROWS. A perspective value is now three labelled lines — the gap,
+         the comparison, and what the addition makes possible — and at 320px each of them wrapped four
+         times and the labels stopped reading as a column. The renderer escapes HTML in that value, so
+         a real <table> is not available; what IS available is \n, which it turns into <br/>, and
+         white-space: pre-wrap, which keeps the padding that lines the second column up. */
       #tooltip {
-        max-width: 320px !important;
+        max-width: 640px !important;
         border-radius: 12px !important;
         border-width: 1px !important;
-        padding: 12px 14px !important;
+        padding: 14px 16px !important;
         box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3) !important;
         font-size: 13px !important;
-        line-height: 1.45 !important;
+        line-height: 1.6 !important;
       }
-      #tooltip p { margin: 0 0 4px 0 !important; }
-      #tooltip p:last-child { margin-bottom: 0 !important; }
+      #tooltip p { margin: 0 0 6px 0 !important; }
+      #tooltip p:last-child { margin-bottom: 0 !important; white-space: pre-wrap !important; }
       #tooltip b { font-weight: 600 !important; letter-spacing: .01em; }
     `;
     function soften() {
@@ -732,64 +747,13 @@
     frame.addEventListener('load', () => { try { frame.contentDocument.addEventListener('keydown', onKey); } catch { /* the wrapper's own listener still serves */ } });
 
     /* A STATIC VIEW SAYS IT HAS NO ORDER, and names the ones that do. On a trace it says where to
-       start instead, because that is the same reader's next question. */
-    /* ── A LAYER THAT IS ON MUST SAY SO, ON EVERY VIEW IT REACHES ────────────────────────────────
-       The operator turned on Security, navigated to the sign-in trace, and asked "what happened to
-       colors?". Reproduced exactly: the layer persists across a view change, only the Database
-       carries Security, and five of the six boxes dim — a plate that reads as a rendering fault
-       rather than as an answer. Nothing on screen said a layer was on. The rail's "on" chip is
-       hidden while the rail is shut, which is most of the time and by design.
-
-       IT PERSISTS ON PURPOSE, and that is the part worth defending: a reader who turns on ownership
-       usually wants to carry that lens down into the containers. What was wrong was the silence, not
-       the persistence. So it stays on and it announces itself, in the one strip that is always
-       visible, with the number that makes a dim plate legible.
-
-       THE NUMBER IS THE CHECK'S, LIVE. checks/perspectives.mjs prints "4 of 7 lit" because a dimmed
-       element means either "no value" or "nobody wrote one down" and the renderer draws both the
-       same. That is exactly what a reader needs here, at the moment the plate goes dark — so the
-       same coverage is computed for the view on screen and put beside the layer's name. */
-    function litHere(name, key) {
-      if (!WS || !name || !key) return null;
-      const ids = new Set();
-      for (const k of ['systemLandscapeViews', 'systemContextViews', 'containerViews', 'componentViews', 'dynamicViews', 'deploymentViews']) {
-        for (const v of WS.views?.[k] ?? []) if (v.key === key) for (const e of v.elements ?? []) ids.add(String(e.id));
-      }
-      if (!ids.size) return null;
-      let lit = 0;
-      const seen = new Set();
-      const count = (e) => {
-        const id = String(e.id);
-        if (!ids.has(id) || seen.has(id)) return;
-        seen.add(id);
-        if ((e.perspectives ?? []).some((p) => p.name === name)) lit++;
-      };
-      for (const p of WS.model?.people ?? []) count(p);
-      for (const s of WS.model?.softwareSystems ?? []) {
-        count(s);
-        for (const c of s.containers ?? []) { count(c); for (const k of c.components ?? []) count(k); }
-      }
-      return { lit, of: seen.size };
-    }
-
-    /** The layer notice, prepended to whatever else the strip is saying. */
-    function sayLayer(key) {
-      if (!LAYER) return false;
-      orderbar.hidden = false;
-      const wrap = document.createElement('span');
-      const cover = litHere(LAYER, key);
-      const b = document.createElement('b');
-      b.textContent = LAYER + ' layer is on.';
-      wrap.append(b, document.createTextNode(cover
-        ? ` ${cover.lit} of ${cover.of} elements here carry it; the rest are dimmed because nothing is written down for them, not because they are switched off. `
-        : ' Elements with nothing written down for it are dimmed. '));
-      const off = document.createElement('button');
-      off.type = 'button'; off.className = 'btn btn--quiet'; off.textContent = 'Turn it off';
-      off.addEventListener('click', () => layer(null));
-      wrap.append(off);
-      orderbar.prepend(wrap);
-      return true;
-    }
+    /* THE LAYER NOTICE IS GONE, on the operator's ruling that they do not want to see it.
+       IT WAS BUILT FOR A REAL DEFECT and that defect returns: a layer left on across a view
+       change dims most of a plate, and the first time it happened the operator asked what had
+       happened to the colours. What answers it now is the rail's own  chip, which is only
+       visible while the rail is open — so the trade is a quieter header for a state that is one
+       hover away instead of always on screen. Recorded here rather than argued: the notice can
+       come back by restoring sayLayer and its one call in sayOrder. */
 
     /* ONE PLACE THE LAYER IS ANNOUNCED, because three was the defect it was written to fix.
        The strip has three branches — a walk in progress, a trace not yet walked, a static view — and
@@ -800,7 +764,6 @@
     function sayOrder(key) {
       if (!key) { orderbar.hidden = true; return; }
       fillOrder(key);
-      sayLayer(key);
     }
 
     function fillOrder(key) {

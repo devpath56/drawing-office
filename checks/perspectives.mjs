@@ -44,11 +44,24 @@ export const STATES = Object.freeze(['clean', 'findings', 'ABSENT', 'UNEVALUABLE
    deployment node, so a perspective declared on one was invisible to the coverage report while
    diagram-key counted the same element. One reader now, in checks/model.mjs. */
 
+/* THE TOOLTIP IS OFF BY DEFAULT, WHICH MAKES A LAYER SILENT. Measured 2026-09-05 in the exported
+   site: structurizr-tooltip.js opens with `var enabled = false`, and structurizr-diagram.js guards
+   every hover with `if (tooltip && tooltip.isEnabled())`. So turning a perspective on dims the plate
+   and binds nothing — the VALUE in each record, which is the whole payload of the layer and the
+   thing ch12 says a tooltip should present, was unreachable. The operator hit this: "nothing renders
+   when i hover on any of the 3 observability boxes".
+
+   The renderer reads a per-view property for it, so the fix is a declaration in the model rather
+   than a poke into the page from the wrapper — which the next export would have overwritten. */
+export const TOOLTIP_PROPERTY = 'structurizr.tooltips';
+
+export const tooltipsOn = (view) => String(view?.properties?.[TOOLTIP_PROPERTY] ?? '') === 'true';
+
 /** Every static view, with the ids it draws — the population a layer is measured against. */
 export function viewsOf(ws) {
   const out = [];
   for (const k of ['systemLandscapeViews', 'systemContextViews', 'containerViews', 'componentViews']) {
-    for (const v of ws?.views?.[k] ?? []) out.push({ key: v.key, ids: new Set((v.elements ?? []).map((e) => String(e.id))) });
+    for (const v of ws?.views?.[k] ?? []) out.push({ key: v.key, ids: new Set((v.elements ?? []).map((e) => String(e.id))), tooltips: tooltipsOn(v) });
   }
   return out;
 }
@@ -62,6 +75,7 @@ export function inspect(ws) {
 
   const findings = [];
   const coverage = [];
+  const reported = new Set();
 
   for (const name of names) {
     const carriers = els.filter((e) => e.perspectives.some((p) => p.name === name));
@@ -80,6 +94,17 @@ export function inspect(ws) {
       const drawn = [...v.ids].map((id) => byId.get(id)).filter(Boolean);
       const lit = drawn.filter((e) => e.perspectives.some((p) => p.name === name));
       coverage.push({ perspective: name, view: v.key, lit: lit.length, of: drawn.length, dark: drawn.filter((e) => !lit.includes(e)).map((e) => e.name) });
+      /* A LAYER THAT LIGHTS BOXES AND CANNOT BE READ. The dimming works without the tooltip, so this
+         view would pass every other rule while carrying nothing a reader can reach. */
+      if (lit.length && !v.tooltips && !reported.has(v.key)) {
+        reported.add(v.key);
+        findings.push({
+          rule: 'layer-cannot-be-read',
+          where: v.key,
+          why: `this view draws elements carrying a perspective and does not set ${TOOLTIP_PROPERTY} true, so turning the layer on dims the plate and shows nobody the value`,
+          cite: 'ch12 — "pop-up tooltips could present this additional information", which is the layer\'s whole payload',
+        });
+      }
     }
   }
 
@@ -111,7 +136,9 @@ if (IS_MAIN) {
     say('a perspective on exactly one element is refused as a layer of one', inspect(one).findings.some((f) => f.rule === 'layer-of-one'), inspect(one).findings);
 
     const two = build([{ id: 's1', name: 'Alpha', perspectives: own('Team A') }, { id: 's2', name: 'Beta', perspectives: own('Team B') }], ['p1', 's1', 's2']);
-    say('two carriers is a layer and is accepted', !inspect(two).findings.length, inspect(two).findings);
+    /* THE LAYER-OF-ONE RULE, not every rule: this fixture leaves tooltips off, which is now its own
+       finding, so asserting an empty list here would have made the two rules impossible to hold at once. */
+    say('two carriers is a layer and is accepted', !inspect(two).findings.some((f) => f.rule === 'layer-of-one'), inspect(two).findings.map((f) => f.rule));
 
     /* THE BOOK'S OWN FIGURE MUST PASS. In Figure 12-1 the people carry no ownership and correctly
        dim, so a rule demanding full coverage would refuse the diagram it was written from. */
@@ -119,6 +146,17 @@ if (IS_MAIN) {
     say('a person with no owner is reported as uncovered, never as a finding', cov.lit === 2 && cov.of === 3 && cov.dark.includes('Customer'), cov);
 
     say('coverage names the denominator, so a reader can tell "no owner" from "not written down"', typeof cov.of === 'number' && cov.of > cov.lit, cov);
+
+    /* THE LAYER MUST BE READABLE. Measured: the renderer's tooltip is off by default, so a view that
+       lights boxes and does not turn it on shows the reader a dimming and nothing else. */
+    say('a view that lights a layer and leaves tooltips off is caught', inspect(two).findings.some((f) => f.rule === 'layer-cannot-be-read'), inspect(two).findings.map((f) => f.rule));
+    const readable = JSON.parse(JSON.stringify(two));
+    readable.views.systemLandscapeViews[0].properties = { 'structurizr.tooltips': 'true' };
+    say('and one that turns them on is accepted', !inspect(readable).findings.some((f) => f.rule === 'layer-cannot-be-read'), inspect(readable).findings.map((f) => f.rule));
+    /* A VIEW THAT LIGHTS NOTHING NEEDS NO TOOLTIP. */
+    const nothingLit = JSON.parse(JSON.stringify(two));
+    nothingLit.model.softwareSystems.forEach((s) => { delete s.perspectives; });
+    say('a view where the layer lights nothing is not asked to enable tooltips', !inspect(nothingLit).findings.some((f) => f.rule === 'layer-cannot-be-read'), inspect(nothingLit).findings.map((f) => f.rule));
 
     /* Two perspectives are two independent layers and are measured separately. */
     const both = build([
@@ -132,8 +170,8 @@ if (IS_MAIN) {
     mixed.model.softwareSystems[1].perspectives = mixed.model.softwareSystems[1].perspectives.filter(Boolean);
     say('a perspective carried by one element while another is carried by two fires on only the first', inspect(mixed).findings.filter((f) => f.rule === 'layer-of-one').length === 1, inspect(mixed).findings);
 
-    console.log(`\n${ok} of 7 held`);
-    process.exit(ok === 7 ? 0 : 1);
+    console.log(`\n${ok} of 10 held`);
+    process.exit(ok === 10 ? 0 : 1);
   }
 
   const dir = path.join(root, 'architecture');

@@ -97,10 +97,14 @@ export function inspect(src) {
      listed at once, which is a list rather than a rail. The remembered state now has exactly one
      writer, in the click handler; the path is recomputed on every draw and never stored. */
   const opens = (clean.match(/\bopen\.add\s*\(/g) ?? []).length;
+  /* A NOTICE THAT DOES NOT EXIST IS NOT A NOTICE WITH NO CALLER. The first draft asserted exactly
+     one call and went red the day the operator ruled the notice off the screen entirely — a rule
+     refusing a deliberate removal is a rule that gets deleted with its true positives inside it.
+     What is guarded is the TWO-writer shape: if the notice is defined, it is called once. */
   const mentions = (clean.match(/\bsayLayer\s*\(/g) ?? []).length;
-  const defined = /function\s+sayLayer\s*\(/.test(clean);
-  const sayLayerCalls = mentions - (defined ? 1 : 0);
-  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext, sayLayerCalls, frames: frames.length, framesWithoutFullscreen, opens };
+  const definesNotice = /function\s+sayLayer\s*\(/.test(clean);
+  const sayLayerCalls = mentions - (definesNotice ? 1 : 0);
+  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext, sayLayerCalls, definesNotice, frames: frames.length, framesWithoutFullscreen, opens };
 }
 
 /* ── CLI ─────────────────────────────────────────────────────────────────────────────────────── */
@@ -147,7 +151,11 @@ if (IS_MAIN) {
     say('a mode notice called from two branches is caught', inspect(modeTwice).sayLayerCalls === 2, inspect(modeTwice));
 
     const modeNever = mode.replace('fillOrder(k); sayLayer(k);', 'fillOrder(k);');
-    say('a mode notice that is never called is caught', inspect(modeNever).sayLayerCalls === 0, inspect(modeNever));
+    say('a notice that is DEFINED and never called is caught', inspect(modeNever).sayLayerCalls === 0 && inspect(modeNever).definesNotice, inspect(modeNever));
+    /* AND NO NOTICE AT ALL IS NOT THE SAME THING. The operator ruled it off the screen; a rule that
+       could not tell removal from breakage would have gone red on a deliberate change. */
+    const noNotice = mode.replace('function sayLayer(k){} ', '').replace(' sayLayer(k);', '');
+    say('a wrapper with no notice at all is not reported as one that forgot to call it', inspect(noNotice).sayLayerCalls === 0 && !inspect(noNotice).definesNotice, inspect(noNotice));
 
     /* ONE WRITER FOR THE REMEMBERED FOLD STATE. */
     const fold = `<script>const ASKED=(location.hash||'').replace(/^#/,'')||null;
@@ -171,8 +179,8 @@ if (IS_MAIN) {
     const silent = `<script>const ASKED = null;</script>`;
     say('a wrapper that never reads the hash is UNEVALUABLE, not clean', inspect(silent).statement === null, inspect(silent));
 
-    console.log(`\n${held} of 16 held`);
-    process.exit(held === 16 ? 0 : 1);
+    console.log(`\n${held} of 17 held`);
+    process.exit(held === 17 ? 0 : 1);
   }
 
   const file = path.join(ROOT, 'architecture', 'viewer.html');
@@ -189,8 +197,11 @@ if (IS_MAIN) {
     r.literals.length === 0, r.literals);
   ok('a row label is written in exactly one place, so a chip cannot reach only half the rows',
     r.rowtext === 1, `${r.rowtext} writer(s) of class rowtext`);
-  ok('the mode notice is called from exactly one place, so a new branch cannot stop announcing it',
-    r.sayLayerCalls === 1, `${r.sayLayerCalls} call site(s) of sayLayer`);
+  ok(r.definesNotice
+      ? 'the mode notice is called from exactly one place, so a new branch cannot stop announcing it'
+      : 'no mode notice is defined, which is a choice rather than a defect, and nothing calls one',
+    r.definesNotice ? r.sayLayerCalls === 1 : r.sayLayerCalls === 0,
+    `${r.sayLayerCalls} call site(s), notice ${r.definesNotice ? 'defined' : 'absent'}`);
   ok('every iframe passes full screen through, so a key the renderer advertises is not withheld here',
     r.framesWithoutFullscreen === 0, `${r.framesWithoutFullscreen} of ${r.frames} iframe(s) withhold it`);
   ok('the fold state is written in exactly one place, so being somewhere cannot be mistaken for asking for it',

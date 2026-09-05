@@ -223,24 +223,36 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
         /* A LANDSCAPE IS A SYSTEM CONTEXT WITHOUT A SYSTEM IN FOCUS — ch09's own framing — so it is
            the one view here that is scoped to the bank rather than to one of its systems. */
         systemLandscape "Landscape" {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             include *
             autoLayout lr 500 400
             description "The bank's systems and the people who use them, inside the two departments that own them."
         }
 
         systemContext internetBanking "SystemContext" {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             include *
             autoLayout lr 500 400
             description "The system in its world: who uses it, and what it talks to."
         }
 
         container internetBanking "Containers" {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             include *
             autoLayout lr 500 400
             description "Inside the system: the applications and data stores it is built from."
         }
 
         component backend "Components" {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             include *
             autoLayout lr 500 400
             description "Inside the backend: three API controllers, and the beans behind them."
