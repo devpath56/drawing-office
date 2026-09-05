@@ -26,6 +26,7 @@ They were one directory until a review pointed out that one folder was carrying 
 | check | refuses |
 |---|---|
 | `diagram-contrast` | a workspace whose colours drifted from `architecture/theme.json` · any text-on-fill or stroke-on-canvas pair under its floor · a lightness ladder that would not survive black-and-white printing · a dynamic view whose steps are not 1..n, contiguous, in DSL order |
+| `test-viewer` | a wrapper whose opening view is a typed-in view key rather than the model's own · a row label written in two places, so a chip reaches only half the rail |
 | `pubsub` | a message bus modelled as a container · a queue or topic drawn as a plain box · a hop through one drawn as a solid line · "Sends messages to" and other labels that name no message · a channel with only one end drawn · a queue joining two systems with no declared owner |
 | `tools/diagram-collisions` | a label lying across a box, across another label, or escaping its own box |
 | `tools/trace-suggest` | nothing — it *recommends*. Which features deserve a trace is a product judgement |

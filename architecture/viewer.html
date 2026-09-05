@@ -243,6 +243,34 @@
         ' The diagram still works and double-click still descends; only this list is missing.';
     };
 
+    /* WHAT A CONTAINER IS, READ OFF THE WORKSPACE'S OWN STYLES. The rail listed seven containers as
+       seven identical rows, and the one thing a reader of a message-driven diagram needs at a glance
+       — which of these is a queue — was in the second column, where "Container · Amazon SQS" truncates
+       to "Con...". A chip says it instead.
+
+       IT IS DERIVED, NOT TYPED. The obvious implementation is a list of words like "queue" and "topic"
+       in this file, and that would be a SECOND home for the vocabulary checks/pubsub.mjs already owns
+       — two lists that agree until the day one is edited. What this reads instead is the styles block
+       the export carries, which is generated from architecture/theme.json: a container the theme draws
+       as a pipe IS a channel, by the theme's own ruling, and any repo that styles its channels that
+       way gets the chip without telling this file anything. */
+    /* THE CHIP SAYS THE TAG, NOT THE SHAPE, and that distinction is the difference between a rail
+       that reports the model and one that reports this file's guesses about it. Mapping Pipe to the
+       word "queue" labelled "Statement events topic" as a QUEUE — true of the shape, wrong about the
+       thing. The tag that supplied the shape is the model's own word for what this is, so a repo
+       declaring separate Queue and Topic tags gets both words for free and this theme's single
+       Channel tag reads CHANNEL. */
+    const SHAPES_WORTH_A_CHIP = ['Pipe', 'Cylinder'];
+    function chipFor(ws, el) {
+      const rows = ws.views?.configuration?.styles?.elements ?? [];
+      let chip = null;
+      for (const tag of String(el.tags ?? '').split(',').map((t) => t.trim()).filter(Boolean)) {
+        const row = rows.find((r) => r.tag === tag);
+        if (row && SHAPES_WORTH_A_CHIP.includes(row.shape)) chip = tag.toLowerCase();
+      }
+      return chip;
+    }
+
     function index(ws) {
       const views = [];
       for (const v of ws.views.systemContextViews ?? []) views.push({ key: v.key, level: 'context',    scope: v.softwareSystemId });
@@ -294,6 +322,7 @@
             view: containerView,
             children: containers.map((c) => ({
               name: c.name,
+              chip: chipFor(ws, c),
               kind: 'Container' + (c.technology ? ' · ' + c.technology : ''),
               view: viewFor('components', c.id),
               children: flowsFor(c.id).map((f) => ({ name: f.title || f.key, kind: 'Feature trace', view: f.key, children: [] })),
@@ -316,7 +345,23 @@
        ?w=<dir>, or from architecture/index.json when the query says nothing, and the heading comes
        from the workspace's own name. Nothing about any one system is written here now. */
     let SITE = null;
-    const START = (location.hash || '').replace(/^#/, '') || 'SystemContext';
+    /* THE OPENING VIEW COMES FROM THE MODEL, NOT FROM A LITERAL. This line used to read
+       `|| 'SystemContext'` — one bank's view key, typed into a file whose own comment three
+       paragraphs up claims "nothing about any one system is written here now". It was not true, and
+       the cost was exact: the payments workspace names its context view "Context", so the iframe was
+       sent to #SystemContext, the renderer logged "A view must be specified", and the canvas came up
+       blank beside a rail that had loaded correctly. Every repo whose first view is not spelled the
+       bank's way would have opened on nothing. */
+    const ASKED = (location.hash || '').replace(/^#/, '') || null;
+
+    /** Every view key this workspace actually has, in the order a reader should meet them. */
+    function viewKeys(ws) {
+      const out = [];
+      for (const k of ['systemContextViews', 'containerViews', 'componentViews', 'dynamicViews', 'deploymentViews', 'systemLandscapeViews']) {
+        for (const v of ws.views?.[k] ?? []) out.push(v.key);
+      }
+      return out;
+    }
 
     /* THE CANVAS COLOUR IS THE VIEWER'S, NOT THE MODEL'S, which is why it is set here and not in the
        DSL: Structurizr's styles block colours ELEMENTS, and the ground they sit on belongs to the
@@ -555,6 +600,29 @@
          BELOW the system, whose row was therefore folded shut over it. A tree that hides your
          position is worse than no tree: it says the level you are reading does not exist. */
       const holdsHere = (n) => (!!n.view && n.view === here) || n.children.some(holdsHere);
+      /* ONE LABEL FOR BOTH KINDS OF ROW, and it is one function because it was two.
+         A row with children is built in one branch below and a leaf in the other, and each built its
+         own name and kind spans — so the queue chip, added to the first, was invisible on exactly the
+         rows that carry it: every container is a leaf. The chip appeared on the trace row and nowhere
+         else, and the rail went on calling a queue "Container · Amazon SQS", truncated to "Con...".
+         Nothing about a row's label depends on whether it has children, so nothing about it should
+         be written twice. */
+      const label = (node) => {
+        const text = document.createElement('span');
+        text.className = 'rowtext';
+        text.textContent = node.name;
+        /* THE RAIL IS 272px AND NAMES ARE NOT, so a truncated row must still be readable somewhere. */
+        text.title = node.name + (node.kind ? ' — ' + node.kind : '');
+
+        const isFlow = node.kind === 'Feature trace';
+        const isEnv = node.kind === 'Environment';
+        const chip = isFlow ? 'trace' : isEnv ? 'deploy' : node.chip || null;
+        const kind = document.createElement('span');
+        kind.className = chip ? 'chip' : 'kind';
+        kind.textContent = chip || node.kind;
+        return [text, kind];
+      };
+
       const add = (node, depth, path) => {
         const id = path + '/' + node.name;
         const isHere = !!node.view && node.view === here;
@@ -580,14 +648,7 @@
           dot.className = 'dot' + (isHere ? ' dot--here' : '') + (node.kind === 'Feature trace' ? ' dot--flow' : '') + (node.kind === 'Environment' ? ' dot--env' : '');
           dot.setAttribute('aria-hidden', 'true');
 
-          const text = document.createElement('span');
-          text.className = 'rowtext'; text.textContent = node.name;
-
-          const isFlow = node.kind === 'Feature trace';
-          const isEnv = node.kind === 'Environment';
-          const kind = document.createElement('span');
-          kind.className = isFlow || isEnv ? 'chip' : 'kind';
-          kind.textContent = isFlow ? 'trace' : isEnv ? 'deploy' : node.kind;
+          const [text, kind] = label(node);
 
           b.append(caret, dot, text, kind);
           /* ONE GESTURE, TWO EFFECTS, deliberately: the row opens its view and unfolds its branch
@@ -604,8 +665,7 @@
           li.className = 'leaf'; li.style.paddingLeft = pad;
           const gap = document.createElement('span'); gap.className = 'caret'; gap.setAttribute('aria-hidden', 'true');
           const dot = document.createElement('span'); dot.className = 'dot dot--leaf'; dot.setAttribute('aria-hidden', 'true');
-          const text = document.createElement('span'); text.className = 'rowtext'; text.textContent = node.name;
-          const kind = document.createElement('span'); kind.className = 'kind'; kind.textContent = node.kind;
+          const [text, kind] = label(node);
           li.append(gap, dot, text, kind); treeEl.append(li);
         }
         if (unfolded) for (const c of node.children) add(c, depth + 1, id);
@@ -637,8 +697,10 @@
         return;
       }
       SITE = project + '/site/index.html';
-      frame.src = SITE + '#' + START;
 
+      /* THE FRAME IS POINTED AFTER THE MODEL IS READ, and that ordering is the fix rather than an
+         accident of style: the opening view is a fact about this workspace, so it cannot be known
+         before the workspace is. */
       let ws;
       try {
         const res = await fetch(project + '/workspace.json');
@@ -650,6 +712,22 @@
         unevaluable('workspace.json could not be fetched (' + (e.message || 'blocked') + '), which is what happens when this page is opened from disk rather than served.');
         return;
       }
+      /* A HASH NAMING A VIEW THIS WORKSPACE DOES NOT HAVE is the same blank canvas by another
+         route — a stale link, or a fragment copied between two projects. It opens on the first view
+         and SAYS so, because a wrapper that silently redirects teaches its reader that the link
+         worked. */
+      const keys = viewKeys(ws);
+      let start = ASKED;
+      if (!start) start = keys[0] ?? null;
+      else if (!keys.includes(start)) {
+        noteEl.hidden = false;
+        noteEl.innerHTML = '<strong>' + start + ' is not a view here.</strong> This workspace draws ' +
+          (keys.length ? keys.join(', ') : 'no views at all') + '. Opened on ' + (keys[0] ?? 'nothing') + ' instead.';
+        start = keys[0] ?? null;
+      }
+      if (!start) { unevaluable('This workspace declares no views, so there is nothing to open.'); return; }
+      frame.src = SITE + '#' + start;
+
       const ix = index(ws);
       ROOTS = ix.roots;
       TRACES = ix.tracesOver;

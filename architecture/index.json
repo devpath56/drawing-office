@@ -5,6 +5,11 @@
       "dir": "internet-banking",
       "name": "Internet Banking System",
       "description": "The fictional bank from The C4 Model, ch03: system context."
+    },
+    {
+      "dir": "payments",
+      "name": "Payments Platform",
+      "description": "A message-driven architecture, modelled per chapter 11 of the C4 model."
     }
   ]
 }
