@@ -12,7 +12,7 @@
     "export": "structurizr-cli export -w architecture/internet-banking/workspace.dsl -f json -o architecture/internet-banking && structurizr-cli export -w architecture/internet-banking/workspace.dsl -f static -o architecture/internet-banking/site",
     "index": "node checks/diagram-contrast.mjs --index",
     "serve": "python3 -m http.server 8015",
-    "check": "node checks/diagram-contrast.mjs && node checks/pubsub.mjs && node checks/perspectives.mjs && node checks/diagram-key.mjs && node checks/test-viewer.mjs && node checks/test-trace-suggest.mjs && node checks/test-tools.mjs",
+    "check": "node checks/diagram-contrast.mjs && node checks/model.mjs > /dev/null && node checks/test-model.mjs && node checks/pubsub.mjs && node checks/perspectives.mjs && node checks/diagram-key.mjs && node checks/test-viewer.mjs && node checks/test-trace-suggest.mjs && node checks/test-tools.mjs",
     "perspectives": "node checks/perspectives.mjs",
     "key": "node checks/diagram-key.mjs",
     "aids": "node tools/reading-aids.mjs http://localhost:8015/architecture/internet-banking/site/index.html --view Components",

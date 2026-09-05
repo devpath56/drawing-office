@@ -42,6 +42,8 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+import { containers as modelContainers, byId as modelById, relationships as modelRelationships } from './model.mjs';
+
 export const STATES = Object.freeze(['clean', 'findings', 'ABSENT', 'UNEVALUABLE']);
 
 /* THE VOCABULARY, IN ONE PLACE, because three modules spelling "topic" differently is a fault this
@@ -77,14 +79,9 @@ export function isGeneric(description) {
   return rest === '' || NOUN.test(rest);
 }
 
-/** Every container in the model, each carrying the system it lives in. */
-export function containersOf(ws) {
-  const out = [];
-  for (const s of ws?.model?.softwareSystems ?? []) {
-    for (const c of s.containers ?? []) out.push({ ...c, systemId: String(s.id), systemName: s.name });
-  }
-  return out;
-}
+/* THE WALK IS NOT HERE ANY MORE. Three checks had one each, under three names, and they disagreed
+   about what the model contains — this one saw only containers, so a queue modelled as a software
+   system was outside its world while diagram-key counted it. checks/model.mjs is the one reader. */
 
 /** The style an element ends up with, resolving its tags against the theme in declared order. */
 export function styleOf(el, theme) {
@@ -114,20 +111,10 @@ export function isDashed(rel, theme) {
  */
 export function inspect(ws, theme) {
   const findings = [];
-  const containers = containersOf(ws);
-  const byId = new Map(containers.map((c) => [String(c.id), c]));
-  for (const p of ws?.model?.people ?? []) byId.set(String(p.id), { ...p, systemId: null, systemName: null });
-  for (const s of ws?.model?.softwareSystems ?? []) byId.set(String(s.id), { ...s, systemId: String(s.id), systemName: s.name });
-
-  /* Every relationship in the model, flattened, with both ends resolved. */
-  const rels = [];
-  const collect = (owner) => {
-    for (const r of owner.relationships ?? []) {
-      rels.push({ ...r, source: byId.get(String(owner.id)), destination: byId.get(String(r.destinationId)) });
-    }
-  };
-  for (const p of ws?.model?.people ?? []) collect(p);
-  for (const s of ws?.model?.softwareSystems ?? []) { collect(s); for (const c of s.containers ?? []) collect(c); }
+  const containers = modelContainers(ws);
+  const byId = modelById(ws);
+  /* Every relationship in the model, both ends already resolved by the one reader. */
+  const rels = modelRelationships(ws);
 
   const channels = containers.filter((c) => classify(c) === 'channel');
   const add = (rule, where, why, cite) => findings.push({ rule, where, why, cite });

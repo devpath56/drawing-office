@@ -39,6 +39,7 @@ import { fileURLToPath } from 'node:url';
    asks that module what the file is called rather than keeping a second copy of the rule — the two
    copies had already drifted by one .replace(). */
 import { slug } from '../tools/diagram-export.mjs';
+import { byId, relationships as modelRelationships } from './model.mjs';
 
 /** The name a view's key file is written under — the writer's rule, re-exported so a control can
     compare both sides of the round trip without reaching into either module's private scope. */
@@ -52,37 +53,23 @@ export const STATES = Object.freeze(['clean', 'findings', 'NOT-CHECKED', 'UNEVAL
    styled by the base rows rather than named on the key as separate entries. */
 export const IMPLICIT = Object.freeze(['Element', 'Relationship']);
 
-/** Every element of the model, by id, with its tags and the view-relevant kind. */
-export function elementsById(ws) {
-  const by = new Map();
-  const put = (e, kind) => by.set(String(e.id), { name: e.name, kind, tags: String(e.tags ?? '').split(',').map((t) => t.trim()).filter(Boolean), perspectives: e.perspectives ?? [] });
-  for (const p of ws?.model?.people ?? []) put(p, 'Person');
-  for (const s of ws?.model?.softwareSystems ?? []) {
-    put(s, 'Software System');
-    for (const c of s.containers ?? []) { put(c, 'Container'); for (const k of c.components ?? []) put(k, 'Component'); }
-  }
-  for (const n of ws?.model?.deploymentNodes ?? []) put(n, 'Deployment Node');
-  return by;
-}
+/* THE WALK IS NOT HERE ANY MORE. This one read deployment nodes only one level deep, so a container
+   instance nested inside a node was outside the model as far as this check was concerned — a
+   deployment plate could look fully judged and be half-read. checks/model.mjs recurses. */
 
 /** The tags a view actually draws, elements and relationships alike. */
 export function tagsUsedBy(ws, view) {
-  const by = elementsById(ws);
+  const by = byId(ws);
   const elementTags = new Set();
   for (const e of view.elements ?? []) {
     const el = by.get(String(e.id));
     for (const t of el?.tags ?? []) if (!IMPLICIT.includes(t)) elementTags.add(t);
   }
   /* A relationship's tags live on the model relationship, not on the view's reference to it. */
-  const relById = new Map();
-  const collect = (o) => { for (const r of o.relationships ?? []) relById.set(String(r.id), String(r.tags ?? '')); };
-  for (const p of ws?.model?.people ?? []) collect(p);
-  for (const s of ws?.model?.softwareSystems ?? []) { collect(s); for (const c of s.containers ?? []) { collect(c); for (const k of c.components ?? []) collect(k); } }
+  const relById = new Map(modelRelationships(ws).map((r) => [r.id, r.tags]));
   const relationshipTags = new Set();
   for (const r of view.relationships ?? []) {
-    for (const t of String(relById.get(String(r.id)) ?? '').split(',').map((x) => x.trim()).filter(Boolean)) {
-      if (!IMPLICIT.includes(t)) relationshipTags.add(t);
-    }
+    for (const t of relById.get(String(r.id)) ?? []) if (!IMPLICIT.includes(t)) relationshipTags.add(t);
   }
   return { elementTags, relationshipTags };
 }

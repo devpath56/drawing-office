@@ -35,21 +35,14 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+import { elements } from './model.mjs';
+
 export const STATES = Object.freeze(['clean', 'findings', 'ABSENT', 'UNEVALUABLE']);
 
-/** Every element in the model that can carry a perspective, flattened, with its id and name. */
-export function elementsOf(ws) {
-  const out = [];
-  for (const p of ws?.model?.people ?? []) out.push({ id: String(p.id), name: p.name, kind: 'Person', perspectives: p.perspectives ?? [] });
-  for (const s of ws?.model?.softwareSystems ?? []) {
-    out.push({ id: String(s.id), name: s.name, kind: 'Software System', perspectives: s.perspectives ?? [] });
-    for (const c of s.containers ?? []) {
-      out.push({ id: String(c.id), name: c.name, kind: 'Container', perspectives: c.perspectives ?? [] });
-      for (const k of c.components ?? []) out.push({ id: String(k.id), name: k.name, kind: 'Component', perspectives: k.perspectives ?? [] });
-    }
-  }
-  return out;
-}
+/* THE WALK IS NOT HERE ANY MORE, and the reason is a defect rather than tidiness: this file, pubsub
+   and diagram-key each had one, under three names, and they did not agree — this one never saw a
+   deployment node, so a perspective declared on one was invisible to the coverage report while
+   diagram-key counted the same element. One reader now, in checks/model.mjs. */
 
 /** Every static view, with the ids it draws — the population a layer is measured against. */
 export function viewsOf(ws) {
@@ -62,7 +55,7 @@ export function viewsOf(ws) {
 
 /** Coverage per perspective per view, plus the layer-of-one refusal. */
 export function inspect(ws) {
-  const els = elementsOf(ws);
+  const els = elements(ws);
   const byId = new Map(els.map((e) => [e.id, e]));
   const names = [...new Set(els.flatMap((e) => e.perspectives.map((p) => p.name)))].sort();
   if (!names.length) return { state: 'ABSENT', names: [], coverage: [], findings: [] };

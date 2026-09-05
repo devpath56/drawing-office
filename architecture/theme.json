@@ -76,6 +76,12 @@
       "background": "#1F2226",
       "stroke": "#9aa4b2",
       "color": "#ffffff"
+    },
+    {
+      "tag": "Infrastructure Node",
+      "background": "#1F2226",
+      "stroke": "#9aa4b2",
+      "color": "#ffffff"
     }
   ],
   "relationships": [
