@@ -179,8 +179,22 @@ if (IS_MAIN) {
     const silent = `<script>const ASKED = null;</script>`;
     say('a wrapper that never reads the hash is UNEVALUABLE, not clean', inspect(silent).statement === null, inspect(silent));
 
-    console.log(`\n${held} of 17 held`);
-    process.exit(held === 17 ? 0 : 1);
+    /* ── THE FRAME MUST NOT BE ABLE TO SERVE YESTERDAY'S BUNDLE ───────────────────────────────
+       A re-export was invisible to the page: the frame is navigated by HASH, so its document is
+       never re-fetched, and python's http.server sends no ETag and no Cache-Control, so the
+       browser kept site/workspace.js. The rail was fresh, the plate was stale, and the view the
+       rail offered rendered as an empty canvas. The rule is that SITE carries a token derived from
+       the model's own age, and that the token is READ rather than invented — a Date.now() would
+       defeat caching entirely and re-download the bundle on every keystroke. */
+    const shipped = fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'architecture', 'viewer.html'), 'utf8');
+    const usesStamp = /SITE \+= '\?v='/.test(shipped) && /res\.headers\.get\('last-modified'\)/.test(shipped);
+    say('the frame URL carries a cache token derived from the model, not a clock',
+      usesStamp && !/\?v=' \+ Date\.now\(\)/.test(shipped), { usesStamp, invented: /\?v=' \+ Date\.now\(\)/.test(shipped) });
+    say('and the token is only added when the model actually reports an age',
+      /if \(stamp\)/.test(shipped), 'guarded');
+
+    console.log(`\n${held} of 19 held`);
+    process.exit(held === 19 ? 0 : 1);
   }
 
   const file = path.join(ROOT, 'architecture', 'viewer.html');
