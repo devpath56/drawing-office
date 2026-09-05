@@ -373,6 +373,9 @@
       "key" : "Settle",
       "name" : "Dynamic View: Payments Platform",
       "order" : 3,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
       "relationships" : [ {
         "description" : "Submits a payment",
         "id" : "10",

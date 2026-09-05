@@ -259,12 +259,18 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
         }
 
         deployment internetBanking "Development" "DeploymentDev" {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             include *
             autoLayout lr 500 400
             description "A laptop inside the bank's network: the UI in a browser, the backend on a JVM, and the rest in Docker."
         }
 
         deployment internetBanking "Live" "DeploymentLive" {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             include *
             autoLayout lr 500 400
             description "The UI runs on the customer's machine; almost everything else runs in AWS, with Cloudflare in front."
@@ -286,6 +292,9 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
            nothing in the static picture flows that way. Whether this view can show a response
            without inventing static relationships is exactly what this checkpoint tests. */
         dynamic backend "SignIn" {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             singlePageApp -> signInApi "Submits credentials to"
             signInApi -> securityComponent "Validates credentials using"
             securityComponent -> database "select * from users where username = ?"

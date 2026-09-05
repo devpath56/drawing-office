@@ -191,7 +191,11 @@ if (IS_MAIN) {
     let src = fs.readFileSync(dsl, 'utf8');
     /* A view header is a keyword, an optional scope, a quoted key and an opening brace. The property
        block goes on the line after it, at the header's own indent plus four. */
-    const HEAD = /^([ \t]*)(systemLandscape|systemContext|container|component)\b[^\n{]*\{[ \t]*$/gm;
+    /* EVERY VIEW KIND, because the first cut matched only the four static ones and left the
+       operator hovering a dynamic view with tooltips off — which reads exactly like the tooltip
+       being broken rather than being disabled on that view. A trace is where a reader most wants
+       to hover: the steps are numbered and the boxes are dimmed. */
+    const HEAD = /^([ \t]*)(systemLandscape|systemContext|container|component|dynamic|deployment)\b[^\n{]*\{[ \t]*$/gm;
     const already = new RegExp(TOOLTIP_PROPERTY.replace('.', '\\.'));
     let added = 0, out = '', at = 0;
     for (const m of src.matchAll(HEAD)) {

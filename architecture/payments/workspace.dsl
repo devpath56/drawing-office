@@ -75,6 +75,9 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
         }
 
         dynamic payments "Settle" "One payment, from submission to the cardholder being told." {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             cardholder -> checkout "Submits a payment"
             checkout -> paymentRequests "Sends a payment requested event"
             paymentRequests -> settlement "Delivers the payment requested event"
