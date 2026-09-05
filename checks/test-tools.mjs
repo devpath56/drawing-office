@@ -28,7 +28,8 @@ import { fileURLToPath } from 'node:url';
 
 import * as animate from '../tools/trace-animate.mjs';
 import * as suggest from '../tools/trace-suggest.mjs';
-import { STATES as EXPORT_STATES, ground, canvasOf } from '../tools/diagram-export.mjs';
+import { STATES as EXPORT_STATES, ground, canvasOf, slug } from '../tools/diagram-export.mjs';
+import * as key from '../checks/diagram-key.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let bad = 0;
@@ -77,6 +78,15 @@ ok('an exported drawing is re-grounded on the theme canvas', /background: #1F222
 ok('a drawing with no style attribute is left alone rather than corrupted', ground('<svg><g/></svg>', '#1F2226') === '<svg><g/></svg>', ground('<svg><g/></svg>', '#1F2226'));
 ok('the canvas is read from the theme, and says where it came from', canvasOf(ROOT).from === 'architecture/theme.json' && /^#/.test(canvasOf(ROOT).canvas), canvasOf(ROOT));
 ok('diagram-export declares the states it returns', EXPORT_STATES.includes('written') && EXPORT_STATES.includes('UNEVALUABLE'), EXPORT_STATES);
+
+/* A DECLARED STATE NOTHING RETURNS IS DECORATION. diagram-key declared four and returned none until
+   the review that added this row; the assertion is that the vocabulary and the code agree. */
+ok('diagram-key returns a state from its own declared vocabulary', key.STATES.includes(key.inspect({ model: {}, views: {} }, { elements: [], relationships: [] }).state), key.inspect({ model: {}, views: {} }, { elements: [], relationships: [] }).state);
+
+/* THE FILE NAME IS ONE DECISION. diagram-key reads the key SVGs diagram-export writes, and it kept
+   its own copy of the naming rule which had already drifted by one replace — so a view key with a
+   leading separator was written under one name and looked for under another. */
+ok('the exported file name has one home, and a leading separator survives the round trip', slug('-Live') === key.keyFileSlug('-Live'), { writer: slug('-Live'), reader: key.keyFileSlug('-Live') });
 
 /* ── the browser modules refuse legibly ──────────────────────────────────────────────────────── */
 

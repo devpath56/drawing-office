@@ -42,7 +42,12 @@ const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 export const STATES = Object.freeze(['written', 'ABSENT', 'UNEVALUABLE']);
 
-const slug = (s) => String(s).replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-|-$/g, '');
+/* THE NAME OF AN EXPORTED FILE IS THIS MODULE'S DECISION, so it is exported rather than copied.
+   checks/diagram-key.mjs had its own copy to find the key files this module writes, and the two had
+   ALREADY DIVERGED: that one lacked the trailing .replace(/^-|-$/g, ''), so a view key with a
+   leading or trailing separator produced one name here and a different one there, and the check
+   would have reported NOT-CHECKED for a key that was sitting on disk under the other spelling. */
+export const slug = (s) => String(s).replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-|-$/g, '');
 
 /**
  * Open a Structurizr static site and write one SVG per view.

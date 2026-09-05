@@ -35,6 +35,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+/* ONE HOME FOR THE NAME OF AN EXPORTED FILE. This module reads what diagram-export writes, so it
+   asks that module what the file is called rather than keeping a second copy of the rule — the two
+   copies had already drifted by one .replace(). */
+import { slug } from '../tools/diagram-export.mjs';
+
+/** The name a view's key file is written under — the writer's rule, re-exported so a control can
+    compare both sides of the round trip without reaching into either module's private scope. */
+export const keyFileSlug = slug;
+
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 export const STATES = Object.freeze(['clean', 'findings', 'NOT-CHECKED', 'UNEVALUABLE']);
@@ -141,7 +150,10 @@ export function inspect(ws, theme, { keyText = null } = {}) {
     }
   }
 
-  return { views: views.length, findings, used: usedAnywhere };
+  /* THE STATE IS RETURNED, and before this it was not: STATES declared four words and inspect
+     returned none of them, so every one was an unreachable declaration — a shape row 26 of the
+     Ousterhout catalogue exists for, and one that every other row passes. */
+  return { state: findings.length ? 'findings' : 'clean', views: views.length, findings, used: usedAnywhere };
 }
 
 /**
@@ -167,6 +179,63 @@ export function unseenStyles(theme, usedAcross) {
     });
   }
   return out;
+}
+
+/**
+ * THE WHOLE JOB, IN ONE CALL — and it is one call because it was six.
+ *
+ * Every export above is a PART: a walk, a tag set, a rule, a palette verdict. Nothing exposed the
+ * WHOLE, so the only correct way to use this module was the sequence transcribed in its own command
+ * line: read the theme, enumerate the workspaces, inspect each, collect the tags each one uses,
+ * union them, and only then judge the palette. Six steps, in one order, in a block no other caller
+ * could reach.
+ *
+ * THAT IS INFORMATION LEAKAGE, and it is the same defect this file's own union fix created. The
+ * decision "the palette's denominator is every workspace in the repo" was spread across inspect
+ * (which returns `used`), unseenStyles (which takes the union) and the CLI (which does the
+ * unioning) — three places, and the one that owned it was a command-line wrapper. Any second
+ * caller, in this repo or the next, would have had to rediscover the order or get a wrong answer
+ * quietly. The best modules are those whose interfaces are much simpler than their implementations,
+ * and this module's interface was larger than any piece of its implementation.
+ *
+ * So the sequence lives here. The CLI below is a printer.
+ */
+export function audit({ root = HERE, svgDir = null, read = fs } = {}) {
+  let theme;
+  try { theme = JSON.parse(read.readFileSync(path.join(root, 'architecture', 'theme.json'), 'utf8')); }
+  catch (e) { return { state: 'UNEVALUABLE', why: `architecture/theme.json could not be read (${e.message})`, workspaces: [], palette: [], notChecked: 0 }; }
+
+  const dir = path.join(root, 'architecture');
+  let targets = [];
+  try {
+    targets = read.readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory())
+      .map((d) => path.join(dir, d.name, 'workspace.json')).filter((f) => read.existsSync(f));
+  } catch { /* answered next */ }
+  if (!targets.length) return { state: 'UNEVALUABLE', why: 'no exported workspace.json found; export the DSL first', workspaces: [], palette: [], notChecked: 0 };
+
+  const keys = svgDir ?? path.join(root, 'architecture', 'svg');
+  let notChecked = 0;
+  const keyText = (viewKey) => {
+    const f = path.join(keys, `${slug(viewKey)}-key.svg`);
+    if (!read.existsSync(f)) { notChecked++; return null; }
+    return svgText(read.readFileSync(f, 'utf8'));
+  };
+
+  const usedAcross = new Set();
+  const workspaces = [];
+  for (const f of targets) {
+    let ws;
+    try { ws = JSON.parse(read.readFileSync(f, 'utf8')); }
+    catch (e) { return { state: 'UNEVALUABLE', why: `${f} does not parse: ${e.message}`, workspaces, palette: [], notChecked }; }
+    const r = inspect(ws, theme, { keyText });
+    for (const t of r.used) usedAcross.add(t);
+    workspaces.push({ file: f, views: r.views, findings: r.findings });
+  }
+
+  /* THE PALETTE IS JUDGED ONCE, against every workspace, because there is one of it. */
+  const palette = unseenStyles(theme, usedAcross);
+  const total = workspaces.reduce((n, w) => n + w.findings.length, 0) + palette.length;
+  return { state: total ? 'findings' : 'clean', workspaces, palette, used: usedAcross, notChecked, total };
 }
 
 /* ── CLI ─────────────────────────────────────────────────────────────────────────────────────── */
@@ -221,50 +290,38 @@ if (IS_MAIN) {
 
     say('svgText strips markup so a key can be searched as words', svgText('<svg><text>Container,&#160;Channel</text></svg>').includes('Container'), svgText('<svg><text>Container, Channel</text></svg>'));
 
-    console.log(`\n${ok} of 9 held`);
-    process.exit(ok === 9 ? 0 : 1);
+    /* THE DECLARED STATES MUST BE REACHABLE. Before the review that produced these three cases,
+       STATES named four words and inspect returned none of them — an unreachable declaration, which
+       every other rule in the catalogue passes because the code reads perfectly well. */
+    say('inspect returns a state, and it is one of the declared four', STATES.includes(inspect(ws, theme).state), inspect(ws, theme).state);
+    say('a workspace with a finding says findings, not clean', inspect(untagged, theme).state === 'findings', inspect(untagged, theme).state);
+
+    /* AND THE WHOLE JOB IS ONE CALL, so a caller cannot get the order wrong. A root with no
+       architecture directory is UNEVALUABLE with a reason, never a clean zero. */
+    const nowhere = audit({ root: '/nonexistent-' + Date.now() });
+    say('audit on a root with nothing in it is UNEVALUABLE with a reason, never clean', nowhere.state === 'UNEVALUABLE' && typeof nowhere.why === 'string' && nowhere.why.length > 10, nowhere);
+
+    console.log(`\n${ok} of 12 held`);
+    process.exit(ok === 12 ? 0 : 1);
   }
 
-  let theme;
-  try { theme = JSON.parse(fs.readFileSync(path.join(root, 'architecture', 'theme.json'), 'utf8')); }
-  catch (e) { console.log(`UNEVALUABLE — architecture/theme.json could not be read (${e.message})`); process.exit(3); }
+  /* THE COMMAND LINE PRINTS AN ANSWER IT DID NOT COMPUTE. Everything above this line used to live
+     here, which meant the only correct use of this module was transcribed in a place no other
+     caller could reach. */
+  const a = audit({ root, svgDir: flag('--svg', null) });
+  if (a.state === 'UNEVALUABLE') { console.log(`UNEVALUABLE — ${a.why}`); process.exit(3); }
 
-  const dir = path.join(root, 'architecture');
-  const targets = fs.existsSync(dir)
-    ? fs.readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory())
-        .map((d) => path.join(dir, d.name, 'workspace.json')).filter((f) => fs.existsSync(f))
-    : [];
-  if (!targets.length) { console.log('UNEVALUABLE — no exported workspace.json found; export the DSL first'); process.exit(3); }
-
-  const svgDir = flag('--svg', path.join(root, 'architecture', 'svg'));
-  const slug = (s) => String(s).replace(/[^A-Za-z0-9._-]+/g, '-');
-  let notChecked = 0;
-  const keyText = (viewKey) => {
-    const f = path.join(svgDir, `${slug(viewKey)}-key.svg`);
-    if (!fs.existsSync(f)) { notChecked++; return null; }
-    return svgText(fs.readFileSync(f, 'utf8'));
-  };
-
-  let bad = 0;
-  const usedAcross = new Set();
-  for (const f of targets) {
-    let ws;
-    try { ws = JSON.parse(fs.readFileSync(f, 'utf8')); }
-    catch (e) { console.log(`UNEVALUABLE — ${f} does not parse: ${e.message}`); process.exit(3); }
-    const r = inspect(ws, theme, { keyText });
-    for (const t of r.used) usedAcross.add(t);
-    console.log(`\n  diagram-key · ${path.relative(process.cwd(), f)} · ${r.views} view(s)`);
-    for (const x of r.findings) { bad++; console.log(`    FAIL ${x.rule}\n         ${x.where}\n         ${x.why}\n         ${x.cite}`); }
-    if (!r.findings.length) console.log('    every notation these views use is styled');
+  const show = (x) => console.log(`    FAIL ${x.rule}\n         ${x.where}\n         ${x.why}\n         ${x.cite}`);
+  for (const w of a.workspaces) {
+    console.log(`\n  diagram-key · ${path.relative(process.cwd(), w.file)} · ${w.views} view(s)`);
+    if (!w.findings.length) console.log('    every notation these views use is styled');
+    for (const x of w.findings) show(x);
   }
+  console.log(`\n  palette · ${a.used.size} tag(s) drawn across ${a.workspaces.length} workspace(s)`);
+  if (!a.palette.length) console.log('    every palette row is drawn somewhere');
+  for (const x of a.palette) show(x);
 
-  /* THE PALETTE IS JUDGED ONCE, against every workspace, because there is one of it. */
-  const unseen = unseenStyles(theme, usedAcross);
-  console.log(`\n  palette · ${usedAcross.size} tag(s) drawn across ${targets.length} workspace(s)`);
-  for (const x of unseen) { bad++; console.log(`    FAIL ${x.rule}\n         ${x.where}\n         ${x.why}\n         ${x.cite}`); }
-  if (!unseen.length) console.log('    every palette row is drawn somewhere');
-
-  console.log(`\n  ${bad} finding(s)`);
-  if (notChecked) console.log(`  NOT-CHECKED ${notChecked} view(s) have no exported key beside them — run the svg export to compare the rendered key against the model`);
-  process.exit(bad ? 1 : 0);
+  console.log(`\n  ${a.total} finding(s)`);
+  if (a.notChecked) console.log(`  NOT-CHECKED ${a.notChecked} view(s) have no exported key beside them — run the svg export to compare the rendered key against the model`);
+  process.exit(a.total ? 1 : 0);
 }
