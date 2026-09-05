@@ -217,7 +217,12 @@
       </div>
       <p class="note" data-note hidden></p>
     </nav>
-    <iframe title="Architecture diagrams"></iframe>
+    <!-- allowfullscreen, because the renderer advertises f and an iframe withholds it by default.
+         A wrapper that quietly removes a capability the export has is the worst kind of wrapper:
+         the reader presses the key the welcome panel told them about and concludes the tool is
+         broken, when it is this file. Both spellings are given — the attribute for older engines,
+         the allow= policy for current ones. -->
+    <iframe title="Architecture diagrams" allowfullscreen allow="fullscreen"></iframe>
   </main>
 
 <script>

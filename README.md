@@ -29,6 +29,7 @@ They were one directory until a review pointed out that one folder was carrying 
 | `test-viewer` | a wrapper whose opening view is a typed-in view key rather than the model's own · a row label written in two places, so a chip reaches only half the rail |
 | `perspectives` | a perspective declared on a single element, which is a tooltip rather than a layer. Coverage per view is reported, never gated |
 | `pubsub` | a message bus modelled as a container · a queue or topic drawn as a plain box · a hop through one drawn as a solid line · "Sends messages to" and other labels that name no message · a channel with only one end drawn · a queue joining two systems with no declared owner |
+| `tools/reading-aids` | nothing on its own — it *measures* which of the keys the renderer advertises actually do something in your export, and refuses to call a key dead when the embedding was what blocked it |
 | `tools/diagram-collisions` | a label lying across a box, across another label, or escaping its own box |
 | `tools/trace-suggest` | nothing — it *recommends*. Which features deserve a trace is a product judgement |
 | `tools/trace-animate` | nothing — it writes the animation frames the exporter does not |
@@ -187,6 +188,38 @@ ownership and correctly dim; a rule demanding every element would refuse the boo
 **`pubsub` accepts an ownership perspective** as the answer to its cross-system queue rule — chapter
 11 asks who owns the queue and chapter 12 says where that answer goes, so demanding a group or a tag
 would refuse the model that answers it the way the same book recommends.
+
+## The keys the viewer advertises
+
+The exported site opens with a panel listing nine things to press. That list is the renderer's, not
+your workspace's, so it promises the same nine to every repo — and a key can be inert for reasons
+that are about your model: nothing for `d` to reveal, no perspectives for `p` to layer.
+
+```bash
+npm run serve &        # then, in another shell
+npm run aids
+```
+
+**Measured by hand on the bank's export, 2026-09-04**, which is where the tool's three states come from:
+
+| key | verdict | reading |
+|---|---|---|
+| `d` descriptions | **WORKS** | 0 → 12 description texts visible, and back |
+| `m` metadata | **WORKS** | 2 → 21 metadata texts visible, and back |
+| `Space` quick nav | **INERT** | 682 visible elements before and after; nothing appeared |
+| `f` full screen | **UNEVALUABLE** | `requestFullscreen()` throws "Permissions check failed" when called *directly*, so the refusal is the embedding, not the export |
+| `t` tooltips | **UNEVALUABLE** | a tooltip was seen rendering in this same export; pressing `t` changed no measurable state |
+
+**The control is what makes `f` honest.** Without calling `requestFullscreen()` directly, a null
+`fullscreenElement` after pressing `f` reads as "the export ignores it" — and that would have been
+published as a finding about somebody else's software.
+
+**A toggle that latches is UNEVALUABLE, not WORKS.** If `d` turned descriptions on and a second press
+did not turn them off, the reader could not get back to the diagram they had.
+
+**The wrapper used to withhold full screen.** An iframe refuses it unless the embedder says so, so a
+reader would press the key the welcome panel advertised and conclude the tool was broken when it was
+`viewer.html`. `test-viewer` now refuses any iframe that does not pass it through.
 
 ## Honest limits
 

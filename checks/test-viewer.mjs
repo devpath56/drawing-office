@@ -82,10 +82,17 @@ export function inspect(src) {
      rule generalises: a wrapper that can put the diagram into a mode — a layer on, a walk running —
      must announce it, and an announcement written at each branch stops covering the branch someone
      adds next year. Counted as calls, so the definition does not inflate it. */
+  /* A WRAPPER MUST NOT WITHHOLD WHAT THE EXPORT HAS. The renderer advertises full screen on its own
+     welcome panel, and an iframe refuses it unless the embedder says otherwise — so a reader presses
+     the key they were told about, nothing happens, and the tool looks broken when the wrapper is.
+     Checked as a property of the tag rather than of the file, because a second iframe added later
+     would need it too. */
+  const frames = clean.match(/<iframe\b[^>]*>/g) ?? [];
+  const framesWithoutFullscreen = frames.filter((f) => !/allowfullscreen|allow\s*=\s*["'][^"']*fullscreen/.test(f)).length;
   const mentions = (clean.match(/\bsayLayer\s*\(/g) ?? []).length;
   const defined = /function\s+sayLayer\s*\(/.test(clean);
   const sayLayerCalls = mentions - (defined ? 1 : 0);
-  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext, sayLayerCalls };
+  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext, sayLayerCalls, frames: frames.length, framesWithoutFullscreen };
 }
 
 /* ── CLI ─────────────────────────────────────────────────────────────────────────────────────── */
@@ -134,14 +141,21 @@ if (IS_MAIN) {
     const modeNever = mode.replace('fillOrder(k); sayLayer(k);', 'fillOrder(k);');
     say('a mode notice that is never called is caught', inspect(modeNever).sayLayerCalls === 0, inspect(modeNever));
 
+    /* THE WRAPPER MUST NOT WITHHOLD FULL SCREEN. */
+    const bare = `<script>const ASKED=(location.hash||'').replace(/^#/,'')||null; const t=document.createElement('span'); t.className='rowtext';</script><iframe title="x"></iframe>`;
+    say('an iframe with no fullscreen permission is caught', inspect(bare).framesWithoutFullscreen === 1, inspect(bare));
+    say('the attribute spelling is accepted', inspect(bare.replace('title="x"', 'title="x" allowfullscreen')).framesWithoutFullscreen === 0, inspect(bare.replace('title="x"', 'title="x" allowfullscreen')));
+    say('the allow= policy spelling is accepted too', inspect(bare.replace('title="x"', 'title="x" allow="fullscreen"')).framesWithoutFullscreen === 0, inspect(bare.replace('title="x"', 'title="x" allow="fullscreen"')));
+    say('a page with no iframe at all reports none rather than a finding', inspect(bare.replace(/<iframe[^>]*><\/iframe>|<iframe[^>]*>/, '')).frames === 0, inspect(bare.replace(/<iframe[^>]*>/, '')));
+
     const explained = clean.replace('<script>', `<script>/* it used to read || 'SystemContext', which was the bank's key */`);
     say('the forbidden literal quoted inside a comment is not a finding', inspect(explained).literals.length === 0, inspect(explained).literals);
 
     const silent = `<script>const ASKED = null;</script>`;
     say('a wrapper that never reads the hash is UNEVALUABLE, not clean', inspect(silent).statement === null, inspect(silent));
 
-    console.log(`\n${held} of 10 held`);
-    process.exit(held === 10 ? 0 : 1);
+    console.log(`\n${held} of 14 held`);
+    process.exit(held === 14 ? 0 : 1);
   }
 
   const file = path.join(ROOT, 'architecture', 'viewer.html');
@@ -160,6 +174,8 @@ if (IS_MAIN) {
     r.rowtext === 1, `${r.rowtext} writer(s) of class rowtext`);
   ok('the mode notice is called from exactly one place, so a new branch cannot stop announcing it',
     r.sayLayerCalls === 1, `${r.sayLayerCalls} call site(s) of sayLayer`);
+  ok('every iframe passes full screen through, so a key the renderer advertises is not withheld here',
+    r.framesWithoutFullscreen === 0, `${r.framesWithoutFullscreen} of ${r.frames} iframe(s) withhold it`);
 
   console.log(`\n${bad ? `${bad} FAIL` : 'all ok'}`);
   process.exit(bad ? 1 : 0);
