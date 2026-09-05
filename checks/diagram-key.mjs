@@ -153,40 +153,40 @@ export function inspect(ws, theme, { keyText = null } = {}) {
 export const RENDERER_KINDS = Object.freeze(['Person', 'Software System', 'Container', 'Component', 'Deployment Node', 'Infrastructure Node']);
 
 /**
- * A VOCABULARY THE THEME OFFERS TO OTHER REPOS is not an unused row.
+ * A ROW NOBODY HERE DRAWS MUST SAY WHO IT IS FOR — and the field sits on the row.
  *
- * This theme is SEEDED outward — bin/drawing-office.mjs writes it into any repo that wants the
- * machine — so a style can exist for a consumer's model rather than for one here. Measured
- * 2026-09-05: adding the Modified and Proposal delivery states made this check report both as
- * colour decisions nobody will ever see, while MCP-Guard was drawing them in another checkout. The
- * rule's denominator was right and its population was too small.
+ * THE RULE WAS RIGHT AND ITS MECHANISM WAS WRONG, twice in two days. This theme is SEEDED outward,
+ * so a style can exist for a consumer's model rather than for one here, and asking only "does a view
+ * here draw it" produced a false finding both times. The first fix exempted a field called
+ * `deliveryStates`. The second added `offered` to a list of exempt field NAMES, when Channel and
+ * Asynchronous fired on a model with no queues. Each added a special case; neither removed the need
+ * for one; a third was already implied by the shape.
  *
- * The exemption is a DECLARATION rather than a hardcoded list: a theme names its offered
- * vocabularies in fields listed below, and this reads them. A row nobody declares and nobody draws
- * is still a finding, which is the case the rule was written for.
+ * The list also duplicated what it exempted — `offered: ['Channel']` named a tag that already
+ * existed as a row two lines away, so the palette carried the same name twice and the two could
+ * drift apart.
  *
- * IT RECURRED ONCE, one repo out. deliveryStates covered the two rows added the day the rule was
- * written, and Channel and Asynchronous — offered for a consumer model with queues — fired the same
- * false finding on a model that has none. The field list is the fix rather than a second special
- * case: a palette that offers a row to somebody else says so in one place.
+ * SO THE QUESTION CHANGED. Not "is this tag named in one of the vocabularies a growing list knows
+ * about", but "can this row account for itself". A row drawn here needs nothing. A row not drawn
+ * here carries `for`, naming who does draw it. A row that is neither is the finding — which is the
+ * case the rule was written for, and the one an ever-widening exemption list was on course to lose.
+ *
+ * `for` is machinery.json's own word for this question — "which part of the program it serves" —
+ * rather than a fourth vocabulary invented here.
  */
-export const VOCABULARY_FIELDS = Object.freeze(['deliveryStates', 'offered']);
-
-export const offered = (theme) => new Set(VOCABULARY_FIELDS.flatMap((f) => theme?.[f] ?? []));
-
 export function unseenStyles(theme, usedAcross) {
-  const styled = new Set((theme?.elements ?? []).map((r) => r.tag).concat((theme?.relationships ?? []).map((r) => r.tag)));
-  const vocabulary = offered(theme);
+  const rows = [...(theme?.elements ?? []), ...(theme?.relationships ?? [])];
   const out = [];
-  for (const tag of styled) {
+  for (const row of rows) {
+    const tag = row.tag;
     if (IMPLICIT.includes(tag) || RENDERER_KINDS.includes(tag)) continue;
-    if (vocabulary.has(tag)) continue;
     if (usedAcross.has(tag)) continue;
+    if (typeof row.for === 'string' && row.for.trim()) continue;
     out.push({
-      rule: 'unseen-style',
+      rule: 'unaccounted-style',
       where: tag,
-      why: 'the theme styles this tag and no view in any workspace here draws it, so it is a colour decision nobody will ever see and nobody reviews',
-      cite: 'ours, not the book — a palette row with no reader is drift waiting to happen',
+      why: 'no view in any workspace here draws this tag and the row does not say who it is for, so it is a colour decision nobody will ever see and nobody reviews',
+      cite: 'ours, not the book — a palette row with no reader and no stated audience is drift waiting to happen',
     });
   }
   return out;
@@ -281,13 +281,30 @@ if (IS_MAIN) {
     const spare = { ...theme, elements: [...theme.elements, { tag: 'Ghost', shape: 'Hexagon' }] };
     say('a theme row no workspace draws is caught', unseenStyles(spare, inspect(ws, spare).used).some((f) => f.where === 'Ghost'), unseenStyles(spare, inspect(ws, spare).used));
 
-    /* A DECLARED VOCABULARY IS EXEMPT, because this theme is seeded into other repos and a state
-       nobody here uses may be the whole point of the row. An UNDECLARED row nobody draws still
-       fires — that is the case the rule exists for. */
-    const withVocab = { ...theme, deliveryStates: ['Ghost'], elements: [...theme.elements, { tag: 'Ghost', shape: 'Hexagon' }] };
-    say('a style the theme offers as a vocabulary is not reported unused', !unseenStyles(withVocab, inspect(ws, withVocab).used).some((f) => f.where === 'Ghost'), unseenStyles(withVocab, inspect(ws, withVocab).used));
+    /* A ROW THAT ACCOUNTS FOR ITSELF IS EXEMPT, because this theme is seeded into other repos and a
+       row nobody here draws may be the whole point of the palette. A row that does NOT account for
+       itself still fires — that is the case the rule exists for, and the one the retired exemption
+       list was on course to lose as it grew. */
+    const accounted = { ...theme, elements: [...theme.elements, { tag: 'Ghost', shape: 'Hexagon', for: 'a consumer model that marks retired components' }] };
+    say('a row that says who it is for is not reported unused', !unseenStyles(accounted, inspect(ws, accounted).used).some((f) => f.where === 'Ghost'), unseenStyles(accounted, inspect(ws, accounted).used));
     const undeclared = { ...theme, elements: [...theme.elements, { tag: 'Stray', shape: 'Hexagon' }] };
-    say('and an undeclared row nobody draws still fires', unseenStyles(undeclared, inspect(ws, undeclared).used).some((f) => f.where === 'Stray'), unseenStyles(undeclared, inspect(ws, undeclared).used));
+    say('and a row nobody draws and nobody accounts for still fires', unseenStyles(undeclared, inspect(ws, undeclared).used).some((f) => f.where === 'Stray'), unseenStyles(undeclared, inspect(ws, undeclared).used));
+
+    /* A BLANK `for` IS NOT AN ANSWER. The field is cheap to add and would be worthless if the empty
+       string bought silence — that is a rubber stamp with a schema. */
+    const blank = { ...theme, elements: [...theme.elements, { tag: 'Blank', shape: 'Hexagon', for: '   ' }] };
+    say('an empty for is not a stamp — the row still fires', unseenStyles(blank, inspect(ws, blank).used).some((f) => f.where === 'Blank'), unseenStyles(blank, inspect(ws, blank).used));
+
+    /* THE FIELD IS ON THE ROW, so a vocabulary list elsewhere in the theme buys nothing. This is the
+       retired mechanism, asserted dead rather than deleted quietly: deliveryStates is still read by
+       checks/delivery.mjs, and must no longer exempt anything here. */
+    const oldWay = { ...theme, deliveryStates: ['Legacy'], elements: [...theme.elements, { tag: 'Legacy', shape: 'Hexagon' }] };
+    say('the retired exemption list no longer silences a row', unseenStyles(oldWay, inspect(ws, oldWay).used).some((f) => f.where === 'Legacy'), unseenStyles(oldWay, inspect(ws, oldWay).used));
+
+    /* A RELATIONSHIP ROW IS A ROW. The old rule flattened both lists into a set of tag NAMES, which
+       is why it could only ever be exempted by name; reading rows keeps the field reachable on both. */
+    const relFor = { ...theme, relationships: [...(theme.relationships ?? []), { tag: 'Batched', dashed: true, for: 'a consumer model with nightly transfers' }] };
+    say('a relationship row can account for itself too', !unseenStyles(relFor, inspect(ws, relFor).used).some((f) => f.where === 'Batched'), unseenStyles(relFor, inspect(ws, relFor).used));
 
     /* THE DENOMINATOR IS EVERY WORKSPACE, and this case is the one the first draft got wrong on its
        first real run: a tag drawn in one repo's workspace and not the other's is used, not unused. */
@@ -320,8 +337,8 @@ if (IS_MAIN) {
     const nowhere = audit({ root: '/nonexistent-' + Date.now() });
     say('audit on a root with nothing in it is UNEVALUABLE with a reason, never clean', nowhere.state === 'UNEVALUABLE' && typeof nowhere.why === 'string' && nowhere.why.length > 10, nowhere);
 
-    console.log(`\n${ok} of 14 held`);
-    process.exit(ok === 14 ? 0 : 1);
+    console.log(`\n${ok} of 17 held`);
+    process.exit(ok === 17 ? 0 : 1);
   }
 
   /* THE COMMAND LINE PRINTS AN ANSWER IT DID NOT COMPUTE. Everything above this line used to live

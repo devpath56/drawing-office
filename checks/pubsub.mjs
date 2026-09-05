@@ -53,7 +53,28 @@ export const STATES = Object.freeze(['clean', 'findings', 'ABSENT', 'UNEVALUABLE
 export const CHANNEL_WORDS = ['queue', 'topic', 'stream', 'subject', 'channel', 'exchange', 'subscription', 'dead letter'];
 export const BROKER_WORDS = ['message bus', 'message broker', 'event bus', 'service bus', 'broker', 'kafka', 'rabbitmq', 'rabbit mq', 'activemq', 'pulsar', 'nats', 'redpanda', 'event hub', 'eventbridge'];
 
-const words = (el) => [el.name, el.technology, el.description, el.tags].filter(Boolean).join(' ').toLowerCase();
+/**
+ * WHAT AN ELEMENT IS gets read from where a C4 model DECLARES a type — the name, the technology and
+ * the tags — and never from the description.
+ *
+ * THE DESCRIPTION IS PROSE, AND PROSE ABOUT A SYSTEM USES THESE WORDS FOR OTHER THINGS. Measured
+ * 2026-09-05 on the No-Leak-MCP model: a container named "Slack workspace", technology "SaaS",
+ * described as "Channels and MCP server: where the poisoned message is planted" was classified a
+ * message channel on the strength of the word "Channels" — meaning chat rooms. Slack posts over
+ * synchronous HTTP; nothing about it is a queue.
+ *
+ * THE COST WAS NOT ONE FINDING, IT WAS FOURTEEN. One misclassified element makes every relationship
+ * that touches it asynchronous, so the report named thirteen solid lines that should stay solid and
+ * one unowned queue that is not a queue. A check that fails like that on a correct model is a check
+ * somebody switches off, with its true positives inside it.
+ *
+ * WHAT THIS GIVES UP, stated rather than discovered later: an element named "Orders", technology
+ * "Java", described as "a Kafka topic carrying settlement events" is now invisible to these rules.
+ * That is the trade, and it is the right way round — the book draws the technology on the box
+ * ("Payment requested queue / Amazon SQS"), so an untyped channel is a modelling defect that the
+ * diagram already shows, while a false async line is a wrong picture the reader cannot detect.
+ */
+const words = (el) => [el.name, el.technology, el.tags].filter(Boolean).join(' ').toLowerCase();
 
 /**
  * Which of the three an element is. THE ORDER MATTERS AND IS THE WHOLE TRICK: a channel is named for
@@ -233,6 +254,30 @@ if (IS_MAIN) {
     const say = (n, pass, saw) => { console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${n}${pass ? '' : `\n       saw: ${JSON.stringify(saw)?.slice(0, 300)}`}`); if (pass) ok++; };
     const rulesOf = (ws) => inspect(ws, theme).findings.map((f) => f.rule);
 
+    /* ── WHERE A TYPE MAY BE READ FROM ────────────────────────────────────────────────────────────
+       The real element that broke this, kept verbatim rather than paraphrased: prose about a chat
+       tool, whose word "Channels" means rooms. Its name and technology say SaaS, and nothing about
+       it is a queue. Under the first draft it classified as a channel and made every one of its
+       thirteen relationships an async violation. */
+    const slack = { id: 'sl', name: 'Slack workspace', technology: 'SaaS', tags: 'Element,Container', description: 'Channels and MCP server: where the poisoned message is planted and the unfurl link is posted.' };
+    say('a word in the DESCRIPTION does not declare a type — Slack is not a message channel',
+      classify(slack) === 'other', { classified: classify(slack) });
+    say('and the whole model built on it reports nothing, rather than one finding per edge',
+      inspect(sys([slack, { ...svc('run', 'Agent runtime'), relationships: [to('sl', 'reads')] }]), theme).findings.length === 0,
+      inspect(sys([slack, { ...svc('run', 'Agent runtime'), relationships: [to('sl', 'reads')] }]), theme).findings);
+
+    /* THE NAME AND THE TECHNOLOGY STILL DECLARE, which is where the book puts them. */
+    say('a channel word in the NAME still classifies', classify({ name: 'Payment requested queue' }) === 'channel', classify({ name: 'Payment requested queue' }));
+    say('a channel word in the TECHNOLOGY still classifies', classify({ name: 'Orders', technology: 'Kafka topic' }) === 'channel', classify({ name: 'Orders', technology: 'Kafka topic' }));
+    say('a broker word in the technology still classifies as the bus', classify({ name: 'Bus', technology: 'RabbitMQ' }) === 'broker', classify({ name: 'Bus', technology: 'RabbitMQ' }));
+
+    /* THE MISS THIS BUYS, asserted so it is a known cost rather than a surprise: an untyped element
+       described as a topic is now invisible here. The diagram already shows that defect — the box
+       carries no technology — and a false async line does not. */
+    say('an element that is only DESCRIBED as a topic is knowingly missed, and the miss is recorded here',
+      classify({ name: 'Orders', technology: 'Java', description: 'a Kafka topic carrying settlement events' }) === 'other',
+      classify({ name: 'Orders', technology: 'Java', description: 'a Kafka topic carrying settlement events' }));
+
     /* Figure 11-20, done right: a producer, a named queue, a consumer, dashed, message named. */
     const right = sys([
       { ...svc('a', 'Checkout service'), relationships: [to('q1', 'Sends payment requested events to')] },
@@ -308,8 +353,8 @@ if (IS_MAIN) {
 
     say('a model with no queues at all is clean rather than empty of opinion', inspect({ model: { softwareSystems: [] } }, theme).findings.length === 0, inspect({ model: { softwareSystems: [] } }, theme));
 
-    console.log(`\n${ok} of 13 held`);
-    process.exit(ok === 13 ? 0 : 1);
+    console.log(`\n${ok} of 19 held`);
+    process.exit(ok === 19 ? 0 : 1);
   }
 
   let theme;
