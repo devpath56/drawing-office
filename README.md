@@ -27,6 +27,7 @@ They were one directory until a review pointed out that one folder was carrying 
 |---|---|
 | `diagram-contrast` | a workspace whose colours drifted from `architecture/theme.json` · any text-on-fill or stroke-on-canvas pair under its floor · a lightness ladder that would not survive black-and-white printing · a dynamic view whose steps are not 1..n, contiguous, in DSL order |
 | `test-viewer` | a wrapper whose opening view is a typed-in view key rather than the model's own · a row label written in two places, so a chip reaches only half the rail |
+| `diagram-key` | a tag a view draws that the theme never styles, so it renders in the renderer's default and lands on the key unexplained · a palette row no workspace draws · an exported key that omits a style its view uses |
 | `perspectives` | a perspective declared on a single element, which is a tooltip rather than a layer. Coverage per view is reported, never gated |
 | `pubsub` | a message bus modelled as a container · a queue or topic drawn as a plain box · a hop through one drawn as a solid line · "Sends messages to" and other labels that name no message · a channel with only one end drawn · a queue joining two systems with no declared owner |
 | `tools/reading-aids` | nothing on its own — it *measures* which of the keys the renderer advertises actually do something in your export, and refuses to call a key dead when the embedding was what blocked it |
@@ -220,6 +221,36 @@ did not turn them off, the reader could not get back to the diagram they had.
 **The wrapper used to withhold full screen.** An iframe refuses it unless the embedder says so, so a
 reader would press the key the welcome panel advertised and conclude the tool was broken when it was
 `viewer.html`. `test-viewer` now refuses any iframe that does not pass it through.
+
+## The diagram key
+
+Chapter 10 is unusually direct, and the rule is two-sided in its own words: *"Notation that is used to
+differentiate elements and relationships (e.g., shapes, colors, line styles, icons) is described with
+a diagram key"*, and *"include any line styles, colors, and arrowheads in your diagram key"*.
+
+**Measured 2026-09-04** against the preregistered ways this could be dead — the key lists shapes the
+diagram does not use, or omits ones it does. **Neither fired.** `i` opens a key built per view: the
+bank's container view lists Boundary, Container, Container Data Store, Person, Software System
+Existing System and one Relationship; the payments container view lists **Container Channel** and
+**both** line styles, and does not list Existing System, which that model has none of.
+
+```bash
+npm run key
+```
+
+So what is left to check is ours — the half the renderer cannot see. The key explains styles that
+*exist*; it cannot tell you an element carries a tag your theme never styled.
+
+**It found one on this repo.** Deployment nodes were unstyled, so both deployment plates drew them in
+the renderer's default grey, competing with the elements inside them. They are a frame now — no fill,
+a light stroke — which also keeps the palette honest: hue means ownership, and where a box runs is
+not a claim about who owns it.
+
+**And it found a defect in itself.** The unused-palette-row rule first asked "does any view draw this
+tag" of one workspace at a time, which reported the bank's `Existing System` as unused while payments
+draws it, and payments' `Channel` and `Asynchronous` as unused while the bank has no queues. Three
+findings, all false, all from the right question against the wrong denominator. One theme serves every
+workspace, so the tags are unioned across all of them before the palette is judged.
 
 ## Honest limits
 

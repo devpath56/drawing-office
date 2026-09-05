@@ -69,6 +69,8 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
 
         /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
            Edit the theme, not this block: the check refuses any drift between them. */
+        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
+           Edit the theme, not this block: the check refuses any drift between them. */
         styles {
             element "Element" {
                 color #ffffff
@@ -106,6 +108,11 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
                 shape Pipe
                 background #5a5fa6
                 stroke #b9bdf5
+            }
+            element "Deployment Node" {
+                background #1F2226
+                stroke #9aa4b2
+                color #ffffff
             }
             relationship "Relationship" {
                 color #d7dbe3
