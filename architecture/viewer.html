@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture Viewer</title>
+<meta name="ui-states" content="rail-shut,rail-open,rail-UNEVALUABLE">
+<!-- states: the rail is `shut` at rest and `open` while hovered or holding keyboard focus ·
+     `rail-UNEVALUABLE` is the third and the honest one: the exported model could not be read here,
+     so the tree is missing and says why rather than showing nothing -->
+<!-- design-system: design.md · macrostructure: Workbench (one chrome frame around one canvas) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Text:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* ── THE PALETTE IS MEASURED, NOT PICKED ──────────────────────────────────────────────────────
+     Read from the operator's own NotebookLM mindmap on 2026-09-04. The page body reported
+     `rgb(26, 29, 34)` from computed style; the node and edge colours were read from a zoomed capture
+     because the mindmap renders inside a cross-origin iframe whose DOM is closed to a reader. Those
+     four are pixel reads and are marked as such — a value nobody can re-derive should say so.
+
+     WHAT THE MEASUREMENT ACTUALLY FOUND, and it is not what it looked like. White on the branch
+     slate is about 8.9:1 — comfortably past AA. The complaint "white text on gray fill is poor
+     visibility" is real, but the failing pair is the BOX against the CANVAS: #434950 on #1A1D22 is
+     roughly 1.9:1, so the card barely separates from the ground and the eye reads the whole plate as
+     low contrast. So this file raises SURFACE separation and hue, and leaves text where it was. */
+  :root {
+    --canvas:      #14171C;   /* measured #1A1D22, darkened one step to buy the lift below */
+    --surface:     #272C34;
+    --surface-2:   #333A44;   /* branch node: was #434950 at 1.9:1 on ground, now 2.6:1 */
+    --root:        #5A5C7A;   /* measured slate-violet #565873 */
+    --leaf:        #35473C;   /* measured green from the expanded branch */
+    --edge:        #A5A9F0;   /* measured periwinkle */
+    --ink:         #F1F3F4;
+    --ink-2:       #A9B2BD;
+    --hairline:    #3A424D;
+    --accent:      #A5A9F0;
+    --s1: 6px; --s2: 12px; --s3: 20px;
+    --t1: 12px; --t2: 14px; --t3: 16px;
+    --shut: 52px; --open: 272px;
+    color-scheme: dark;
+  }
+  /* THE THEME TOGGLE WAS REMOVED ON THE OPERATOR'S RULING, AND THE LIGHT PALETTE DID NOT GO WITH IT.
+     It answers the operating system now instead of a button: a reader whose machine is set to light
+     still gets a page built for light, and nobody has to find a control to get it. The violet and
+     the periwinkle survive as hues; the greys are rebuilt from a warm neutral so the ink stays dark
+     and the surfaces still separate — the defect this palette exists to fix. */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --canvas:    #F2F1EE;
+      --surface:   #FFFFFF;
+      --surface-2: #E7E5E0;
+      --root:      #6F72A0;
+      --leaf:      #DCE8DF;
+      --edge:      #5F63C4;
+      --ink:       #1B1D22;
+      --ink-2:     #565C66;
+      --hairline:  #D3D0C9;
+      --accent:    #5F63C4;
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--canvas); color: var(--ink);
+    font: 400 var(--t3)/1.5 "Google Sans Text", system-ui, -apple-system, sans-serif;
+    display: grid; grid-template-rows: auto 1fr; height: 100vh;
+  }
+
+  header {
+    display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap;
+    padding: var(--s2) var(--s3); border-bottom: 1px solid var(--hairline); background: var(--surface);
+  }
+  header h1 { font: 500 var(--t3)/1.3 "Google Sans Text", system-ui, sans-serif; margin: 0; }
+
+  /* ONE BUTTON RECIPE, AND THE PROBE IS WHY. core/doc/design-probe.mjs read an earlier draft of this
+     page as "4 button(s), 2 variants — diverge on backgroundColor, color, borderStyle, borderWidth,
+     borderColor, borderRadius, paddingRight, fontFamily, fontWeight". Nine properties apart is not a
+     variant, it is a second design. Every button here binds this recipe; the variants change only
+     width, min-height and padding-left, none of which the probe counts as part of a recipe, so a
+     size difference can never quietly become a second idea of what a button is. */
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--s1);
+    min-height: 36px; padding: 0 var(--s2);
+    background: var(--surface-2); color: var(--ink); border: 1px solid var(--hairline);
+    border-radius: 999px; font: 500 var(--t2)/1 "Google Sans Text", system-ui, sans-serif; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn--quiet { min-height: 30px; }
+  .btn--row { width: 100%; min-height: 34px; justify-content: flex-start; text-align: left; }
+
+  main { display: grid; grid-template-columns: var(--shut) 1fr; min-height: 0; background: var(--canvas); }
+  iframe { width: 100%; height: 100%; border: 0; display: block; background: var(--canvas); }
+
+  /* ── THE RAIL: SHUT, AND OPEN ON APPROACH ─────────────────────────────────────────────────────
+     IT OVERLAYS RATHER THAN PUSHES. A rail that widened the layout would re-lay-out the diagram
+     under every passing cursor, which is the one thing a reader studying a diagram cannot tolerate.
+     Pinned is the exception and there it pushes on purpose: pinning is a decision to keep it, so the
+     canvas narrows once rather than on every hover.
+
+     ITS CONTENT STOPS AT CONTAINERS, on the operator's ruling: components are read in the picture,
+     not in a list. That is also the C4 grain — a container is the last level worth naming out of
+     context, while a component only means something inside the container that holds it. */
+  .rail {
+    position: relative; z-index: 5; width: var(--shut);
+    border-right: 1px solid var(--hairline); background: var(--surface);
+    padding: var(--s2) var(--s1); overflow-x: hidden; overflow-y: auto; min-height: 0;
+    display: flex; flex-direction: column; gap: var(--s2);
+    transition: width .16s ease, box-shadow .16s ease;
+  }
+  .rail:hover, .rail:focus-within { width: var(--open); box-shadow: 14px 0 28px rgba(0,0,0,.34); }
+  @media (prefers-color-scheme: light) {
+    .rail:hover, .rail:focus-within { box-shadow: 14px 0 28px rgba(31,29,24,.14); }
+  }
+  .rail h2 {
+    margin: 0; padding: 0 var(--s1); white-space: nowrap;
+    font: 500 var(--t1)/1.3 "Google Sans Text", system-ui, sans-serif;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2);
+  }
+  /* A SHUT RAIL SHOWS NO BUTTONS, ONLY DOTS. Clipping a pill to 52px left half a control hanging off
+     the edge with two letters of its label — the shape said "press me" and the text said nothing, so
+     the rail read as broken chrome rather than as a closed drawer. Shut, every row drops its fill,
+     its border and its label and becomes the dot alone: a column of positions, one lit. The rows
+     keep their height and their order, so opening reveals labels rather than rearranging a list
+     under the cursor, and the inline padding-left that indents the tree is overridden here — it is
+     depth in a tree nobody can see yet, and it would push the dots off centre. */
+  .rail:not(:hover):not(:focus-within) h2,
+  .rail:not(:hover):not(:focus-within) .note { opacity: 0; }
+  .rail:not(:hover):not(:focus-within) .btn {
+    background: transparent; border-color: transparent;
+  }
+  .rail:not(:hover):not(:focus-within) .btn,
+  .rail:not(:hover):not(:focus-within) .leaf {
+    justify-content: center; padding-left: 0 !important; padding-right: 0;
+  }
+  .rail:not(:hover):not(:focus-within) .caret,
+  .rail:not(:hover):not(:focus-within) .rowtext { display: none; }
+  .rail ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+  /* THE NAME OUTRANKS THE TECHNOLOGY WHEN THE ROW RUNS OUT OF ROOM, and it did not: with the kind
+     label unshrinkable, "Single-Page Application · JavaScript and Angular" rendered as the
+     technology alone and the container had no name at all. A row that drops its subject to keep its
+     adjective is worse than a row that truncates. The kind now shrinks five times faster and both
+     ends ellipsise, so the name is the last thing to go. */
+  .rowtext { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kind { flex: 0 5 auto; min-width: 0; max-width: 46%; overflow: hidden; text-overflow: ellipsis;
+          color: var(--ink-2); font-size: var(--t1); white-space: nowrap; }
+  .rail:not(:hover):not(:focus-within) .kind { display: none; }
+
+  /* THE DOT IS THE WHOLE RAIL WHILE IT IS SHUT, so it carries state rather than decorating it:
+     filled violet is the view on screen, hollow violet is a level you can open, and hollow grey is
+     a bottom. Three states, one shape, readable at 52px.
+
+     THE BOTTOM DOT WAS GREEN AND IS NOT ANY MORE, because the diagram's palette took green for a
+     different meaning on 2026-09-04: there, green is "not ours". One colour cannot mean "nothing
+     below this" in the rail and "we did not build this" in the picture beside it — a reader would
+     be right either way and wrong half the time. Descent is now said in the violet family alone,
+     by fill, and ownership is said in hue, by the diagram. */
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; border: 1.5px solid var(--edge); }
+  .dot--here { background: var(--edge); }
+  .dot--leaf { border-color: var(--ink-2); background: transparent; opacity: .7; }
+
+  /* A FEATURE TRACE HAS TO POP, and it could not be given its own button: every button on this page
+     binds one recipe, and a second background or weight would be a second design the probe would be
+     right to refuse. So the difference is carried by the parts INSIDE the row — a square marker
+     rather than a round one, and a chip that names the kind — none of which the recipe covers.
+     A trace is not a level: the rest of the rail is structure, and this is a story through it. */
+  .dot--flow { border-radius: 2px; background: var(--edge); border-color: var(--edge); transform: rotate(45deg); }
+  .chip {
+    flex: none; margin-left: auto; padding: 1px 7px; border-radius: 999px;
+    background: color-mix(in srgb, var(--edge) 18%, transparent);
+    color: var(--edge); font-size: 11px; letter-spacing: .04em; text-transform: uppercase;
+  }
+  .rail:not(:hover):not(:focus-within) .chip { display: none; }
+
+  /* A LEAF IS NOT A BROKEN BUTTON, so it is not drawn as one. A disabled control would promise a
+     descent the artifact cannot make; this is a line of text and, below, its reason. */
+  .leaf { display: flex; align-items: center; gap: var(--s1); min-height: 34px; padding: 0 var(--s2); color: var(--ink-2); font-size: var(--t2); }
+  .caret { flex: none; width: 10px; color: var(--ink-2); font-size: 10px; transition: transform .14s ease; }
+  .caret--open { transform: rotate(90deg); }
+  .note { color: var(--ink-2); font-size: var(--t1); line-height: 1.45; padding: 0 var(--s1); white-space: normal; }
+  .note strong { color: var(--ink); font-weight: 500; }
+  @media (prefers-reduced-motion: reduce) { .rail, .caret { transition: none; } }
+</style>
+</head>
+<body data-rail="shut">
+  <header>
+    <h1 data-title>Architecture</h1>
+  </header>
+
+  <main>
+    <nav class="rail" aria-label="Diagram levels">
+      <div>
+        <h2>Levels</h2>
+        <ul data-tree></ul>
+      </div>
+      <p class="note" data-note hidden></p>
+    </nav>
+    <iframe title="Architecture diagrams"></iframe>
+  </main>
+
+<script>
+  (() => {
+    const body   = document.body;
+    const frame  = document.querySelector('iframe');
+    const treeEl = document.querySelector('[data-tree]');
+    const noteEl = document.querySelector('[data-note]');
+
+    /* THE PIN WAS REMOVED ON THE OPERATOR'S RULING, and its stored preference went with it rather
+       than lingering as a key nothing reads. Open on approach is the whole interaction now: hover,
+       or tab into the rail, which is what keyboard readers get in place of the pin. */
+
+    /* ── THE TREE IS BUILT FROM THE EXPORTED WORKSPACE, EVERY TIME ───────────────────────────────
+       Nothing about this bank is typed into this file. Point the page at a different workspace.json
+       and it draws that system's levels instead, which is the whole point: the alternative is a list
+       of names living in the wrapper that drifts from the model the first time the DSL changes, and
+       drifts INVISIBLY — the rail would go on offering a descent the diagram no longer has. */
+    const unevaluable = (why) => {
+      body.dataset.railState = 'UNEVALUABLE';
+      noteEl.hidden = false;
+      noteEl.innerHTML = '<strong>Levels UNEVALUABLE.</strong> ' + why +
+        ' The diagram still works and double-click still descends; only this list is missing.';
+    };
+
+    function index(ws) {
+      const views = [];
+      for (const v of ws.views.systemContextViews ?? []) views.push({ key: v.key, level: 'context',    scope: v.softwareSystemId });
+      for (const v of ws.views.containerViews  ?? []) views.push({ key: v.key, level: 'containers', scope: v.softwareSystemId });
+      for (const v of ws.views.componentViews  ?? []) views.push({ key: v.key, level: 'components', scope: v.containerId });
+      /* DYNAMIC VIEWS ARE VIEWS TOO, and the rail could not reach one. Measured 2026-09-04: opening
+         viewer.html#SignIn rendered the trace and left the rail showing a single folded row with no
+         current marker, because the tree was built from three view kinds and there are four. Every
+         repo with a feature trace would have had a rail that cannot reach it — a gap in the machine,
+         not in this bank's diagram. A dynamic view hangs off whatever it is scoped to. */
+      for (const v of ws.views.dynamicViews ?? []) views.push({ key: v.key, level: 'flow', scope: v.elementId, title: v.description || v.key });
+      const viewFor = (level, scope) => views.find((v) => v.level === level && v.scope === scope)?.key ?? null;
+      const flowsFor = (scope) => views.filter((v) => v.level === 'flow' && v.scope === scope);
+
+      /* THE SHAPE IS THE MODEL'S, NOT ONE INVENTED HERE: a system, the view of its containers, and
+         each container. It stops there on the ruling that components are read in the picture. */
+      const roots = [];
+      for (const s of ws.model.softwareSystems ?? []) {
+        const containers = s.containers ?? [];
+        const containerView = viewFor('containers', s.id);
+        const contextView = viewFor('context', s.id);
+        if (!contextView && !containerView) continue;          // a system nobody drew
+        const node = { name: s.name, kind: 'Software System', view: contextView || containerView, children: [] };
+        for (const f of flowsFor(s.id)) node.children.push({ name: f.title || f.key, kind: 'Feature trace', view: f.key, children: [] });
+        if (containerView) {
+          node.children.push({
+            name: 'Containers',
+            kind: containers.length + ' container' + (containers.length === 1 ? '' : 's'),
+            view: containerView,
+            children: containers.map((c) => ({
+              name: c.name,
+              kind: 'Container' + (c.technology ? ' · ' + c.technology : ''),
+              view: viewFor('components', c.id),
+              children: flowsFor(c.id).map((f) => ({ name: f.title || f.key, kind: 'Feature trace', view: f.key, children: [] })),
+            })),
+          });
+        }
+        roots.push(node);
+      }
+      return { roots };
+    }
+
+    /* THE WRAPPER OWNS THE ADDRESS BAR. It did not, and that made a whole class of link impossible:
+       viewer.html#Components landed on the context view because the iframe carried a hardcoded
+       fragment and the page's own was never read. A diagram nobody can link to at the level they are
+       reading is a diagram nobody can cite in a pull request.
+
+       IT NO LONGER OWNS THE PROJECT NAME, which is the other half. This file named one bank in three
+       places — its title, its iframe source and its fetch — so copying it into another repo meant
+       editing HTML, and the copy would then drift from the model beside it. The project comes from
+       ?w=<dir>, or from architecture/index.json when the query says nothing, and the heading comes
+       from the workspace's own name. Nothing about any one system is written here now. */
+    let SITE = null;
+    const START = (location.hash || '').replace(/^#/, '') || 'SystemContext';
+
+    /* THE CANVAS COLOUR IS THE VIEWER'S, NOT THE MODEL'S, which is why it is set here and not in the
+       DSL: Structurizr's styles block colours ELEMENTS, and the ground they sit on belongs to the
+       renderer, which paints #111111 in dark mode. Pure black is not the ground the operator asked
+       for and it is not what their reference uses. Every element colour stays in the DSL, versioned
+       with the model; only this one property, which the DSL has no key for, lives in the wrapper.
+       Same-origin makes it reachable, and a failure to reach it is cosmetic — the diagram is
+       readable either way, so this must never be the thing that breaks the page. */
+    const TINT = '#1F2226';
+    const tint = () => {
+      try {
+        const d = frame.contentDocument;
+        if (!d || !d.head || d.getElementById('arch-tint')) return;
+        const s = d.createElement('style');
+        s.id = 'arch-tint';
+        /* The second rule repaints the BOUNDARY plates. The renderer fills them #111111 in dark mode,
+           which was invisible against a black canvas and became a dark rectangle once the canvas was
+           lifted — a shape with no meaning, on a diagram where every other fill now carries one. It
+           is matched by its literal fill because that is the only handle the export gives. */
+        s.textContent = 'html,body,#diagram,#diagram-viewport,#diagram-canvas,.joint-paper-background{background:' + TINT + ' !important}'
+                      + '#diagram-canvas [fill="#111111"]{fill:' + TINT + ' !important}';
+        d.head.appendChild(s);
+      } catch { /* not reachable from here: the tint is the only thing lost */ }
+    };
+    frame.addEventListener('load', tint);
+
+    const goto = (key) => { try { frame.contentWindow.location.hash = key; } catch { frame.src = SITE + '#' + key; } };
+    const currentKey = () => { try { return (frame.contentWindow.location.hash || '').replace(/^#/, '') || null; } catch { return null; } };
+    /* replaceState, not a hash assignment: writing location.hash would push a history entry for every
+       descent and fire this page's own hashchange, and the two would then chase each other. */
+    const mirror = (key) => { if (key && key !== (location.hash || '').replace(/^#/, '')) { try { history.replaceState(null, '', '#' + key); } catch { /* ignore */ } } };
+
+    const open = new Set();       // which branches are unfolded, keyed by their path through the tree
+    let ROOTS = [], here = null;
+
+    function draw() {
+      treeEl.textContent = '';
+      /* A BRANCH THAT CONTAINS WHERE YOU ARE IS OPEN, not merely the row that IS where you are.
+         Measured 2026-09-04: at the containers view the tree rendered two rows, because the only
+         node unfolded was the one whose own view matched — and the container view sits one level
+         BELOW the system, whose row was therefore folded shut over it. A tree that hides your
+         position is worse than no tree: it says the level you are reading does not exist. */
+      const holdsHere = (n) => (!!n.view && n.view === here) || n.children.some(holdsHere);
+      const add = (node, depth, path) => {
+        const id = path + '/' + node.name;
+        const isHere = !!node.view && node.view === here;
+        const unfolded = node.children.length > 0 && (open.has(id) || holdsHere(node));
+        if (unfolded) open.add(id);
+        const pad = (12 + depth * 12) + 'px';
+
+        /* A ROW WITH CHILDREN AND NO VIEW OF ITS OWN still has to fold and unfold — otherwise a
+           container with a feature trace beneath it and no component diagram would swallow the
+           trace, which is the same class of defect as the rail not knowing flows at all. */
+        if (node.view || node.children.length) {
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = 'btn btn--row'; b.style.paddingLeft = pad;
+          if (isHere) b.setAttribute('aria-current', 'true');
+          if (node.children.length) b.setAttribute('aria-expanded', String(unfolded));
+
+          const caret = document.createElement('span');
+          caret.className = 'caret' + (unfolded ? ' caret--open' : '');
+          caret.setAttribute('aria-hidden', 'true');
+          caret.textContent = node.children.length ? '▸' : '';
+
+          const dot = document.createElement('span');
+          dot.className = 'dot' + (isHere ? ' dot--here' : '') + (node.kind === 'Feature trace' ? ' dot--flow' : '');
+          dot.setAttribute('aria-hidden', 'true');
+
+          const text = document.createElement('span');
+          text.className = 'rowtext'; text.textContent = node.name;
+
+          const isFlow = node.kind === 'Feature trace';
+          const kind = document.createElement('span');
+          kind.className = isFlow ? 'chip' : 'kind';
+          kind.textContent = isFlow ? 'trace' : node.kind;
+
+          b.append(caret, dot, text, kind);
+          /* ONE GESTURE, TWO EFFECTS, deliberately: the row opens its view and unfolds its branch
+             together. A separate caret control would be a second button shape, and the probe would
+             be right to call that a second design. */
+          b.addEventListener('click', () => {
+            if (node.children.length) { if (open.has(id) && !isHere) open.delete(id); else open.add(id); }
+            if (node.view) goto(node.view);
+            draw();
+          });
+          const li = document.createElement('li'); li.append(b); treeEl.append(li);
+        } else {
+          const li = document.createElement('li');
+          li.className = 'leaf'; li.style.paddingLeft = pad;
+          const gap = document.createElement('span'); gap.className = 'caret'; gap.setAttribute('aria-hidden', 'true');
+          const dot = document.createElement('span'); dot.className = 'dot dot--leaf'; dot.setAttribute('aria-hidden', 'true');
+          const text = document.createElement('span'); text.className = 'rowtext'; text.textContent = node.name;
+          const kind = document.createElement('span'); kind.className = 'kind'; kind.textContent = node.kind;
+          li.append(gap, dot, text, kind); treeEl.append(li);
+        }
+        if (unfolded) for (const c of node.children) add(c, depth + 1, id);
+      };
+      for (const r of ROOTS) add(r, 0, '');
+
+      /* THE GREEN DOTS NEED A SENTENCE, or a reader reasonably concludes the viewer is broken when
+         double-clicking one does nothing. Measured 2026-09-04: Backend descends and Single-Page
+         Application does not, and the difference is the model, not the control. */
+      const leaves = treeEl.querySelectorAll('.leaf').length;
+      noteEl.hidden = leaves === 0;
+      if (leaves) noteEl.innerHTML = '<strong>A grey dot is a bottom.</strong> The model declares nothing beneath those, so double-clicking one stays put — the model answering, not the viewer failing. In the diagram, colour says something else: violet is ours and lightens with depth, green is not ours.';
+    }
+
+    (async () => {
+      /* ONE DIRECTORY IS PICKED, AND THE REASON IS SAID OUT LOUD when it cannot be. index.json is
+         generated by checks/diagram-contrast.mjs --index, because a page fetched over HTTP cannot
+         list a directory and a list typed here would be a second home for what the filesystem
+         already knows. */
+      let project = new URLSearchParams(location.search).get('w');
+      if (!project) {
+        try {
+          const idx = await (await fetch('index.json')).json();
+          project = idx.projects?.[0]?.dir ?? null;
+        } catch { /* answered below, by name */ }
+      }
+      if (!project) {
+        unevaluable('No project was named. Pass ?w=<directory>, or generate architecture/index.json with: node checks/diagram-contrast.mjs --index.');
+        return;
+      }
+      SITE = project + '/site/index.html';
+      frame.src = SITE + '#' + START;
+
+      let ws;
+      try {
+        const res = await fetch(project + '/workspace.json');
+        if (!res.ok) { unevaluable('The export for ' + project + ' answered ' + res.status + '.'); return; }
+        ws = await res.json();
+      } catch (e) {
+        /* THE FILE PROTOCOL IS THE COMMON CASE OF THIS, and it is a fact about how the page was
+           opened, not about the model. Saying "no levels found" here would be a lie. */
+        unevaluable('workspace.json could not be fetched (' + (e.message || 'blocked') + '), which is what happens when this page is opened from disk rather than served.');
+        return;
+      }
+      ROOTS = index(ws).roots;
+      /* The heading is the workspace's own name, so the picture and its title cannot disagree. */
+      if (ws.name) { document.querySelector('[data-title]').textContent = ws.name; document.title = ws.name; }
+      body.dataset.railState = 'ready';
+      const tick = () => { tint(); const k = currentKey(); if (k !== here) { here = k; mirror(k); draw(); } };
+      frame.addEventListener('load', tick);
+      tick(); draw();
+      /* A POLL, not only a hashchange listener: the diagram changes its own hash when a box is
+         double-clicked, and a listener attached to the frame's window is lost on every reload. */
+      setInterval(tick, 400);
+    })();
+  })();
+</script>
+</body>
+</html>

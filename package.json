@@ -1,0 +1,21 @@
+{
+  "name": "drawing-office",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Architecture diagrams as a versioned model, with the palette, the step order and the label collisions all checked rather than eyeballed.",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "write": "node checks/diagram-contrast.mjs --write architecture/internet-banking/workspace.dsl",
+    "export": "structurizr-cli export -w architecture/internet-banking/workspace.dsl -f json -o architecture/internet-banking && structurizr-cli export -w architecture/internet-banking/workspace.dsl -f static -o architecture/internet-banking/site",
+    "index": "node checks/diagram-contrast.mjs --index",
+    "serve": "python3 -m http.server 8015",
+    "check": "node checks/diagram-contrast.mjs && node checks/test-trace-suggest.mjs",
+    "check:overlap": "node checks/diagram-collisions.mjs http://localhost:8015/architecture/internet-banking/site/index.html#Containers",
+    "suggest": "node checks/trace-suggest.mjs",
+    "negative": "node checks/diagram-contrast.mjs --negative && node checks/trace-suggest.mjs --negative"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}

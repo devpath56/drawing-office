@@ -1,0 +1,10 @@
+{
+  "generated": "checks/diagram-contrast.mjs --index",
+  "projects": [
+    {
+      "dir": "internet-banking",
+      "name": "Internet Banking System",
+      "description": "The fictional bank from The C4 Model, ch03: system context."
+    }
+  ]
+}
