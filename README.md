@@ -28,6 +28,7 @@ They were one directory until a review pointed out that one folder was carrying 
 | `diagram-contrast` | a workspace whose colours drifted from `architecture/theme.json` · any text-on-fill or stroke-on-canvas pair under its floor · a lightness ladder that would not survive black-and-white printing · a dynamic view whose steps are not 1..n, contiguous, in DSL order |
 | `test-viewer` | a wrapper whose opening view is a typed-in view key rather than the model's own · a row label written in two places, so a chip reaches only half the rail |
 | `diagram-key` | a tag a view draws that the theme never styles, so it renders in the renderer's default and lands on the key unexplained · a palette row no workspace draws · an exported key that omits a style its view uses |
+| `derived` | anything the exporter makes that is under version control, and any derived shape .gitignore does not name |
 | `decisions` | a decision with no status, or one outside Nygard's vocabulary · a decision governing an element no view draws · a Superseded record that names no successor |
 | `perspectives` | a perspective declared on a single element, which is a tooltip rather than a layer. Coverage per view is reported, never gated |
 | `pubsub` | a message bus modelled as a container · a queue or topic drawn as a plain box · a hop through one drawn as a solid line · "Sends messages to" and other labels that name no message · a channel with only one end drawn · a queue joining two systems with no declared owner |
@@ -287,6 +288,39 @@ npm run why
 status reads as Accepted to anyone skimming; one governing an element no view draws can only be found
 by reading the DSL, which is the opposite of putting it beside the diagram; and a `Superseded` record
 naming no successor tells a reader the rule is dead but not what replaced it.
+
+## What a pull request shows
+
+A one-line model change should read as a one-line diff. **Measured 2026-09-05**, by renaming one
+container in the payments model and re-exporting:
+
+| file | changed | longest line |
+|---|---|---|
+| `workspace.dsl` | 1 line | 137 chars — readable |
+| `workspace.json` | 1 line | 1,942 chars |
+| `site/workspace.js` | 1 line | **9,684 chars, the whole file, rewritten end to end** |
+
+**The units matter.** By lines the diff was 3 and the model's own change was one of them. By bytes
+the readable part was 137 characters against roughly 11.6 KB of generated churn — the word-diff of
+that single bundle line alone runs to 19,588 bytes. A reviewer reads a page, and a page with a
+rewritten base64 blob on it is a page nobody reads.
+
+**The fix is not a smaller diff, it is no diff.** 8.3 MB across 68 tracked files — a vendored jQuery,
+lodash, backbone, JointJS, bootstrap and eleven font files — all reproduced by one
+`structurizr-cli export -f static`. They are ignored and untracked now, and the same rename lands as
+**2 files, +2/−2, both readable**.
+
+```bash
+npm run check     # includes checks/derived.mjs
+```
+
+**`workspace.json` stays tracked on purpose.** It is derived too, but the checks and the wrapper read
+it, it is pretty-printed, and its diff is legible. The criterion is not "derived" — it is derived,
+unreadable and large — and that judgement lives in one list in `checks/derived.mjs` rather than in a
+rule anyone could infer.
+
+**After cloning, export before you serve:** the site is no longer in the repo, and the README's flow
+above already builds it.
 
 ## Honest limits
 
