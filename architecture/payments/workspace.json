@@ -230,10 +230,18 @@
           "stroke" : "#9aa4b2",
           "tag" : "Infrastructure Node"
         }, {
+          "stroke" : "#b8863b",
+          "strokeWidth" : 4,
+          "tag" : "Modified"
+        }, {
           "background" : "#2b3a33",
           "shape" : "Person",
           "stroke" : "#6fa588",
           "tag" : "Person"
+        }, {
+          "stroke" : "#ffb454",
+          "strokeWidth" : 6,
+          "tag" : "Proposal"
         }, {
           "background" : "#3f4383",
           "stroke" : "#a5a9f0",

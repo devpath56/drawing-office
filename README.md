@@ -29,6 +29,7 @@ They were one directory until a review pointed out that one folder was carrying 
 | `test-viewer` | a wrapper whose opening view is a typed-in view key rather than the model's own · a row label written in two places, so a chip reaches only half the rail |
 | `diagram-key` | a tag a view draws that the theme never styles, so it renders in the renderer's default and lands on the key unexplained · a palette row no workspace draws · an exported key that omits a style its view uses |
 | `derived` | anything the exporter makes that is under version control, and any derived shape .gitignore does not name |
+| `delivery` | a box marked as our addition with no decision saying what it adds · one marked in two states at once · one drawn in no view · a declared state the theme does not style |
 | `decisions` | a decision with no status, or one outside Nygard's vocabulary · a decision governing an element no view draws · a Superseded record that names no successor |
 | `perspectives` | a perspective declared on a single element, which is a tooltip rather than a layer. Coverage per view is reported, never gated |
 | `pubsub` | a message bus modelled as a container · a queue or topic drawn as a plain box · a hop through one drawn as a solid line · "Sends messages to" and other labels that name no message · a channel with only one end drawn · a queue joining two systems with no declared owner |
@@ -321,6 +322,51 @@ rule anyone could infer.
 
 **After cloning, export before you serve:** the site is no longer in the repo, and the README's flow
 above already builds it.
+
+## Which boxes are the proposal
+
+A diagram of a system you are extending draws two kinds of box identically: the parts that already
+ship and the parts you are asking for. A reader cannot tell them apart, so a proposal reads as a
+description of something that exists.
+
+```
+component "Injection scorer" "..." "dsh-session-telemetry" {
+    tags "Modified"          # a rule in an extension point that ships EMPTY
+    !adrs adrs-scorer        # and the decision that says so
+}
+component "Chain invariant" "..." "dsh-invariants" {
+    tags "Proposal"          # a component the harness has no seat for
+    !adrs adrs-invariant
+}
+```
+
+**Three states, because two would merge the cheap half into the expensive one.** In MCP-Guard the
+OTLP exporter ships unmodified, the injection scorer is a new rule in a waterfall that ships empty,
+and the chain invariant is a new companion. Those cost very different amounts to land.
+
+**It is the STROKE, not the fill, and that is a ruling.** ADR 0002 spends hue on ownership, and
+ch10's rule is that a colour encodes a dimension the reader cannot already read off the page — a
+second meaning in the same channel makes both unreadable. Delivery state took the stroke: one amber
+hue so it reads as one dimension, with lightness and width carrying the degree.
+
+| state | stroke | measured on the canvas |
+|---|---|---|
+| ships as-is | the element's own | — |
+| `Modified` | `#b8863b`, width 4 | 4.95:1 |
+| `Proposal` | `#ffb454`, width 6 | 9.06:1 |
+
+Both clear the 3.0 floor, and they differ in lightness as well as hue, so the distinction survives
+colour vision deficiency and a black-and-white printer the same way the ownership ramp does.
+
+```bash
+npm run proposals
+```
+
+**The colour is not the rule that matters.** A box marked `Proposal` with nothing saying what it adds
+is a claim with no argument, and the diagram is where a reader goes looking — so a marked element
+must be governed by a decision, which is ch12's own mechanism and already checked. The vocabulary is
+the theme's: a repo that calls its states something else edits `deliveryStates` and both the styling
+and the check follow.
 
 ## Honest limits
 

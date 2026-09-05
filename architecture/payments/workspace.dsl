@@ -84,6 +84,8 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
            Edit the theme, not this block: the check refuses any drift between them. */
         /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
            Edit the theme, not this block: the check refuses any drift between them. */
+        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
+           Edit the theme, not this block: the check refuses any drift between them. */
         styles {
             element "Element" {
                 color #ffffff
@@ -131,6 +133,14 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
                 background #1F2226
                 stroke #9aa4b2
                 color #ffffff
+            }
+            element "Modified" {
+                stroke #b8863b
+                strokeWidth 4
+            }
+            element "Proposal" {
+                stroke #ffb454
+                strokeWidth 6
             }
             relationship "Relationship" {
                 color #d7dbe3

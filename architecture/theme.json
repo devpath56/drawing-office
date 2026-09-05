@@ -8,7 +8,8 @@
     "muted green": "not ours: a person, or a system that already exists and that we call rather than build. Outside the ramp, and darker than all of it, so it stays distinct with the colour removed.",
     "shape": "a store is a cylinder, a queue or topic is a pipe, and a person is a person. Shape carries what colour must not be asked to carry twice.",
     "line": "a solid line is a call that blocks; a dashed line is a message that does not. The book offers both conventions in ch10 and requires neither, so this file is where the choice is made.",
-    "frame": "a deployment node is where things RUN, not a thing we build, so it is drawn as a frame: no fill, a light stroke. It makes no hue claim because ownership is not what it says."
+    "frame": "a deployment node is where things RUN, not a thing we build, so it is drawn as a frame: no fill, a light stroke. It makes no hue claim because ownership is not what it says.",
+    "delivery": "the STROKE says whether we are proposing it. Ships-as-is has the ordinary stroke; Modified is a darker amber at 4; Proposal is a light amber at 6. One hue family, so it reads as one dimension, and lightness plus width carry the degree — which survives colour blindness and a black-and-white printer the same way the ownership ramp does. Hue is NOT used, because ADR 0002 already spent it on ownership and a channel cannot carry two meanings."
   },
   "canvas": "#1F2226",
   "ramp": [
@@ -82,6 +83,16 @@
       "background": "#1F2226",
       "stroke": "#9aa4b2",
       "color": "#ffffff"
+    },
+    {
+      "tag": "Modified",
+      "stroke": "#b8863b",
+      "strokeWidth": 4
+    },
+    {
+      "tag": "Proposal",
+      "stroke": "#ffb454",
+      "strokeWidth": 6
     }
   ],
   "relationships": [
@@ -96,5 +107,9 @@
       "fontSize": 24,
       "dashed": true
     }
+  ],
+  "deliveryStates": [
+    "Modified",
+    "Proposal"
   ]
 }

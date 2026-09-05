@@ -152,11 +152,30 @@ export function inspect(ws, theme, { keyText = null } = {}) {
  */
 export const RENDERER_KINDS = Object.freeze(['Person', 'Software System', 'Container', 'Component', 'Deployment Node', 'Infrastructure Node']);
 
+/**
+ * A VOCABULARY THE THEME OFFERS TO OTHER REPOS is not an unused row.
+ *
+ * This theme is SEEDED outward — bin/drawing-office.mjs writes it into any repo that wants the
+ * machine — so a style can exist for a consumer's model rather than for one here. Measured
+ * 2026-09-05: adding the Modified and Proposal delivery states made this check report both as
+ * colour decisions nobody will ever see, while MCP-Guard was drawing them in another checkout. The
+ * rule's denominator was right and its population was too small.
+ *
+ * The exemption is a DECLARATION rather than a hardcoded list: a theme names its offered
+ * vocabularies in fields listed below, and this reads them. A row nobody declares and nobody draws
+ * is still a finding, which is the case the rule was written for.
+ */
+export const VOCABULARY_FIELDS = Object.freeze(['deliveryStates']);
+
+export const offered = (theme) => new Set(VOCABULARY_FIELDS.flatMap((f) => theme?.[f] ?? []));
+
 export function unseenStyles(theme, usedAcross) {
   const styled = new Set((theme?.elements ?? []).map((r) => r.tag).concat((theme?.relationships ?? []).map((r) => r.tag)));
+  const vocabulary = offered(theme);
   const out = [];
   for (const tag of styled) {
     if (IMPLICIT.includes(tag) || RENDERER_KINDS.includes(tag)) continue;
+    if (vocabulary.has(tag)) continue;
     if (usedAcross.has(tag)) continue;
     out.push({
       rule: 'unseen-style',
@@ -257,6 +276,14 @@ if (IS_MAIN) {
     const spare = { ...theme, elements: [...theme.elements, { tag: 'Ghost', shape: 'Hexagon' }] };
     say('a theme row no workspace draws is caught', unseenStyles(spare, inspect(ws, spare).used).some((f) => f.where === 'Ghost'), unseenStyles(spare, inspect(ws, spare).used));
 
+    /* A DECLARED VOCABULARY IS EXEMPT, because this theme is seeded into other repos and a state
+       nobody here uses may be the whole point of the row. An UNDECLARED row nobody draws still
+       fires — that is the case the rule exists for. */
+    const withVocab = { ...theme, deliveryStates: ['Ghost'], elements: [...theme.elements, { tag: 'Ghost', shape: 'Hexagon' }] };
+    say('a style the theme offers as a vocabulary is not reported unused', !unseenStyles(withVocab, inspect(ws, withVocab).used).some((f) => f.where === 'Ghost'), unseenStyles(withVocab, inspect(ws, withVocab).used));
+    const undeclared = { ...theme, elements: [...theme.elements, { tag: 'Stray', shape: 'Hexagon' }] };
+    say('and an undeclared row nobody draws still fires', unseenStyles(undeclared, inspect(ws, undeclared).used).some((f) => f.where === 'Stray'), unseenStyles(undeclared, inspect(ws, undeclared).used));
+
     /* THE DENOMINATOR IS EVERY WORKSPACE, and this case is the one the first draft got wrong on its
        first real run: a tag drawn in one repo's workspace and not the other's is used, not unused. */
     const otherWs = { model: { softwareSystems: [{ id: 's9', name: 'Bank', containers: [] }] }, views: { systemContextViews: [{ key: 'Ctx', elements: [{ id: 's9' }] }] } };
@@ -288,8 +315,8 @@ if (IS_MAIN) {
     const nowhere = audit({ root: '/nonexistent-' + Date.now() });
     say('audit on a root with nothing in it is UNEVALUABLE with a reason, never clean', nowhere.state === 'UNEVALUABLE' && typeof nowhere.why === 'string' && nowhere.why.length > 10, nowhere);
 
-    console.log(`\n${ok} of 12 held`);
-    process.exit(ok === 12 ? 0 : 1);
+    console.log(`\n${ok} of 14 held`);
+    process.exit(ok === 14 ? 0 : 1);
   }
 
   /* THE COMMAND LINE PRINTS AN ANSWER IT DID NOT COMPUTE. Everything above this line used to live
