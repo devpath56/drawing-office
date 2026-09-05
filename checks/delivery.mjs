@@ -54,12 +54,23 @@ export function stateOf(el, states) {
   return { state: hits[0] ?? null, all: hits };
 }
 
+/* THE WORD ON THE BOX. A stroke colour is a signal only to a reader who has been told what it means,
+   and the operator's verdict on stroke alone was that it does not work. So a marked element also
+   carries the state in words, in its DESCRIPTION, which is the one field Structurizr renders inside
+   the box body — the technology line is grey and small, and the name belongs to the element.
+
+   THE WORDS ARE THE THEME'S. deliveryLabels maps a state tag to the phrase, so a repo that wants
+   different wording edits its palette rather than every model, and this check reads the same map the
+   stamper writes from. */
+export const labelFor = (theme, state) => (theme?.deliveryLabels ?? {})[state] ?? null;
+
 /**
- * FOUR RULES.
+ * FIVE RULES.
  *   1 unstated-proposal   — marked as ours and no decision says what it adds
  *   2 two-states          — marked Modified AND Proposal, which are different claims
  *   3 state-not-styled    — a state the theme does not style, so the box does not pop
  *   4 proposal-undrawn    — marked, and in no view, so nobody meets the proposal
+ *   5 label-missing       — marked, and the box does not say so in words
  */
 export function inspect(ws, theme) {
   const states = statesOf(theme);
@@ -80,6 +91,15 @@ export function inspect(ws, theme) {
         where: m.el.name,
         why: `marked ${m.all.join(' and ')}, which are different claims — one fills a seat the harness already offers, the other asks for a seat that does not exist`,
         cite: 'ours — a box in two states tells a reader nothing about what it costs to land',
+      });
+    }
+    const label = labelFor(theme, m.state);
+    if (label && !String(m.el.description ?? '').includes(label)) {
+      findings.push({
+        rule: 'label-missing',
+        where: `${m.el.name} · ${m.state}`,
+        why: `the box does not say "${label}" anywhere a reader can see it, so the state is carried by a stroke colour alone and only a reader who already knows the code can read it`,
+        cite: 'ch10 — notation is described with a diagram key, and a colour nobody can decode on the box is a key nobody opened',
       });
     }
     if (!governed.has(m.el.id)) {
@@ -144,6 +164,17 @@ if (IS_MAIN) {
     say('a proposal that is drawn and governed by a decision is clean', rules(good).length === 0, inspect(good, theme).findings);
 
     say('a proposal with no decision is caught', rules(build({ tags: 'Element,Container,Proposal', decided: false })).includes('unstated-proposal'), rules(build({ tags: 'Element,Container,Proposal', decided: false })));
+
+    /* THE WORD ON THE BOX. A stroke alone was the operator's verdict on what does not work, so a
+       marked box that never says which state it is in is a finding. */
+    const worded = { ...theme, deliveryLabels: { Proposal: 'proposed — hover for details' } };
+    const silent = build({ tags: 'Element,Container,Proposal' });
+    say('a marked box that never says so in words is caught', rules(silent, worded).includes('label-missing'), rules(silent, worded));
+    const spoken = JSON.parse(JSON.stringify(silent));
+    spoken.model.softwareSystems[0].containers[0].description = 'proposed — hover for details. Scores text.';
+    say('and one carrying the label is accepted', !rules(spoken, worded).includes('label-missing'), rules(spoken, worded));
+    /* A THEME THAT DECLARES NO WORDING CANNOT DEMAND IT. */
+    say('a theme with no label declared never fires the rule', !rules(silent).includes('label-missing'), rules(silent));
     say('a proposal in no view is caught', rules(build({ tags: 'Element,Container,Proposal', drawn: false })).includes('proposal-undrawn'), rules(build({ tags: 'Element,Container,Proposal', drawn: false })));
     say('Modified and Proposal on one box is caught, because they cost different things', rules(build({ tags: 'Element,Container,Modified,Proposal' })).includes('two-states'), rules(build({ tags: 'Element,Container,Modified,Proposal' })));
 
@@ -158,8 +189,8 @@ if (IS_MAIN) {
     say('a repo that renames its states is measured on its own words', inspect(spiked, own).marked[0]?.state === 'Spike', inspect(spiked, own).marked);
     say('and a box carrying another repo\'s word is then not marked at all', inspect(good, own).state === 'ABSENT', inspect(good, own).state);
 
-    console.log(`\n${ok} of 8 held`);
-    process.exit(ok === 8 ? 0 : 1);
+    console.log(`\n${ok} of 11 held`);
+    process.exit(ok === 11 ? 0 : 1);
   }
 
   let theme;

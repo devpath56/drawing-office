@@ -349,11 +349,17 @@ ch10's rule is that a colour encodes a dimension the reader cannot already read 
 second meaning in the same channel makes both unreadable. Delivery state took the stroke: one amber
 hue so it reads as one dimension, with lightness and width carrying the degree.
 
-| state | stroke | measured on the canvas |
-|---|---|---|
-| ships as-is | the element's own | — |
-| `Modified` | `#b8863b`, width 4 | 4.95:1 |
-| `Proposal` | `#ffb454`, width 6 | 9.06:1 |
+| state | stroke | on the canvas | greyscale L |
+|---|---|---|---|
+| ships as-is | the element's own | — | — |
+| `Modified` | `#ffb454` amber, width 4 | 9.06:1 | 0.545 |
+| `Proposal` | `#ff2fd0` neon pink, width 6 | 5.00:1 | 0.278 |
+
+**And the box says which in words.** A stroke colour only signals to a reader who has been told what
+it means, so a marked element also carries `proposed — hover for details` or `modified — hover for
+details` at the head of its description — the one field the renderer prints inside the box. The
+wording lives in the theme's `deliveryLabels`, and `delivery` refuses a marked box that does not
+carry it.
 
 Both clear the 3.0 floor, and they differ in lightness as well as hue, so the distinction survives
 colour vision deficiency and a black-and-white printer the same way the ownership ramp does.

@@ -319,6 +319,8 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
            Edit the theme, not this block: the check refuses any drift between them. */
         /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
            Edit the theme, not this block: the check refuses any drift between them. */
+        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
+           Edit the theme, not this block: the check refuses any drift between them. */
         styles {
             element "Element" {
                 color #ffffff
@@ -368,11 +370,11 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
                 color #ffffff
             }
             element "Modified" {
-                stroke #b8863b
+                stroke #ffb454
                 strokeWidth 4
             }
             element "Proposal" {
-                stroke #ffb454
+                stroke #ff2fd0
                 strokeWidth 6
             }
             relationship "Relationship" {
