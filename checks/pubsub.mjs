@@ -205,7 +205,12 @@ export function inspect(ws, theme) {
       .filter(Boolean);
     const systems = new Set(ends.map((e) => e.systemId ?? String(e.id)));
     if (systems.size < 2) continue;
-    if (c.group || /owner:/i.test(String(c.tags ?? '')) || /owner:/i.test(String(c.description ?? ''))) continue;
+    /* AN OWNERSHIP PERSPECTIVE IS THE BOOK'S OWN ANSWER TO THIS RULE. Chapter 11 says to consider
+       who owns a queue; chapter 12 says the place to put that without cluttering the diagram is a
+       perspective. A rule that demanded a group or a tag would have refused the model that answers
+       it in the way the same book recommends. */
+    const owned = (c.perspectives ?? []).some((p) => /owner/i.test(p.name ?? ''));
+    if (owned || c.group || /owner:/i.test(String(c.tags ?? '')) || /owner:/i.test(String(c.description ?? ''))) continue;
     add('unowned-channel', `${c.systemName} / ${c.name}`,
       `${systems.size} software systems meet at this queue and none of them is declared its owner; put it in a group, or tag it "owner: <team>"`,
       'ch11 — "you additionally need to consider who owns the queues and topics"');

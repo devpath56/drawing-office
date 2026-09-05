@@ -29,7 +29,15 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
            description claimed "the two departments that own them" — a caption ahead of its model. */
         group "Digital Channels" {
 
+        /* ── PERSPECTIVES, ch12 ───────────────────────────────────────────────────────────────
+           The chapter's answer to "how do I add ownership without cluttering the diagram": not
+           another diagram and not more subgroups, but "a layer on top of an existing diagram" that
+           the reader toggles. Figure 12-1 is ownership over the landscape; figure 12-2 is security
+           on the statement store. Both are modelled here rather than paraphrased. */
         internetBanking = softwareSystem "Internet Banking System" "Lets customers view information about their bank accounts, and make payments." {
+            perspectives {
+                "Ownership" "Digital Channels — Internet Banking team"
+            }
             singlePageApp = container "Single-Page Application" "Provides all of the Internet banking functionality to customers via their web browser." "JavaScript and Angular"
             staticContent = container "Static Content" "Delivers the static content that makes up the single-page application." "Directory" {
                 tags "Data Store"
@@ -48,14 +56,32 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
             }
             database = container "Database" "Stores user registration information and hashed authentication credentials." "MySQL" {
                 tags "Data Store"
+                /* THE SECOND CARRIER OF THE SECURITY LAYER, and it is here because checks/perspectives.mjs
+                   refused the first draft: Security sat on the statement store alone, and toggling a
+                   layer that dims everything but one box is a tooltip wearing a layer's clothes. The
+                   database is not a filler — credentials at rest are the other half of the same story. */
+                perspectives {
+                    "Ownership" "Internet Banking team"
+                    "Security" "Credentials stored as bcrypt hashes; encryption at rest; reachable only from the backend's subnet."
+                }
             }
             statementStore = container "Statement Store" "Caches generated PDF bank statements." "AWS S3" {
                 tags "Data Store"
+                /* FIGURE 12-2's OWN EXAMPLE: security information about the statement store. The
+                   chapter's point is that this would clutter the diagram if drawn, and reads fine as
+                   a layer a reader turns on. */
+                perspectives {
+                    "Ownership" "Internet Banking team"
+                    "Security" "Server-side encryption with SSE-S3; bucket policy denies public access; statements expire after 90 days."
+                }
             }
         }
 
         atm = softwareSystem "ATM" "Lets customers withdraw cash and check balances." {
             tags "Existing System"
+            perspectives {
+                "Ownership" "Digital Channels — Self Service team"
+            }
         }
 
         }
@@ -75,11 +101,19 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
         group "Core Banking" {
             coreBanking = softwareSystem "Core Banking System" "Stores all of the core banking information about customers, accounts, transactions, etc." {
                 tags "Existing System"
+                perspectives {
+                    "Ownership" "Core Banking — Platform team"
+                }
             }
         }
 
         email = softwareSystem "Amazon Simple Email Service" "Sends emails to customers." {
             tags "Existing System"
+            /* NOBODY IN THE BANK OWNS THIS, and saying so is the point of the layer: an ownership
+               perspective whose value is a vendor is a different answer from a missing one. */
+            perspectives {
+                "Ownership" "Amazon Web Services — no team here owns it"
+            }
         }
 
         serviceStaff = person "Customer Service Staff" "Customer service staff within the bank."

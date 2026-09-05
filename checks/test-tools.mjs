@@ -44,7 +44,7 @@ const negative = (rel) => {
    this control called that FAIL, which would have taught its reader that a working check was broken.
    NOT-CHECKED is printed, counted separately, and never mistaken for a pass. */
 let notChecked = 0;
-for (const rel of ['tools/trace-suggest.mjs', 'tools/trace-animate.mjs', 'tools/diagram-collisions.mjs', 'checks/pubsub.mjs']) {
+for (const rel of ['tools/trace-suggest.mjs', 'tools/trace-animate.mjs', 'tools/diagram-collisions.mjs', 'checks/pubsub.mjs', 'checks/perspectives.mjs', 'checks/test-viewer.mjs']) {
   const r = negative(rel);
   if (r.code === 3 && /playwright/i.test(r.out)) {
     notChecked++;

@@ -27,6 +27,7 @@ They were one directory until a review pointed out that one folder was carrying 
 |---|---|
 | `diagram-contrast` | a workspace whose colours drifted from `architecture/theme.json` · any text-on-fill or stroke-on-canvas pair under its floor · a lightness ladder that would not survive black-and-white printing · a dynamic view whose steps are not 1..n, contiguous, in DSL order |
 | `test-viewer` | a wrapper whose opening view is a typed-in view key rather than the model's own · a row label written in two places, so a chip reaches only half the rail |
+| `perspectives` | a perspective declared on a single element, which is a tooltip rather than a layer. Coverage per view is reported, never gated |
 | `pubsub` | a message bus modelled as a container · a queue or topic drawn as a plain box · a hop through one drawn as a solid line · "Sends messages to" and other labels that name no message · a channel with only one end drawn · a queue joining two systems with no declared owner |
 | `tools/diagram-collisions` | a label lying across a box, across another label, or escaping its own box |
 | `tools/trace-suggest` | nothing — it *recommends*. Which features deserve a trace is a product judgement |
@@ -146,6 +147,46 @@ A topic with two subscribers both drawn inward is Figure 11-22 and is clean.
 
 `architecture/payments/` is the worked example: a point-to-point queue and a topic with two
 subscribers, on one plate.
+
+## Layers over a diagram, instead of another diagram
+
+Chapter 12 answers "how do I show ownership without cluttering the diagram" by quoting Woods and
+Rozanski: *"Rather than defining another viewpoint and creating another view, we need some way to
+modify and enhance our existing views."* Ownership becomes a layer the reader toggles — Figure 12-1
+over the landscape, Figure 12-2 for security on the statement store.
+
+**Measured 2026-09-04, against two preregistered ways it could have been dead:** `p` does nothing in
+the static export, and perspectives need the paid cloud workspace. **Neither fired.** In the offline
+export `p` opens a picker built from the model, choosing one dims every element with no value for it,
+and the tooltip carries the value.
+
+```
+perspectives {
+    "Ownership" "Digital Channels — Internet Banking team"
+    "Security"  "Server-side encryption; bucket policy denies public access."
+}
+```
+
+**The rail lists them**, because a layer nobody can find is not one — a reader who does not know the
+key never learns it exists. Clicking the lit layer turns it off.
+
+```bash
+npm run perspectives
+```
+
+**It reports coverage, and refuses exactly one thing.** When a layer is on, a dimmed element means
+either "no owner" or "nobody wrote one down", and the tool draws both identically — so the check
+prints the denominator (`Ownership Landscape 4 of 7 lit · dark: …`) and leaves the judgement to a
+reader. The one refusal is a perspective on a single element in the whole workspace: toggling that
+dims everything but one box, which is a tooltip wearing a layer's clothes. It fired on this repo's
+first draft, where Security sat on the statement store alone.
+
+**Partial coverage is deliberately not refused.** In the bank's landscape the three people carry no
+ownership and correctly dim; a rule demanding every element would refuse the book's own figure.
+
+**`pubsub` accepts an ownership perspective** as the answer to its cross-system queue rule — chapter
+11 asks who owns the queue and chapter 12 says where that answer goes, so demanding a group or a tag
+would refuse the model that answers it the way the same book recommends.
 
 ## Honest limits
 
