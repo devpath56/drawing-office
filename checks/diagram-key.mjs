@@ -164,8 +164,13 @@ export const RENDERER_KINDS = Object.freeze(['Person', 'Software System', 'Conta
  * The exemption is a DECLARATION rather than a hardcoded list: a theme names its offered
  * vocabularies in fields listed below, and this reads them. A row nobody declares and nobody draws
  * is still a finding, which is the case the rule was written for.
+ *
+ * IT RECURRED ONCE, one repo out. deliveryStates covered the two rows added the day the rule was
+ * written, and Channel and Asynchronous — offered for a consumer model with queues — fired the same
+ * false finding on a model that has none. The field list is the fix rather than a second special
+ * case: a palette that offers a row to somebody else says so in one place.
  */
-export const VOCABULARY_FIELDS = Object.freeze(['deliveryStates']);
+export const VOCABULARY_FIELDS = Object.freeze(['deliveryStates', 'offered']);
 
 export const offered = (theme) => new Set(VOCABULARY_FIELDS.flatMap((f) => theme?.[f] ?? []));
 
