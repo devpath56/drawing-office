@@ -374,14 +374,6 @@
         for (const c of s.containers ?? []) { takeAdrs(c, c); for (const k of c.components ?? []) takeAdrs(k, k); }
       }
 
-      const layers = new Set();
-      const seek = (e) => { for (const p of e.perspectives ?? []) layers.add(p.name); };
-      for (const p of ws.model.people ?? []) seek(p);
-      for (const s of ws.model.softwareSystems ?? []) {
-        seek(s);
-        for (const c of s.containers ?? []) { seek(c); for (const k of c.components ?? []) seek(k); }
-      }
-
       const roots = [];
       for (const s of ws.model.softwareSystems ?? []) {
         const containers = s.containers ?? [];
@@ -397,10 +389,7 @@
           name: 'Why', kind: ADRS.length + ' decision' + (ADRS.length === 1 ? '' : 's'), view: null,
           children: ADRS.map((d) => ({ name: d.id + '. ' + d.title, kind: 'Decision', decision: d, view: null, children: [] })),
         });
-        if (layers.size) node.children.push({
-          name: 'Layers', kind: layers.size + ' perspective' + (layers.size === 1 ? '' : 's'), view: null,
-          children: [...layers].sort().map((n) => ({ name: n, kind: 'Perspective', perspective: n, view: null, children: [] })),
-        });
+        /* NO LAYERS BRANCH. The rationale is always on, so there is nothing to switch. */
         const deploys = deploysFor(s.id);
         if (deploys.length) node.children.push({ name: 'Deployed', kind: deploys.length + ' environment' + (deploys.length === 1 ? '' : 's'), view: null,
           children: deploys.map((v) => ({ name: v.title || v.key, kind: 'Environment', view: v.key, children: [] })) });
@@ -582,31 +571,36 @@
       adrPanel.scrollTop = 0;
     }
 
-    /* A PERSPECTIVE IS A LAYER, AND A LAYER NOBODY CAN FIND IS NOT ONE. The renderer already does the
-       work — pressing p opens a picker built from the model, and choosing one dims every element with
-       no value for it while the tooltip carries the value. Measured 2026-09-04 in the offline static
-       export, against a preregistered claim that it would be cloud-only. It is not.
+    /* PERSPECTIVES WORK OFFLINE, measured 2026-09-04 against a preregistered claim that they would
+       be cloud-only. What changed since is how they are reached: the rail used to list them as
+       switchable layers, and the operator's ruling is that the reasoning should just be there. */
+    /* THE RATIONALE IS ALWAYS ON, AND THE DIMMING IS GONE. Two calls in the renderer look alike and
+       are not: showPerspective sets the filter AND runs it, which dims every element carrying no
+       value; setPerspective sets the filter and stops. showTooltipForElement reads filter.perspective
+       either way. So the content is available with no layer to switch on, no row in the rail and no
+       dimmed plate — which is what the operator asked for and what the dimming kept costing.
 
-       What it does not do is ANNOUNCE itself. A reader who does not know the key never learns the
-       layer exists, and chapter 12's whole argument for perspectives is that the information is
-       there for people who want it. So the rail lists them, which costs the reader nothing and the
-       model nothing: the names are read off the elements, exactly as the picker reads them. */
-    /* THE RENDERER OWNS WHICH LAYER IS ON; THIS PAGE ASKS. The first draft kept a LAYER variable
-       here and set it when the rail was clicked, which made the wrapper right only about the layers
-       IT had turned on. Measured: turning Security on with the p key and then opening the sign-in
-       trace left five of six boxes dimmed and the strip saying nothing, because the wrapper's copy
-       of the state was still null while the diagram's was "Security". Two owners of one fact, and
-       the renderer is the one that decides. getPerspective() is asked on every tick instead. */
-    const LAYER_OF = () => { try { return frame.contentWindow.structurizr.diagram.getPerspective() || null; } catch { return null; } };
-    let LAYER = null;
-    const layer = (name) => {
-      try {
-        const d = frame.contentWindow.structurizr.diagram;
-        if (name) d.showPerspective(name); else d.clearPerspective();
-      } catch { /* the site has not finished loading; the next click lands */ }
-      LAYER = LAYER_OF();
-      draw();
-      sayOrder(currentKey());
+       ONE THING BREAKS, AND IT IS STATED RATHER THAN LEFT TO BE DISCOVERED. showTooltipForElement
+       opens with `if (filter.perspective !== undefined && elementHasPerspective(element) === false)
+       return;` — so with a perspective set, an element carrying none shows NO tooltip at all, where
+       before it showed its name and tags. checks/perspectives.mjs already prints that number per
+       view; what it measures is now how many boxes answer a hover, not how many light up. */
+    const RATIONALE = () => {
+      const names = new Set();
+      const seek = (e) => { for (const p of e.perspectives ?? []) names.add(p.name); };
+      for (const p of WS?.model?.people ?? []) seek(p);
+      for (const s of WS?.model?.softwareSystems ?? []) {
+        seek(s);
+        for (const c of s.containers ?? []) { seek(c); for (const k of c.components ?? []) seek(k); }
+      }
+      return [...names].sort()[0] ?? null;
+    };
+
+    /* Re-armed on every view change, because the renderer rebuilds its filter when the plate does. */
+    const armRationale = () => {
+      const name = RATIONALE();
+      if (!name) return;
+      try { frame.contentWindow.structurizr.diagram.setPerspective(name); } catch { /* not loaded yet */ }
     };
     const currentKey = () => { try { return (frame.contentWindow.location.hash || '').replace(/^#/, '') || null; } catch { return null; } };
     /* replaceState, not a hash assignment: writing location.hash would push a history entry for every
@@ -856,12 +850,7 @@
 
         const isFlow = node.kind === 'Feature trace';
         const isEnv = node.kind === 'Environment';
-        /* THE LIT LAYER SAYS SO IN WORDS, not only by the row's highlight: "on" is the one state a
-           reader has to be able to read off the rail, because the diagram it changed is the thing
-           they are looking at and the change is a dimming they might read as a rendering fault. */
-        const isLayer = !!node.perspective;
         const chip = isFlow ? 'trace' : isEnv ? 'deploy'
-          : isLayer ? (node.perspective === LAYER ? 'on' : 'layer')
           : node.decision ? 'why'
           : node.chip || null;
         const kind = document.createElement('span');
@@ -872,10 +861,7 @@
 
       const add = (node, depth, path) => {
         const id = path + '/' + node.name;
-        /* A LAYER ROW IS "HERE" WHEN ITS LAYER IS ON, which is the same question the view rows
-           answer about the plate. Two kinds of current state, one marker, because a reader looking
-           at the rail is asking one question: what am I looking at right now. */
-        const isHere = (!!node.view && node.view === here) || (!!node.perspective && node.perspective === LAYER);
+        const isHere = !!node.view && node.view === here;
         /* PROGRESSIVE DISCLOSURE, AND THE SECOND LINE IS WHY IT WAS NOT. An auto-unfold used to be
            WRITTEN INTO `open`, which turned a transient "you are looking at this" into permanent
            state — so a branch the reader never touched stayed unfolded for the rest of the session,
@@ -892,10 +878,10 @@
         /* A ROW WITH CHILDREN AND NO VIEW OF ITS OWN still has to fold and unfold — otherwise a
            container with a feature trace beneath it and no component diagram would swallow the
            trace, which is the same class of defect as the rail not knowing flows at all. */
-        /* A LAYER ROW HAS NEITHER A VIEW NOR CHILDREN and must still be a button. Without this it
-           rendered as an inert leaf — present in the rail, describing a real layer, and doing
+        /* A DECISION ROW HAS NEITHER A VIEW NOR CHILDREN and must still be a button. Without this
+           it renders as an inert leaf — present in the rail, naming a real record, and doing
            nothing when clicked, which is worse than not listing it. */
-        if (node.view || node.children.length || node.perspective || node.decision) {
+        if (node.view || node.children.length || node.decision) {
           const b = document.createElement('button');
           b.type = 'button'; b.className = 'btn btn--row'; b.style.paddingLeft = pad;
           if (isHere) b.setAttribute('aria-current', 'true');
@@ -918,9 +904,6 @@
              be right to call that a second design. */
           b.addEventListener('click', () => {
             if (node.children.length) { if (open.has(id) && !isHere) open.delete(id); else open.add(id); }
-            /* CLICKING THE LIT LAYER TURNS IT OFF, because the alternative is a rail that can switch
-               a layer on and offers no way back to the plain diagram except a key nobody knew about. */
-            if (node.perspective) layer(LAYER === node.perspective ? null : node.perspective);
             if (node.decision) showAdr(node.decision);
             if (node.view) goto(node.view);
             draw();
@@ -1003,11 +986,10 @@
       body.dataset.railState = 'ready';
       const tick = () => {
         soften(); tint();
-        /* A LAYER TURNED ON WITH THE p KEY IS THE COMMON CASE, not an edge: the renderer's own picker
-           is the only way most readers will ever reach one. Noticing it here is what makes the notice
-           true rather than true-when-we-did-it. */
-        const nowLayer = LAYER_OF();
-        if (nowLayer !== LAYER) { LAYER = nowLayer; draw(); sayOrder(currentKey()); }
+        /* ARMED ON EVERY TICK, not only on load. The renderer rebuilds its filter when the plate
+           changes, and a rationale that survives the first view and not the second would look
+           exactly like a tooltip that works sometimes — which is how this arrived here. */
+        armRationale();
         const k = currentKey(); if (k !== here) { if (WALK && WALK.key !== k) endWalk(); here = k; mirror(k); draw(); sayOrder(k); } };
       frame.addEventListener('load', tick);
       tick(); draw();
