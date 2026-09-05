@@ -24,6 +24,11 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
                different mechanism per deployment environment;
              · the S3 bucket is a CONTAINER and Simple Email Service is a SOFTWARE SYSTEM, because we
                own what goes in the bucket and merely call the email API. */
+        /* THE BANK'S OWN CHANNEL SITS IN A DEPARTMENT TOO. The first draft grouped only the ATM and
+           the core banking system, and left the internet bank ungrouped while the landscape's own
+           description claimed "the two departments that own them" — a caption ahead of its model. */
+        group "Digital Channels" {
+
         internetBanking = softwareSystem "Internet Banking System" "Lets customers view information about their bank accounts, and make payments." {
             singlePageApp = container "Single-Page Application" "Provides all of the Internet banking functionality to customers via their web browser." "JavaScript and Angular"
             staticContent = container "Static Content" "Delivers the static content that makes up the single-page application." "Directory" {
@@ -49,15 +54,42 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
             }
         }
 
-        coreBanking = softwareSystem "Core Banking System" "Stores all of the core banking information about customers, accounts, transactions, etc." {
+        atm = softwareSystem "ATM" "Lets customers withdraw cash and check balances." {
             tags "Existing System"
+        }
+
+        }
+
+        /* ── THE WIDER LANDSCAPE, ch09 ────────────────────────────────────────────────────────────
+           Figure 9-2's elements, and no more: the ATM and two more staff roles beside the customer,
+           the internet bank, the core banking system and the email service. The chapter's own line
+           is why they are here at all — a system context shows only what has a DIRECT relationship
+           with the system in focus, while a landscape "shows a wider view to tell a broader story".
+
+           THE DEPARTMENT BOUNDARIES ARE MINE, NOT THE BOOK'S. ch09 names a group or department as a
+           common SCOPE for a landscape; figure 9-2 draws no departments. These two exist to test a
+           preregistered claim — "group renders as a plain box with no name · systems land outside
+           their department" — and where they put each system is a judgement about this fictional
+           bank, so a reader is free to disagree with the grouping without disagreeing with the
+           model. */
+        group "Core Banking" {
+            coreBanking = softwareSystem "Core Banking System" "Stores all of the core banking information about customers, accounts, transactions, etc." {
+                tags "Existing System"
+            }
         }
 
         email = softwareSystem "Amazon Simple Email Service" "Sends emails to customers." {
             tags "Existing System"
         }
 
+        serviceStaff = person "Customer Service Staff" "Customer service staff within the bank."
+        backOffice = person "Back Office Staff" "Administration and support staff within the bank."
+
         customer -> internetBanking "Views account balances, and makes payments using"
+        customer -> atm "Withdraws cash using"
+        atm -> coreBanking "Uses"
+        serviceStaff -> coreBanking "Uses"
+        backOffice -> coreBanking "Uses"
         internetBanking -> coreBanking "Gets account information from, and makes payments using"
         internetBanking -> email "Sends emails using"
         email -> customer "Sends emails to"
@@ -154,33 +186,41 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
     }
 
     views {
+        /* A LANDSCAPE IS A SYSTEM CONTEXT WITHOUT A SYSTEM IN FOCUS — ch09's own framing — so it is
+           the one view here that is scoped to the bank rather than to one of its systems. */
+        systemLandscape "Landscape" {
+            include *
+            autoLayout lr 500 400
+            description "The bank's systems and the people who use them, inside the two departments that own them."
+        }
+
         systemContext internetBanking "SystemContext" {
             include *
-            autoLayout lr 400 300
+            autoLayout lr 500 400
             description "The system in its world: who uses it, and what it talks to."
         }
 
         container internetBanking "Containers" {
             include *
-            autoLayout lr 400 300
+            autoLayout lr 500 400
             description "Inside the system: the applications and data stores it is built from."
         }
 
         component backend "Components" {
             include *
-            autoLayout lr 400 300
+            autoLayout lr 500 400
             description "Inside the backend: three API controllers, and the beans behind them."
         }
 
         deployment internetBanking "Development" "DeploymentDev" {
             include *
-            autoLayout lr
+            autoLayout lr 500 400
             description "A laptop inside the bank's network: the UI in a browser, the backend on a JVM, and the rest in Docker."
         }
 
         deployment internetBanking "Live" "DeploymentLive" {
             include *
-            autoLayout lr
+            autoLayout lr 500 400
             description "The UI runs on the customer's machine; almost everything else runs in AWS, with Cloudflare in front."
         }
 
@@ -206,7 +246,7 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
             database -> securityComponent "Returns user data to"
             securityComponent -> signInApi "Issues a session token if authentication succeeds"
             signInApi -> singlePageApp "Sends back a session token to"
-            autoLayout lr 400 300
+            autoLayout lr 500 400
             description "Signing in: six steps, and three of them are the way back."
         }
 

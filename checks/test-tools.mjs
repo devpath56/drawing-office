@@ -39,8 +39,18 @@ const negative = (rel) => {
   try { return { code: 0, out: execFileSync('node', [path.join(ROOT, rel), '--negative'], { encoding: 'utf8' }) }; }
   catch (e) { return { code: e.status ?? 1, out: (e.stdout ?? '') + (e.stderr ?? '') }; }
 };
-for (const rel of ['tools/trace-suggest.mjs', 'tools/trace-animate.mjs']) {
+/* A THIRD VERDICT, BECAUSE A MISSING BROWSER IS NOT A FAILING MODULE. diagram-collisions plants
+   its faults in a rendered page, so on a machine without playwright it exits 3 and says so — and
+   this control called that FAIL, which would have taught its reader that a working check was broken.
+   NOT-CHECKED is printed, counted separately, and never mistaken for a pass. */
+let notChecked = 0;
+for (const rel of ['tools/trace-suggest.mjs', 'tools/trace-animate.mjs', 'tools/diagram-collisions.mjs']) {
   const r = negative(rel);
+  if (r.code === 3 && /playwright/i.test(r.out)) {
+    notChecked++;
+    console.log(`  NOT-CHECKED ${rel} — it renders a page and playwright is not installed here`);
+    continue;
+  }
   /* N of N, compared to itself: pinning a number turns a green control red the day a case is added. */
   ok(`${rel} holds every case it plants`, r.code === 0 && /(\d+) of \1 (held|refused)/.test(r.out), r.out.trim().split('\n').pop());
 }
@@ -82,5 +92,5 @@ for (const rel of ['tools/diagram-collisions.mjs', 'tools/diagram-export.mjs']) 
 }
 fs.rmSync(tmp, { recursive: true, force: true });
 
-console.log(`\n${bad ? `${bad} FAIL` : 'all ok'}`);
+console.log(`\n${bad ? `${bad} FAIL` : 'all ok'}${notChecked ? ` · ${notChecked} NOT-CHECKED` : ''}`);
 process.exit(bad ? 1 : 0);
