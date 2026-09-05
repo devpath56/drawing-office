@@ -78,7 +78,14 @@ export function inspect(src) {
   /* ONE HOME FOR A ROW LABEL. Counted by the class it applies, because that is the thing that must
      exist exactly once however the surrounding code is arranged. */
   const rowtext = (clean.match(/'rowtext'/g) ?? []).length;
-  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext };
+  /* ONE CALLER FOR THE MODE NOTICE. Same rule, second instance, and the second instance is why the
+     rule generalises: a wrapper that can put the diagram into a mode — a layer on, a walk running —
+     must announce it, and an announcement written at each branch stops covering the branch someone
+     adds next year. Counted as calls, so the definition does not inflate it. */
+  const mentions = (clean.match(/\bsayLayer\s*\(/g) ?? []).length;
+  const defined = /function\s+sayLayer\s*\(/.test(clean);
+  const sayLayerCalls = mentions - (defined ? 1 : 0);
+  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext, sayLayerCalls };
 }
 
 /* ── CLI ─────────────────────────────────────────────────────────────────────────────────────── */
@@ -115,14 +122,26 @@ if (IS_MAIN) {
     const twice = clean + `<script>const t2 = document.createElement('span'); t2.className = 'rowtext';</script>`;
     say('a second row-label writer is caught', inspect(twice).rowtext === 2, inspect(twice));
 
+    /* THE MODE NOTICE, SECOND INSTANCE OF THE ONE-HOME RULE. */
+    const mode = `<script>function sayLayer(k){} function sayOrder(k){ fillOrder(k); sayLayer(k); }
+      const label = (n) => { const t = document.createElement('span'); t.className = 'rowtext'; return t; };
+      const ASKED = (location.hash || '').replace(/^#/, '') || null;</script>`;
+    say('a mode notice called once is clean', inspect(mode).sayLayerCalls === 1, inspect(mode));
+
+    const modeTwice = mode.replace('sayLayer(k); }', 'sayLayer(k); if (x) sayLayer(k); }');
+    say('a mode notice called from two branches is caught', inspect(modeTwice).sayLayerCalls === 2, inspect(modeTwice));
+
+    const modeNever = mode.replace('fillOrder(k); sayLayer(k);', 'fillOrder(k);');
+    say('a mode notice that is never called is caught', inspect(modeNever).sayLayerCalls === 0, inspect(modeNever));
+
     const explained = clean.replace('<script>', `<script>/* it used to read || 'SystemContext', which was the bank's key */`);
     say('the forbidden literal quoted inside a comment is not a finding', inspect(explained).literals.length === 0, inspect(explained).literals);
 
     const silent = `<script>const ASKED = null;</script>`;
     say('a wrapper that never reads the hash is UNEVALUABLE, not clean', inspect(silent).statement === null, inspect(silent));
 
-    console.log(`\n${held} of 7 held`);
-    process.exit(held === 7 ? 0 : 1);
+    console.log(`\n${held} of 10 held`);
+    process.exit(held === 10 ? 0 : 1);
   }
 
   const file = path.join(ROOT, 'architecture', 'viewer.html');
@@ -139,6 +158,8 @@ if (IS_MAIN) {
     r.literals.length === 0, r.literals);
   ok('a row label is written in exactly one place, so a chip cannot reach only half the rows',
     r.rowtext === 1, `${r.rowtext} writer(s) of class rowtext`);
+  ok('the mode notice is called from exactly one place, so a new branch cannot stop announcing it',
+    r.sayLayerCalls === 1, `${r.sayLayerCalls} call site(s) of sayLayer`);
 
   console.log(`\n${bad ? `${bad} FAIL` : 'all ok'}`);
   process.exit(bad ? 1 : 0);
