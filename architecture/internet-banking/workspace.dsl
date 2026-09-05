@@ -90,6 +90,67 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
         statementComponent -> statementStore "Reads from and writes to" "AWS S3 API"
         statementComponent -> coreBankingAdapter "Uses"
         coreBankingAdapter -> coreBanking "Makes API calls to" "XML/HTTPS"
+
+        /* ── DEPLOYMENT, ch08 ─────────────────────────────────────────────────────────────────────
+           Two environments, because the chapter is explicit that one diagram cannot carry both: "I
+           might run a Java application directly on a JVM on my laptop when doing development, but
+           that same Java application might be built into a Docker image and deployed onto AWS."
+
+           THE DEVELOPMENT ONE IS FOUR LEVELS DEEP ON PURPOSE — bank WAN, laptop, Docker, then the
+           container engine inside it — because the preregistered redproof for this checkpoint says
+           "nesting past two levels collapses or overlaps", and a topology that never nests could not
+           put that to the test. */
+        deploymentEnvironment "Development" {
+            deploymentNode "Bank WAN" "All development happens inside the bank's own network." "Corporate network" {
+                deploymentNode "Developer laptop" "Windows or macOS, chosen when an engineer joins." "Microsoft Windows or Apple macOS" {
+                    deploymentNode "Web browser" "The UI is run locally so it can be debugged." "Chrome, Firefox, Safari or Edge" {
+                        devSpa = containerInstance singlePageApp
+                    }
+                    deploymentNode "Java Virtual Machine" "The backend runs straight on a JVM here, not in a container." "OpenJDK" {
+                        devBackend = containerInstance backend
+                    }
+                    deploymentNode "Docker" "Rather than install these on the laptop itself." "Docker Desktop" {
+                        deploymentNode "nginx" "Serves the static content over a local address." "nginx 1.27" {
+                            devStatic = containerInstance staticContent
+                        }
+                        deploymentNode "MySQL" "The same schema as live, one container away." "MySQL 8" {
+                            devDatabase = containerInstance database
+                        }
+                    }
+                }
+            }
+        }
+
+        deploymentEnvironment "Live" {
+            deploymentNode "Customer's computer" "Outside our infrastructure entirely." "Microsoft Windows or Apple macOS" {
+                deploymentNode "Web browser" "Where the UI actually runs." "Chrome, Firefox, Safari or Edge" {
+                    liveSpa = containerInstance singlePageApp
+                }
+            }
+            deploymentNode "Cloudflare" "DNS, and a proxy in front of the static content." "Cloudflare" {
+                cdn = infrastructureNode "ib.bigbank.com" "A CNAME aliasing the S3 bucket, proxied so static content is cached." "DNS CNAME"
+                apiDns = infrastructureNode "ib-api.bigbank.com" "A CNAME aliasing the load balancer. Not proxied — API calls cannot be cached." "DNS CNAME"
+            }
+            deploymentNode "Amazon Web Services" "Where the majority of the software runs." "AWS" {
+                lb = infrastructureNode "Application load balancer" "Forwards API traffic to the backend." "AWS ALB"
+                deploymentNode "Fargate" "Runs the Docker image without provisioning servers." "AWS Fargate" {
+                    liveBackend = containerInstance backend
+                }
+                deploymentNode "RDS" "AWS provisions the underlying infrastructure." "Amazon RDS" {
+                    liveDatabase = containerInstance database
+                }
+                deploymentNode "S3" "Two buckets: the static content, and the generated statements." "Amazon S3" {
+                    liveStatic = containerInstance staticContent
+                    liveStore = containerInstance statementStore
+                }
+            }
+
+            liveSpa -> cdn "Loads the UI from" "HTTPS"
+            cdn -> liveStatic "Caches and serves" "HTTPS"
+            liveSpa -> apiDns "Makes API calls to" "HTTPS"
+            apiDns -> lb "Resolves to"
+            lb -> liveBackend "Forwards traffic to" "HTTPS"
+        }
     }
 
     views {
@@ -110,6 +171,20 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
             autoLayout lr 400 300
             description "Inside the backend: three API controllers, and the beans behind them."
         }
+
+        deployment internetBanking "Development" "DeploymentDev" {
+            include *
+            autoLayout lr
+            description "A laptop inside the bank's network: the UI in a browser, the backend on a JVM, and the rest in Docker."
+        }
+
+        deployment internetBanking "Live" "DeploymentLive" {
+            include *
+            autoLayout lr
+            description "The UI runs on the customer's machine; almost everything else runs in AWS, with Cloudflare in front."
+        }
+
+
 
         /* THE SIGN-IN FEATURE AT RUNTIME — ch07, figure 7-3, its six steps copied verbatim from the
            figure rather than paraphrased. The chapter's own caution is worth keeping beside it: it

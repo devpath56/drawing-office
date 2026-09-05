@@ -1,665 +1,1526 @@
 {
-  "configuration" : { },
-  "description" : "The fictional bank from The C4 Model, ch03: system context.",
-  "documentation" : { },
-  "id" : 0,
-  "model" : {
-    "people" : [ {
-      "description" : "A customer of the bank, with personal bank accounts.",
-      "id" : "1",
-      "name" : "Personal Banking Customer",
-      "properties" : {
-        "structurizr.dsl.identifier" : "customer"
-      },
-      "relationships" : [ {
-        "description" : "Views account balances, and makes payments using",
-        "destinationId" : "2",
-        "id" : "17",
-        "sourceId" : "1",
-        "tags" : "Relationship"
-      }, {
-        "description" : "Views account balances, and makes payments using",
-        "destinationId" : "3",
-        "id" : "21",
-        "sourceId" : "1",
-        "tags" : "Relationship"
-      } ],
-      "tags" : "Element,Person"
-    } ],
-    "softwareSystems" : [ {
-      "containers" : [ {
-        "description" : "Provides all of the Internet banking functionality to customers via their web browser.",
-        "documentation" : { },
-        "id" : "3",
-        "name" : "Single-Page Application",
-        "properties" : {
-          "structurizr.dsl.identifier" : "singlePageApp"
-        },
-        "relationships" : [ {
-          "description" : "Is delivered to the customer's web browser from",
-          "destinationId" : "4",
-          "id" : "22",
-          "sourceId" : "3",
-          "tags" : "Relationship"
-        }, {
-          "description" : "Makes API calls to",
-          "destinationId" : "5",
-          "id" : "23",
-          "sourceId" : "3",
-          "tags" : "Relationship",
-          "technology" : "JSON/HTTP"
-        }, {
-          "description" : "Makes API calls to",
-          "destinationId" : "6",
-          "id" : "28",
-          "sourceId" : "3",
-          "tags" : "Relationship",
-          "technology" : "JSON/HTTP"
-        }, {
-          "description" : "Makes API calls to",
-          "destinationId" : "7",
-          "id" : "29",
-          "sourceId" : "3",
-          "tags" : "Relationship",
-          "technology" : "JSON/HTTP"
-        }, {
-          "description" : "Makes API calls to",
-          "destinationId" : "8",
-          "id" : "30",
-          "sourceId" : "3",
-          "tags" : "Relationship",
-          "technology" : "JSON/HTTP"
-        } ],
-        "tags" : "Element,Container",
-        "technology" : "JavaScript and Angular"
-      }, {
-        "description" : "Delivers the static content that makes up the single-page application.",
-        "documentation" : { },
-        "id" : "4",
-        "name" : "Static Content",
-        "properties" : {
-          "structurizr.dsl.identifier" : "staticContent"
-        },
-        "tags" : "Element,Container,Data Store",
-        "technology" : "Directory"
-      }, {
-        "components" : [ {
-          "description" : "Allows users to sign in to the Internet Banking System.",
-          "documentation" : { },
-          "id" : "6",
-          "name" : "Sign In API",
-          "properties" : {
-            "structurizr.dsl.identifier" : "signInApi"
-          },
-          "relationships" : [ {
-            "description" : "Uses",
-            "destinationId" : "9",
-            "id" : "31",
-            "sourceId" : "6",
-            "tags" : "Relationship"
-          } ],
-          "tags" : "Element,Component",
-          "technology" : "Spring Web MVC"
-        }, {
-          "description" : "Provides customers with a summary of their bank accounts.",
-          "documentation" : { },
-          "id" : "7",
-          "name" : "Accounts Summary API",
-          "properties" : {
-            "structurizr.dsl.identifier" : "accountsSummaryApi"
-          },
-          "relationships" : [ {
-            "description" : "Uses",
-            "destinationId" : "9",
-            "id" : "32",
-            "sourceId" : "7",
-            "tags" : "Relationship"
-          }, {
-            "description" : "Uses",
-            "destinationId" : "12",
-            "id" : "37",
-            "sourceId" : "7",
-            "tags" : "Relationship"
-          } ],
-          "tags" : "Element,Component",
-          "technology" : "Spring Web MVC"
-        }, {
-          "description" : "Allows customers to request a bank statement.",
-          "documentation" : { },
-          "id" : "8",
-          "name" : "Statement API",
-          "properties" : {
-            "structurizr.dsl.identifier" : "statementApi"
-          },
-          "relationships" : [ {
-            "description" : "Uses",
-            "destinationId" : "9",
-            "id" : "33",
-            "sourceId" : "8",
-            "tags" : "Relationship"
-          }, {
-            "description" : "Uses",
-            "destinationId" : "11",
-            "id" : "38",
-            "sourceId" : "8",
-            "tags" : "Relationship"
-          } ],
-          "tags" : "Element,Component",
-          "technology" : "Spring Web MVC"
-        }, {
-          "description" : "Validates credentials, and issues and validates authentication tokens.",
-          "documentation" : { },
-          "id" : "9",
-          "name" : "Security Component",
-          "properties" : {
-            "structurizr.dsl.identifier" : "securityComponent"
-          },
-          "relationships" : [ {
-            "description" : "Reads from and writes to",
-            "destinationId" : "13",
-            "id" : "34",
-            "sourceId" : "9",
-            "tags" : "Relationship",
-            "technology" : "SQL/TCP"
-          }, {
-            "description" : "Uses",
-            "destinationId" : "10",
-            "id" : "35",
-            "sourceId" : "9",
-            "tags" : "Relationship"
-          } ],
-          "tags" : "Element,Component",
-          "technology" : "Spring Bean"
-        }, {
-          "description" : "Sends emails to customers.",
-          "documentation" : { },
-          "id" : "10",
-          "name" : "Email Component",
-          "properties" : {
-            "structurizr.dsl.identifier" : "emailComponent"
-          },
-          "relationships" : [ {
-            "description" : "Sends emails using",
-            "destinationId" : "16",
-            "id" : "36",
-            "sourceId" : "10",
-            "tags" : "Relationship",
-            "technology" : "AWS SES API"
-          } ],
-          "tags" : "Element,Component",
-          "technology" : "Spring Bean"
-        }, {
-          "description" : "Returns a cached statement, or generates one from the Core Banking System.",
-          "documentation" : { },
-          "id" : "11",
-          "name" : "Statement Component",
-          "properties" : {
-            "structurizr.dsl.identifier" : "statementComponent"
-          },
-          "relationships" : [ {
-            "description" : "Reads from and writes to",
-            "destinationId" : "14",
-            "id" : "39",
-            "sourceId" : "11",
-            "tags" : "Relationship",
-            "technology" : "AWS S3 API"
-          }, {
-            "description" : "Uses",
-            "destinationId" : "12",
-            "id" : "40",
-            "sourceId" : "11",
-            "tags" : "Relationship"
-          } ],
-          "tags" : "Element,Component",
-          "technology" : "Spring Bean"
-        }, {
-          "description" : "Talks to the Core Banking System.",
-          "documentation" : { },
-          "id" : "12",
-          "name" : "Core Banking System Adapter",
-          "properties" : {
-            "structurizr.dsl.identifier" : "coreBankingAdapter"
-          },
-          "relationships" : [ {
-            "description" : "Makes API calls to",
-            "destinationId" : "15",
-            "id" : "41",
-            "sourceId" : "12",
-            "tags" : "Relationship",
-            "technology" : "XML/HTTPS"
-          } ],
-          "tags" : "Element,Component",
-          "technology" : "Spring Bean"
-        } ],
-        "description" : "Provides Internet banking functionality via a JSON/HTTP API, and makes calls to the Core Banking System.",
-        "documentation" : { },
-        "id" : "5",
-        "name" : "Backend",
-        "properties" : {
-          "structurizr.dsl.identifier" : "backend"
-        },
-        "relationships" : [ {
-          "description" : "Reads from and writes to",
-          "destinationId" : "13",
-          "id" : "24",
-          "sourceId" : "5",
-          "tags" : "Relationship",
-          "technology" : "SQL/TCP"
-        }, {
-          "description" : "Reads from and writes to",
-          "destinationId" : "14",
-          "id" : "25",
-          "sourceId" : "5",
-          "tags" : "Relationship",
-          "technology" : "AWS S3 API"
-        }, {
-          "description" : "Gets account information from, and makes payments using",
-          "destinationId" : "15",
-          "id" : "26",
-          "sourceId" : "5",
-          "tags" : "Relationship",
-          "technology" : "XML/HTTPS"
-        }, {
-          "description" : "Sends emails using",
-          "destinationId" : "16",
-          "id" : "27",
-          "sourceId" : "5",
-          "tags" : "Relationship",
-          "technology" : "AWS SES API"
-        } ],
-        "tags" : "Element,Container",
-        "technology" : "Java and Spring Boot"
-      }, {
-        "description" : "Stores user registration information and hashed authentication credentials.",
-        "documentation" : { },
-        "id" : "13",
-        "name" : "Database",
-        "properties" : {
-          "structurizr.dsl.identifier" : "database"
-        },
-        "tags" : "Element,Container,Data Store",
-        "technology" : "MySQL"
-      }, {
-        "description" : "Caches generated PDF bank statements.",
-        "documentation" : { },
-        "id" : "14",
-        "name" : "Statement Store",
-        "properties" : {
-          "structurizr.dsl.identifier" : "statementStore"
-        },
-        "tags" : "Element,Container,Data Store",
-        "technology" : "AWS S3"
-      } ],
-      "description" : "Lets customers view information about their bank accounts, and make payments.",
-      "documentation" : { },
-      "id" : "2",
-      "name" : "Internet Banking System",
-      "properties" : {
-        "structurizr.dsl.identifier" : "internetBanking"
-      },
-      "relationships" : [ {
-        "description" : "Gets account information from, and makes payments using",
-        "destinationId" : "15",
-        "id" : "18",
-        "sourceId" : "2",
-        "tags" : "Relationship"
-      }, {
-        "description" : "Sends emails using",
-        "destinationId" : "16",
-        "id" : "19",
-        "sourceId" : "2",
-        "tags" : "Relationship"
-      } ],
-      "tags" : "Element,Software System"
-    }, {
-      "description" : "Stores all of the core banking information about customers, accounts, transactions, etc.",
-      "documentation" : { },
-      "id" : "15",
-      "name" : "Core Banking System",
-      "properties" : {
-        "structurizr.dsl.identifier" : "coreBanking"
-      },
-      "tags" : "Element,Software System,Existing System"
-    }, {
-      "description" : "Sends emails to customers.",
-      "documentation" : { },
-      "id" : "16",
-      "name" : "Amazon Simple Email Service",
-      "properties" : {
-        "structurizr.dsl.identifier" : "email"
-      },
-      "relationships" : [ {
-        "description" : "Sends emails to",
-        "destinationId" : "1",
-        "id" : "20",
-        "sourceId" : "16",
-        "tags" : "Relationship"
-      } ],
-      "tags" : "Element,Software System,Existing System"
-    } ]
-  },
-  "name" : "Internet Banking System",
-  "properties" : {
-    "structurizr.inspection.error" : "16",
-    "structurizr.dsl" : "LyoKICogVGhlIGZpY3Rpb25hbCBJbnRlcm5ldCBCYW5raW5nIFN5c3RlbSwgZnJvbSBUaGUgQzQgTW9kZWwgKFNpbW9uIEJyb3duLCBPJ1JlaWxseSAyMDI2KS4KICoKICogV0hZIFRISVMgTU9ERUwgQU5EIE5PVCBPVVJTIEZJUlNULiBFdmVyeSBkaWFncmFtIHR5cGUgdGhpcyBmYWN0b3J5IG5lZWRzIGFscmVhZHkgZXhpc3RzIGluIHRoZQogKiBib29rIGZvciB0aGlzIG9uZSBzeXN0ZW06IHN5c3RlbSBjb250ZXh0IChjaDAzLCBmaWd1cmVzIDMtMSB0byAzLTQpLCBjb250YWluZXJzIChjaDA0LCA0LTEgdG8KICogNC02KSwgY29tcG9uZW50cyBvZiB0aGUgYmFja2VuZCAoY2gwNSwgNS0xIHRvIDUtNCksIHRoZSBzaWduLWluIGR5bmFtaWMgdmlldyAoY2gwNywgNy0zIGFuZCA3LTQpLAogKiBkZXYgYW5kIGxpdmUgZGVwbG95bWVudCAoY2gwOCwgOC0xIHRvIDgtMTApLCBhbmQgdGhlIGJhbmsncyBsYW5kc2NhcGUgd2l0aCBkZXBhcnRtZW50cyAoY2gwOSwKICogOS0xIHRvIDktNCkuIFNvIHRoZSBpbmNyZW1lbnRzIHRlc3QgdGhlIFRPT0xJTkc7IG5vdGhpbmcgaGVyZSBpcyBpbnZlbnRlZCwgYW5kIGV2ZXJ5IGVsZW1lbnQgY2FuCiAqIGJlIGNoZWNrZWQgYWdhaW5zdCBhIHBhZ2UuIExvY2FsIGdyb3VuZGluZywgd2l0aCBhbmNob3JzOgogKiAgIFNvdXJjZSBhdXRob3JpdHkgY29udGVudC9jNC1tb2RlbC1zaW1vbi1icm93bi0yMDI2L21kL2NoMDMubWQjLi4uIGFuZCB0aGUgSU5ERVgubWQgZmlndXJlIHRhYmxlLgogKgogKiBTQ09QRSBPRiBUSElTIEZJTEUgVE9EQVk6IGNoZWNrcG9pbnRzIDEgdG8gMyDigJQgdGhlIHN5c3RlbSBjb250ZXh0IGFuZCB0aGUgY29udGFpbmVycy4gQ29tcG9uZW50cywKICogdGhlIGR5bmFtaWMgdmlldywgZGVwbG95bWVudCBhbmQgdGhlIGxhbmRzY2FwZSBhcnJpdmUgYXQgY2hlY2twb2ludHMgNCwgNiwgNyBhbmQgOCwgZWFjaCB3aXRoIGl0cwogKiBvd24gcmV2aWV3LiBBIHZpZXcgdGhhdCBpcyBub3QgbW9kZWxsZWQgeWV0IGlzIEFCU0VOVCwgbmV2ZXIgYSBzdHViLgogKi8Kd29ya3NwYWNlICJJbnRlcm5ldCBCYW5raW5nIFN5c3RlbSIgIlRoZSBmaWN0aW9uYWwgYmFuayBmcm9tIFRoZSBDNCBNb2RlbCwgY2gwMzogc3lzdGVtIGNvbnRleHQuIiB7CgogICAgbW9kZWwgewogICAgICAgIGN1c3RvbWVyID0gcGVyc29uICJQZXJzb25hbCBCYW5raW5nIEN1c3RvbWVyIiAiQSBjdXN0b21lciBvZiB0aGUgYmFuaywgd2l0aCBwZXJzb25hbCBiYW5rIGFjY291bnRzLiIKCiAgICAgICAgLyogQ09OVEFJTkVSUywgY2gwNCwgaW4gdGhlIGJvb2sncyBvd24gc2l4IHN0ZXBzLiBUd28gcnVsaW5ncyBmcm9tIHRoYXQgY2hhcHRlciBhcmUgbW9kZWxsZWQKICAgICAgICAgICByYXRoZXIgdGhhbiBwYXJhcGhyYXNlZDoKICAgICAgICAgICAgIMK3IHRoZSBzdGF0aWMgY29udGVudCBpcyBhIERJUkVDVE9SWSwgbm90IGEgd2ViIHNlcnZlciwgc28gY2hhcHRlciA4IGNhbiBzZXJ2ZSBpdCBieSBhCiAgICAgICAgICAgICAgIGRpZmZlcmVudCBtZWNoYW5pc20gcGVyIGRlcGxveW1lbnQgZW52aXJvbm1lbnQ7CiAgICAgICAgICAgICDCtyB0aGUgUzMgYnVja2V0IGlzIGEgQ09OVEFJTkVSIGFuZCBTaW1wbGUgRW1haWwgU2VydmljZSBpcyBhIFNPRlRXQVJFIFNZU1RFTSwgYmVjYXVzZSB3ZQogICAgICAgICAgICAgICBvd24gd2hhdCBnb2VzIGluIHRoZSBidWNrZXQgYW5kIG1lcmVseSBjYWxsIHRoZSBlbWFpbCBBUEkuICovCiAgICAgICAgaW50ZXJuZXRCYW5raW5nID0gc29mdHdhcmVTeXN0ZW0gIkludGVybmV0IEJhbmtpbmcgU3lzdGVtIiAiTGV0cyBjdXN0b21lcnMgdmlldyBpbmZvcm1hdGlvbiBhYm91dCB0aGVpciBiYW5rIGFjY291bnRzLCBhbmQgbWFrZSBwYXltZW50cy4iIHsKICAgICAgICAgICAgc2luZ2xlUGFnZUFwcCA9IGNvbnRhaW5lciAiU2luZ2xlLVBhZ2UgQXBwbGljYXRpb24iICJQcm92aWRlcyBhbGwgb2YgdGhlIEludGVybmV0IGJhbmtpbmcgZnVuY3Rpb25hbGl0eSB0byBjdXN0b21lcnMgdmlhIHRoZWlyIHdlYiBicm93c2VyLiIgIkphdmFTY3JpcHQgYW5kIEFuZ3VsYXIiCiAgICAgICAgICAgIHN0YXRpY0NvbnRlbnQgPSBjb250YWluZXIgIlN0YXRpYyBDb250ZW50IiAiRGVsaXZlcnMgdGhlIHN0YXRpYyBjb250ZW50IHRoYXQgbWFrZXMgdXAgdGhlIHNpbmdsZS1wYWdlIGFwcGxpY2F0aW9uLiIgIkRpcmVjdG9yeSIgewogICAgICAgICAgICAgICAgdGFncyAiRGF0YSBTdG9yZSIKICAgICAgICAgICAgfQogICAgICAgICAgICAvKiBDT01QT05FTlRTLCBjaDA1LCBpbiB0aGUgYm9vaydzIG93biBmb3VyIHN0ZXBzOiB0aHJlZSBBUEkgY29udHJvbGxlcnMgYnVpbHQgd2l0aCBTcHJpbmcKICAgICAgICAgICAgICAgV2ViIE1WQywgYW5kIGZvdXIgU3ByaW5nIGJlYW5zIGJlaGluZCB0aGVtLiBUaGUgY2hhcHRlcidzIG93biBub3RlIGlzIGtlcHQ6IGRlc2NyaXB0aW9ucwogICAgICAgICAgICAgICB3ZXJlIGRyb3BwZWQgZnJvbSBJVFMgcHJpbnRlZCBmaWd1cmVzIGZvciBzcGFjZSwgbm90IGZyb20gdGhlIG1vZGVsLCBzbyB0aGV5IHN0YXkgaGVyZS4gKi8KICAgICAgICAgICAgYmFja2VuZCA9IGNvbnRhaW5lciAiQmFja2VuZCIgIlByb3ZpZGVzIEludGVybmV0IGJhbmtpbmcgZnVuY3Rpb25hbGl0eSB2aWEgYSBKU09OL0hUVFAgQVBJLCBhbmQgbWFrZXMgY2FsbHMgdG8gdGhlIENvcmUgQmFua2luZyBTeXN0ZW0uIiAiSmF2YSBhbmQgU3ByaW5nIEJvb3QiIHsKICAgICAgICAgICAgICAgIHNpZ25JbkFwaSA9IGNvbXBvbmVudCAiU2lnbiBJbiBBUEkiICJBbGxvd3MgdXNlcnMgdG8gc2lnbiBpbiB0byB0aGUgSW50ZXJuZXQgQmFua2luZyBTeXN0ZW0uIiAiU3ByaW5nIFdlYiBNVkMiCiAgICAgICAgICAgICAgICBhY2NvdW50c1N1bW1hcnlBcGkgPSBjb21wb25lbnQgIkFjY291bnRzIFN1bW1hcnkgQVBJIiAiUHJvdmlkZXMgY3VzdG9tZXJzIHdpdGggYSBzdW1tYXJ5IG9mIHRoZWlyIGJhbmsgYWNjb3VudHMuIiAiU3ByaW5nIFdlYiBNVkMiCiAgICAgICAgICAgICAgICBzdGF0ZW1lbnRBcGkgPSBjb21wb25lbnQgIlN0YXRlbWVudCBBUEkiICJBbGxvd3MgY3VzdG9tZXJzIHRvIHJlcXVlc3QgYSBiYW5rIHN0YXRlbWVudC4iICJTcHJpbmcgV2ViIE1WQyIKICAgICAgICAgICAgICAgIHNlY3VyaXR5Q29tcG9uZW50ID0gY29tcG9uZW50ICJTZWN1cml0eSBDb21wb25lbnQiICJWYWxpZGF0ZXMgY3JlZGVudGlhbHMsIGFuZCBpc3N1ZXMgYW5kIHZhbGlkYXRlcyBhdXRoZW50aWNhdGlvbiB0b2tlbnMuIiAiU3ByaW5nIEJlYW4iCiAgICAgICAgICAgICAgICBlbWFpbENvbXBvbmVudCA9IGNvbXBvbmVudCAiRW1haWwgQ29tcG9uZW50IiAiU2VuZHMgZW1haWxzIHRvIGN1c3RvbWVycy4iICJTcHJpbmcgQmVhbiIKICAgICAgICAgICAgICAgIHN0YXRlbWVudENvbXBvbmVudCA9IGNvbXBvbmVudCAiU3RhdGVtZW50IENvbXBvbmVudCIgIlJldHVybnMgYSBjYWNoZWQgc3RhdGVtZW50LCBvciBnZW5lcmF0ZXMgb25lIGZyb20gdGhlIENvcmUgQmFua2luZyBTeXN0ZW0uIiAiU3ByaW5nIEJlYW4iCiAgICAgICAgICAgICAgICBjb3JlQmFua2luZ0FkYXB0ZXIgPSBjb21wb25lbnQgIkNvcmUgQmFua2luZyBTeXN0ZW0gQWRhcHRlciIgIlRhbGtzIHRvIHRoZSBDb3JlIEJhbmtpbmcgU3lzdGVtLiIgIlNwcmluZyBCZWFuIgogICAgICAgICAgICB9CiAgICAgICAgICAgIGRhdGFiYXNlID0gY29udGFpbmVyICJEYXRhYmFzZSIgIlN0b3JlcyB1c2VyIHJlZ2lzdHJhdGlvbiBpbmZvcm1hdGlvbiBhbmQgaGFzaGVkIGF1dGhlbnRpY2F0aW9uIGNyZWRlbnRpYWxzLiIgIk15U1FMIiB7CiAgICAgICAgICAgICAgICB0YWdzICJEYXRhIFN0b3JlIgogICAgICAgICAgICB9CiAgICAgICAgICAgIHN0YXRlbWVudFN0b3JlID0gY29udGFpbmVyICJTdGF0ZW1lbnQgU3RvcmUiICJDYWNoZXMgZ2VuZXJhdGVkIFBERiBiYW5rIHN0YXRlbWVudHMuIiAiQVdTIFMzIiB7CiAgICAgICAgICAgICAgICB0YWdzICJEYXRhIFN0b3JlIgogICAgICAgICAgICB9CiAgICAgICAgfQoKICAgICAgICBjb3JlQmFua2luZyA9IHNvZnR3YXJlU3lzdGVtICJDb3JlIEJhbmtpbmcgU3lzdGVtIiAiU3RvcmVzIGFsbCBvZiB0aGUgY29yZSBiYW5raW5nIGluZm9ybWF0aW9uIGFib3V0IGN1c3RvbWVycywgYWNjb3VudHMsIHRyYW5zYWN0aW9ucywgZXRjLiIgewogICAgICAgICAgICB0YWdzICJFeGlzdGluZyBTeXN0ZW0iCiAgICAgICAgfQoKICAgICAgICBlbWFpbCA9IHNvZnR3YXJlU3lzdGVtICJBbWF6b24gU2ltcGxlIEVtYWlsIFNlcnZpY2UiICJTZW5kcyBlbWFpbHMgdG8gY3VzdG9tZXJzLiIgewogICAgICAgICAgICB0YWdzICJFeGlzdGluZyBTeXN0ZW0iCiAgICAgICAgfQoKICAgICAgICBjdXN0b21lciAtPiBpbnRlcm5ldEJhbmtpbmcgIlZpZXdzIGFjY291bnQgYmFsYW5jZXMsIGFuZCBtYWtlcyBwYXltZW50cyB1c2luZyIKICAgICAgICBpbnRlcm5ldEJhbmtpbmcgLT4gY29yZUJhbmtpbmcgIkdldHMgYWNjb3VudCBpbmZvcm1hdGlvbiBmcm9tLCBhbmQgbWFrZXMgcGF5bWVudHMgdXNpbmciCiAgICAgICAgaW50ZXJuZXRCYW5raW5nIC0+IGVtYWlsICJTZW5kcyBlbWFpbHMgdXNpbmciCiAgICAgICAgZW1haWwgLT4gY3VzdG9tZXIgIlNlbmRzIGVtYWlscyB0byIKCiAgICAgICAgY3VzdG9tZXIgLT4gc2luZ2xlUGFnZUFwcCAiVmlld3MgYWNjb3VudCBiYWxhbmNlcywgYW5kIG1ha2VzIHBheW1lbnRzIHVzaW5nIgogICAgICAgIHNpbmdsZVBhZ2VBcHAgLT4gc3RhdGljQ29udGVudCAiSXMgZGVsaXZlcmVkIHRvIHRoZSBjdXN0b21lcidzIHdlYiBicm93c2VyIGZyb20iCiAgICAgICAgc2luZ2xlUGFnZUFwcCAtPiBiYWNrZW5kICJNYWtlcyBBUEkgY2FsbHMgdG8iICJKU09OL0hUVFAiCiAgICAgICAgYmFja2VuZCAtPiBkYXRhYmFzZSAiUmVhZHMgZnJvbSBhbmQgd3JpdGVzIHRvIiAiU1FML1RDUCIKICAgICAgICBiYWNrZW5kIC0+IHN0YXRlbWVudFN0b3JlICJSZWFkcyBmcm9tIGFuZCB3cml0ZXMgdG8iICJBV1MgUzMgQVBJIgogICAgICAgIGJhY2tlbmQgLT4gY29yZUJhbmtpbmcgIkdldHMgYWNjb3VudCBpbmZvcm1hdGlvbiBmcm9tLCBhbmQgbWFrZXMgcGF5bWVudHMgdXNpbmciICJYTUwvSFRUUFMiCiAgICAgICAgYmFja2VuZCAtPiBlbWFpbCAiU2VuZHMgZW1haWxzIHVzaW5nIiAiQVdTIFNFUyBBUEkiCgogICAgICAgIC8qIENvbXBvbmVudCByZWxhdGlvbnNoaXBzLCBjaDA1IHN0ZXBzIDIgdG8gNC4gVGhlIHRocmVlIEFQSSBjb250cm9sbGVycyBhcmUgZW50ZXJlZCBmcm9tIHRoZQogICAgICAgICAgIFVJOyBldmVyeXRoaW5nIGJlaGluZCB0aGVtIGlzIGEgYmVhbiwgYW5kIG9ubHkgdGhlIGJlYW5zIHJlYWNoIGEgZGF0YSBzdG9yZSBvciBhbiBleHRlcm5hbAogICAgICAgICAgIHN5c3RlbS4gVGhhdCBhc3ltbWV0cnkgaXMgdGhlIHN0b3J5IHRoZSBjb21wb25lbnQgZGlhZ3JhbSB0ZWxscy4gKi8KICAgICAgICBzaW5nbGVQYWdlQXBwIC0+IHNpZ25JbkFwaSAiTWFrZXMgQVBJIGNhbGxzIHRvIiAiSlNPTi9IVFRQIgogICAgICAgIHNpbmdsZVBhZ2VBcHAgLT4gYWNjb3VudHNTdW1tYXJ5QXBpICJNYWtlcyBBUEkgY2FsbHMgdG8iICJKU09OL0hUVFAiCiAgICAgICAgc2luZ2xlUGFnZUFwcCAtPiBzdGF0ZW1lbnRBcGkgIk1ha2VzIEFQSSBjYWxscyB0byIgIkpTT04vSFRUUCIKCiAgICAgICAgc2lnbkluQXBpIC0+IHNlY3VyaXR5Q29tcG9uZW50ICJVc2VzIgogICAgICAgIGFjY291bnRzU3VtbWFyeUFwaSAtPiBzZWN1cml0eUNvbXBvbmVudCAiVXNlcyIKICAgICAgICBzdGF0ZW1lbnRBcGkgLT4gc2VjdXJpdHlDb21wb25lbnQgIlVzZXMiCgogICAgICAgIHNlY3VyaXR5Q29tcG9uZW50IC0+IGRhdGFiYXNlICJSZWFkcyBmcm9tIGFuZCB3cml0ZXMgdG8iICJTUUwvVENQIgogICAgICAgIHNlY3VyaXR5Q29tcG9uZW50IC0+IGVtYWlsQ29tcG9uZW50ICJVc2VzIgogICAgICAgIGVtYWlsQ29tcG9uZW50IC0+IGVtYWlsICJTZW5kcyBlbWFpbHMgdXNpbmciICJBV1MgU0VTIEFQSSIKCiAgICAgICAgYWNjb3VudHNTdW1tYXJ5QXBpIC0+IGNvcmVCYW5raW5nQWRhcHRlciAiVXNlcyIKICAgICAgICBzdGF0ZW1lbnRBcGkgLT4gc3RhdGVtZW50Q29tcG9uZW50ICJVc2VzIgogICAgICAgIHN0YXRlbWVudENvbXBvbmVudCAtPiBzdGF0ZW1lbnRTdG9yZSAiUmVhZHMgZnJvbSBhbmQgd3JpdGVzIHRvIiAiQVdTIFMzIEFQSSIKICAgICAgICBzdGF0ZW1lbnRDb21wb25lbnQgLT4gY29yZUJhbmtpbmdBZGFwdGVyICJVc2VzIgogICAgICAgIGNvcmVCYW5raW5nQWRhcHRlciAtPiBjb3JlQmFua2luZyAiTWFrZXMgQVBJIGNhbGxzIHRvIiAiWE1ML0hUVFBTIgogICAgfQoKICAgIHZpZXdzIHsKICAgICAgICBzeXN0ZW1Db250ZXh0IGludGVybmV0QmFua2luZyAiU3lzdGVtQ29udGV4dCIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dCBsciA0MDAgMzAwCiAgICAgICAgICAgIGRlc2NyaXB0aW9uICJUaGUgc3lzdGVtIGluIGl0cyB3b3JsZDogd2hvIHVzZXMgaXQsIGFuZCB3aGF0IGl0IHRhbGtzIHRvLiIKICAgICAgICB9CgogICAgICAgIGNvbnRhaW5lciBpbnRlcm5ldEJhbmtpbmcgIkNvbnRhaW5lcnMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQgbHIgNDAwIDMwMAogICAgICAgICAgICBkZXNjcmlwdGlvbiAiSW5zaWRlIHRoZSBzeXN0ZW06IHRoZSBhcHBsaWNhdGlvbnMgYW5kIGRhdGEgc3RvcmVzIGl0IGlzIGJ1aWx0IGZyb20uIgogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IGJhY2tlbmQgIkNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQgbHIgNDAwIDMwMAogICAgICAgICAgICBkZXNjcmlwdGlvbiAiSW5zaWRlIHRoZSBiYWNrZW5kOiB0aHJlZSBBUEkgY29udHJvbGxlcnMsIGFuZCB0aGUgYmVhbnMgYmVoaW5kIHRoZW0uIgogICAgICAgIH0KCiAgICAgICAgLyogVEhFIFNJR04tSU4gRkVBVFVSRSBBVCBSVU5USU1FIOKAlCBjaDA3LCBmaWd1cmUgNy0zLCBpdHMgc2l4IHN0ZXBzIGNvcGllZCB2ZXJiYXRpbSBmcm9tIHRoZQogICAgICAgICAgIGZpZ3VyZSByYXRoZXIgdGhhbiBwYXJhcGhyYXNlZC4gVGhlIGNoYXB0ZXIncyBvd24gY2F1dGlvbiBpcyB3b3J0aCBrZWVwaW5nIGJlc2lkZSBpdDogaXQKICAgICAgICAgICByZWNvbW1lbmRzIGR5bmFtaWMgZGlhZ3JhbXMgU1BBUklOR0xZLCBmb3IgaW50ZXJlc3Rpbmcgb3IgcmVjdXJyaW5nIHBhdHRlcm5zLCBiZWNhdXNlIGEKICAgICAgICAgICBodW5kcmVkIGZlYXR1cmVzIGRvIG5vdCB3YW50IGEgaHVuZHJlZCBkaWFncmFtcyBub2JvZHkgbWFpbnRhaW5zLgoKICAgICAgICAgICBXSFkgVEhJUyBWSUVXIEVYSVNUUyBBTkQgVEhFIFNUQVRJQyBPTkVTIERPIE5PVCBBTlNXRVIgSVQ6IHRoZSBzdGF0aWMgc3RydWN0dXJlIHNob3dzCiAgICAgICAgICAgZXZlcnkgZWxlbWVudCBhbmQgcmVsYXRpb25zaGlwIHRoYXQgZXhpc3RzLiBJdCBjYW5ub3Qgc2hvdyB3aGljaCBzdWJzZXQgY29sbGFib3JhdGVzIHRvCiAgICAgICAgICAgZGVsaXZlciBPTkUgZmVhdHVyZSwgb3IgaW4gd2hhdCBvcmRlci4gVGhhdCBpcyB0aGUgd2hvbGUgaW50ZW50IG9mIGEgZHluYW1pYyB2aWV3LgoKICAgICAgICAgICBTVEVQUyA0LCA1IEFORCA2IEFSRSBSRVRVUk5TLCBhbmQgcmV0dXJucyBhcmUgdGhlIHRoaW5nIHRvIHdhdGNoIGhlcmU6IHRoZSBzdGF0aWMgbW9kZWwKICAgICAgICAgICBoYXMgbm8gZGF0YWJhc2UgLT4gc2VjdXJpdHksIHNlY3VyaXR5IC0+IHNpZ24taW4gb3Igc2lnbi1pbiAtPiBVSSByZWxhdGlvbnNoaXAsIGJlY2F1c2UKICAgICAgICAgICBub3RoaW5nIGluIHRoZSBzdGF0aWMgcGljdHVyZSBmbG93cyB0aGF0IHdheS4gV2hldGhlciB0aGlzIHZpZXcgY2FuIHNob3cgYSByZXNwb25zZQogICAgICAgICAgIHdpdGhvdXQgaW52ZW50aW5nIHN0YXRpYyByZWxhdGlvbnNoaXBzIGlzIGV4YWN0bHkgd2hhdCB0aGlzIGNoZWNrcG9pbnQgdGVzdHMuICovCiAgICAgICAgZHluYW1pYyBiYWNrZW5kICJTaWduSW4iIHsKICAgICAgICAgICAgc2luZ2xlUGFnZUFwcCAtPiBzaWduSW5BcGkgIlN1Ym1pdHMgY3JlZGVudGlhbHMgdG8iCiAgICAgICAgICAgIHNpZ25JbkFwaSAtPiBzZWN1cml0eUNvbXBvbmVudCAiVmFsaWRhdGVzIGNyZWRlbnRpYWxzIHVzaW5nIgogICAgICAgICAgICBzZWN1cml0eUNvbXBvbmVudCAtPiBkYXRhYmFzZSAic2VsZWN0ICogZnJvbSB1c2VycyB3aGVyZSB1c2VybmFtZSA9ID8iCiAgICAgICAgICAgIGRhdGFiYXNlIC0+IHNlY3VyaXR5Q29tcG9uZW50ICJSZXR1cm5zIHVzZXIgZGF0YSB0byIKICAgICAgICAgICAgc2VjdXJpdHlDb21wb25lbnQgLT4gc2lnbkluQXBpICJJc3N1ZXMgYSBzZXNzaW9uIHRva2VuIGlmIGF1dGhlbnRpY2F0aW9uIHN1Y2NlZWRzIgogICAgICAgICAgICBzaWduSW5BcGkgLT4gc2luZ2xlUGFnZUFwcCAiU2VuZHMgYmFjayBhIHNlc3Npb24gdG9rZW4gdG8iCiAgICAgICAgICAgIGF1dG9MYXlvdXQgbHIgNDAwIDMwMAogICAgICAgICAgICBkZXNjcmlwdGlvbiAiU2lnbmluZyBpbjogc2l4IHN0ZXBzLCBhbmQgdGhyZWUgb2YgdGhlbSBhcmUgdGhlIHdheSBiYWNrLiIKICAgICAgICB9CgogICAgICAgIC8qIOKUgOKUgCBUSEUgUEFMRVRURSwgQU5EIFdIWSBFVkVSWSBWQUxVRSBJUyBBIE1FQVNVUkVNRU5UIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgICAgIFRBS0VOIEZST00gdGhlIG9wZXJhdG9yJ3Mgb3duIE5vdGVib29rTE0gbWluZG1hcCwgMjAyNi0wOS0wNCwgYW5kIG1hcHBlZCBvbnRvIHRoZSBzYW1lCiAgICAgICAgICAgdGhyZWUgc3RhdGVzIHRoZSB2aWV3ZXIncyBsZXZlbCByYWlsIHVzZXMsIHNvIHRoZSBwaWN0dXJlIGFuZCB0aGUgcmFpbCBjYW5ub3QgZGlzYWdyZWU6CiAgICAgICAgICAgICBWSU9MRVQgIHRoZSB0aGluZyBpbiBmb2N1cyDigJQgdGhpcyBkaWFncmFtIGlzIGFib3V0IGl0CiAgICAgICAgICAgICBTTEFURSAgIGEgbGV2ZWwgeW91IGNhbiBvcGVuIOKAlCBhIGNvbnRhaW5lciwgYSBjb21wb25lbnQKICAgICAgICAgICAgIEdSRUVOICAgdGhlIGJvdHRvbSDigJQgYSBwZXJzb24sIGFuIGV4dGVybmFsIHN5c3RlbSwgYSBkYXRhIHN0b3JlOiBub3RoaW5nIGJlbG93IGl0CgogICAgICAgICAgIFRIRSBERUZFQ1QgVEhJUyBSRVBMQUNFUyB3YXMgcmVhbCBhbmQgaXMgbWVhc3VyZWQ6ICJFeGlzdGluZyBTeXN0ZW0iIHdhcyAjOTk5OTk5IHdpdGggdGhlCiAgICAgICAgICAgcmVuZGVyZXIncyB3aGl0ZSB0ZXh0LCB3aGljaCBpcyAyLjg1OjEg4oCUIHVuZGVyIHRoZSA0LjU6MSBmbG9vciBmb3IgdGV4dCwgYW5kIGl0IGlzIHRoZQogICAgICAgICAgIGdyZXkgYm94IHRoZSBvcGVyYXRvciBjb3VsZCBub3QgcmVhZC4KCiAgICAgICAgICAgVEhFIFNFQ09ORCBERUZFQ1QgSVMgVEhFIE9ORSBUSEUgTUlORE1BUCBJVFNFTEYgSEFTLiBJdHMgZmlsbHMgYXJlIGJlYXV0aWZ1bCBhbmQgdGhleSBkbwogICAgICAgICAgIG5vdCBzZXBhcmF0ZSBmcm9tIGl0cyBncm91bmQ6ICM0MzQ5NTAgb24gIzFBMUQyMiBpcyAxLjk6MSwgc28gdGhlIGNhcmQgbWVsdHMgaW50byB0aGUKICAgICAgICAgICBjYW52YXMgYW5kIHRoZSB3aG9sZSBwbGF0ZSByZWFkcyBhcyBsb3cgY29udHJhc3QgZXZlbiB0aG91Z2ggdGhlIFRFWFQgaXMgZmluZS4gS2VlcGluZwogICAgICAgICAgIHRob3NlIGZpbGxzIG1lYW5zIHRoZSBlZGdlIGhhcyB0byBkbyB0aGUgd29yaywgc28gZXZlcnkgZWxlbWVudCBjYXJyaWVzIGEgMnB4IHN0cm9rZQogICAgICAgICAgIG1lYXN1cmVkIGFnYWluc3QgdGhlIGNhbnZhcyByYXRoZXIgdGhhbiBsZWZ0IHRvIHRoZSByZW5kZXJlcidzIGRlZmF1bHQgc2hhZGUuCgogICAgICAgICAgIE1FQVNVUkVELCB3aGl0ZSB0ZXh0IG9uIGZpbGwgwrcgc3Ryb2tlIGFnYWluc3QgdGhlICMxRjIyMjYgY2FudmFzOgogICAgICAgICAgICAgdmlvbGV0ICAjNUY2Mjg1ICA1Ljg4IMK3IHN0cm9rZSAjQTVBOUYwICA3LjI1CiAgICAgICAgICAgICBzbGF0ZSAgICMzRjQ2NTAgIDkuNTMgwrcgc3Ryb2tlICM3Qzg3OTggIDQuMzkKICAgICAgICAgICAgIGxpZ2h0ZXIgIzRBNTM2MSAgNy43NyDCtyBzdHJva2UgIzhBOTRBNiAgNS4yMgogICAgICAgICAgICAgZ3JlZW4gICAjM0E0RTQyICA4Ljk0IMK3IHN0cm9rZSAjNkZBNTg4ICA1LjY0CiAgICAgICAgICAgICByZWxhdGlvbnNoaXAgbGluZSBhbmQgbGFiZWwgI0E1QTlGMCAvICNEN0RCRTMgb24gY2FudmFzOiA3LjI1IGFuZCAxMS41MSAqLwogICAgICAgIC8qIEdFTkVSQVRFRCBGUk9NIGFyY2hpdGVjdHVyZS90aGVtZS5qc29uIGJ5IGNoZWNrcy9kaWFncmFtLWNvbnRyYXN0Lm1qcyAtLXdyaXRlLgogICAgICAgICAgIEVkaXQgdGhlIHRoZW1lLCBub3QgdGhpcyBibG9jazogdGhlIGNoZWNrIHJlZnVzZXMgYW55IGRyaWZ0IGJldHdlZW4gdGhlbS4gKi8KICAgICAgICAvKiBHRU5FUkFURUQgRlJPTSBhcmNoaXRlY3R1cmUvdGhlbWUuanNvbiBieSBjaGVja3MvZGlhZ3JhbS1jb250cmFzdC5tanMgLS13cml0ZS4KICAgICAgICAgICBFZGl0IHRoZSB0aGVtZSwgbm90IHRoaXMgYmxvY2s6IHRoZSBjaGVjayByZWZ1c2VzIGFueSBkcmlmdCBiZXR3ZWVuIHRoZW0uICovCiAgICAgICAgc3R5bGVzIHsKICAgICAgICAgICAgZWxlbWVudCAiRWxlbWVudCIgewogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICAgICAgc3Ryb2tlV2lkdGggMgogICAgICAgICAgICAgICAgZm9udFNpemUgMjYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJQZXJzb24iIHsKICAgICAgICAgICAgICAgIHNoYXBlIFBlcnNvbgogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjMmIzYTMzCiAgICAgICAgICAgICAgICBzdHJva2UgIzZmYTU4OAogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkV4aXN0aW5nIFN5c3RlbSIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjMmIzYTMzCiAgICAgICAgICAgICAgICBzdHJva2UgIzZmYTU4OAogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIlNvZnR3YXJlIFN5c3RlbSIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjM2Y0MzgzCiAgICAgICAgICAgICAgICBzdHJva2UgI2E1YTlmMAogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkNvbnRhaW5lciIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjNWE1ZmE2CiAgICAgICAgICAgICAgICBzdHJva2UgI2I5YmRmNQogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkNvbXBvbmVudCIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjOGI5MmNlCiAgICAgICAgICAgICAgICBzdHJva2UgI2QyZDVmYQogICAgICAgICAgICAgICAgY29sb3IgIzE0MTYyYgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkRhdGEgU3RvcmUiIHsKICAgICAgICAgICAgICAgIHNoYXBlIEN5bGluZGVyCiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM1YTVmYTYKICAgICAgICAgICAgICAgIHN0cm9rZSAjYjliZGY1CiAgICAgICAgICAgIH0KICAgICAgICAgICAgcmVsYXRpb25zaGlwICJSZWxhdGlvbnNoaXAiIHsKICAgICAgICAgICAgICAgIGNvbG9yICNkN2RiZTMKICAgICAgICAgICAgICAgIGZvbnRTaXplIDI0CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9Cn0=",
-    "structurizr.inspection.info" : "0",
-    "structurizr.inspection.ignore" : "0",
-    "structurizr.inspection.warning" : "0"
-  },
-  "views" : {
-    "componentViews" : [ {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 0,
-        "implementation" : "Graphviz",
-        "nodeSeparation" : 300,
-        "rankDirection" : "LeftRight",
-        "rankSeparation" : 400,
-        "vertices" : false
-      },
-      "containerId" : "5",
-      "description" : "Inside the backend: three API controllers, and the beans behind them.",
-      "elements" : [ {
-        "id" : "3",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "6",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "7",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "8",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "9",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "10",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "11",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "12",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "13",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "14",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "15",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "16",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalContainerBoundariesVisible" : false,
-      "key" : "Components",
-      "name" : "Component View: Internet Banking System - Backend",
-      "order" : 3,
-      "relationships" : [ {
-        "id" : "28"
-      }, {
-        "id" : "29"
-      }, {
-        "id" : "30"
-      }, {
-        "id" : "31"
-      }, {
-        "id" : "32"
-      }, {
-        "id" : "33"
-      }, {
-        "id" : "34"
-      }, {
-        "id" : "35"
-      }, {
-        "id" : "36"
-      }, {
-        "id" : "37"
-      }, {
-        "id" : "38"
-      }, {
-        "id" : "39"
-      }, {
-        "id" : "40"
-      }, {
-        "id" : "41"
-      } ]
-    } ],
-    "configuration" : {
-      "branding" : { },
-      "styles" : {
-        "elements" : [ {
-          "background" : "#8b92ce",
-          "color" : "#14162b",
-          "stroke" : "#d2d5fa",
-          "tag" : "Component"
-        }, {
-          "background" : "#5a5fa6",
-          "stroke" : "#b9bdf5",
-          "tag" : "Container"
-        }, {
-          "background" : "#5a5fa6",
-          "shape" : "Cylinder",
-          "stroke" : "#b9bdf5",
-          "tag" : "Data Store"
-        }, {
-          "color" : "#ffffff",
-          "fontSize" : 26,
-          "strokeWidth" : 2,
-          "tag" : "Element"
-        }, {
-          "background" : "#2b3a33",
-          "stroke" : "#6fa588",
-          "tag" : "Existing System"
-        }, {
-          "background" : "#2b3a33",
-          "shape" : "Person",
-          "stroke" : "#6fa588",
-          "tag" : "Person"
-        }, {
-          "background" : "#3f4383",
-          "stroke" : "#a5a9f0",
-          "tag" : "Software System"
-        } ],
-        "relationships" : [ {
-          "color" : "#d7dbe3",
-          "fontSize" : 24,
-          "tag" : "Relationship"
-        } ]
-      },
-      "terminology" : { }
+    "configuration": {},
+    "description": "The fictional bank from The C4 Model, ch03: system context.",
+    "documentation": {},
+    "id": 0,
+    "model": {
+        "deploymentNodes": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "containerInstances": [
+                                    {
+                                        "containerId": "3",
+                                        "deploymentGroups": [
+                                            "Default"
+                                        ],
+                                        "environment": "Development",
+                                        "id": "45",
+                                        "instanceId": 1,
+                                        "properties": {
+                                            "structurizr.dsl.identifier": "devSpa"
+                                        },
+                                        "relationships": [
+                                            {
+                                                "description": "Makes API calls to",
+                                                "destinationId": "47",
+                                                "id": "48",
+                                                "linkedRelationshipId": "23",
+                                                "sourceId": "45",
+                                                "technology": "JSON/HTTP"
+                                            },
+                                            {
+                                                "description": "Is delivered to the customer's web browser from",
+                                                "destinationId": "51",
+                                                "id": "52",
+                                                "linkedRelationshipId": "22",
+                                                "sourceId": "45"
+                                            }
+                                        ],
+                                        "tags": "Container Instance"
+                                    }
+                                ],
+                                "description": "The UI is run locally so it can be debugged.",
+                                "environment": "Development",
+                                "id": "44",
+                                "instances": "1",
+                                "name": "Web browser",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "c217c82c-1bf0-4ccb-b122-659ddb90b99b"
+                                },
+                                "tags": "Element,Deployment Node",
+                                "technology": "Chrome, Firefox, Safari or Edge"
+                            },
+                            {
+                                "containerInstances": [
+                                    {
+                                        "containerId": "5",
+                                        "deploymentGroups": [
+                                            "Default"
+                                        ],
+                                        "environment": "Development",
+                                        "id": "47",
+                                        "instanceId": 1,
+                                        "properties": {
+                                            "structurizr.dsl.identifier": "devBackend"
+                                        },
+                                        "relationships": [
+                                            {
+                                                "description": "Reads from and writes to",
+                                                "destinationId": "54",
+                                                "id": "55",
+                                                "linkedRelationshipId": "24",
+                                                "sourceId": "47",
+                                                "technology": "SQL/TCP"
+                                            }
+                                        ],
+                                        "tags": "Container Instance"
+                                    }
+                                ],
+                                "description": "The backend runs straight on a JVM here, not in a container.",
+                                "environment": "Development",
+                                "id": "46",
+                                "instances": "1",
+                                "name": "Java Virtual Machine",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "704aa618-6838-42e6-9378-bd3420114576"
+                                },
+                                "tags": "Element,Deployment Node",
+                                "technology": "OpenJDK"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "containerInstances": [
+                                            {
+                                                "containerId": "4",
+                                                "deploymentGroups": [
+                                                    "Default"
+                                                ],
+                                                "environment": "Development",
+                                                "id": "51",
+                                                "instanceId": 1,
+                                                "properties": {
+                                                    "structurizr.dsl.identifier": "devStatic"
+                                                },
+                                                "tags": "Container Instance"
+                                            }
+                                        ],
+                                        "description": "Serves the static content over a local address.",
+                                        "environment": "Development",
+                                        "id": "50",
+                                        "instances": "1",
+                                        "name": "nginx",
+                                        "properties": {
+                                            "structurizr.dsl.identifier": "96a4af0f-0bd6-4d02-8d16-c9ee6158c5d9"
+                                        },
+                                        "tags": "Element,Deployment Node",
+                                        "technology": "nginx 1.27"
+                                    },
+                                    {
+                                        "containerInstances": [
+                                            {
+                                                "containerId": "13",
+                                                "deploymentGroups": [
+                                                    "Default"
+                                                ],
+                                                "environment": "Development",
+                                                "id": "54",
+                                                "instanceId": 1,
+                                                "properties": {
+                                                    "structurizr.dsl.identifier": "devDatabase"
+                                                },
+                                                "tags": "Container Instance"
+                                            }
+                                        ],
+                                        "description": "The same schema as live, one container away.",
+                                        "environment": "Development",
+                                        "id": "53",
+                                        "instances": "1",
+                                        "name": "MySQL",
+                                        "properties": {
+                                            "structurizr.dsl.identifier": "9aa4a77c-336d-482b-9fed-4b35a3319084"
+                                        },
+                                        "tags": "Element,Deployment Node",
+                                        "technology": "MySQL 8"
+                                    }
+                                ],
+                                "description": "Rather than install these on the laptop itself.",
+                                "environment": "Development",
+                                "id": "49",
+                                "instances": "1",
+                                "name": "Docker",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "e113521c-524b-4100-bf51-62e1e8769199"
+                                },
+                                "tags": "Element,Deployment Node",
+                                "technology": "Docker Desktop"
+                            }
+                        ],
+                        "description": "Windows or macOS, chosen when an engineer joins.",
+                        "environment": "Development",
+                        "id": "43",
+                        "instances": "1",
+                        "name": "Developer laptop",
+                        "properties": {
+                            "structurizr.dsl.identifier": "8fd7a7bf-554f-444b-a1a9-336ae8feac45"
+                        },
+                        "tags": "Element,Deployment Node",
+                        "technology": "Microsoft Windows or Apple macOS"
+                    }
+                ],
+                "description": "All development happens inside the bank's own network.",
+                "environment": "Development",
+                "id": "42",
+                "instances": "1",
+                "name": "Bank WAN",
+                "properties": {
+                    "structurizr.dsl.identifier": "7c09e2f3-3a3d-4bef-90e6-94e9af1571c4"
+                },
+                "tags": "Element,Deployment Node",
+                "technology": "Corporate network"
+            },
+            {
+                "children": [
+                    {
+                        "containerInstances": [
+                            {
+                                "containerId": "3",
+                                "deploymentGroups": [
+                                    "Default"
+                                ],
+                                "environment": "Live",
+                                "id": "58",
+                                "instanceId": 1,
+                                "properties": {
+                                    "structurizr.dsl.identifier": "liveSpa"
+                                },
+                                "relationships": [
+                                    {
+                                        "description": "Makes API calls to",
+                                        "destinationId": "65",
+                                        "id": "66",
+                                        "linkedRelationshipId": "23",
+                                        "sourceId": "58",
+                                        "technology": "JSON/HTTP"
+                                    },
+                                    {
+                                        "description": "Is delivered to the customer's web browser from",
+                                        "destinationId": "71",
+                                        "id": "72",
+                                        "linkedRelationshipId": "22",
+                                        "sourceId": "58"
+                                    },
+                                    {
+                                        "description": "Loads the UI from",
+                                        "destinationId": "60",
+                                        "id": "75",
+                                        "sourceId": "58",
+                                        "tags": "Relationship",
+                                        "technology": "HTTPS"
+                                    },
+                                    {
+                                        "description": "Makes API calls to",
+                                        "destinationId": "61",
+                                        "id": "77",
+                                        "sourceId": "58",
+                                        "tags": "Relationship",
+                                        "technology": "HTTPS"
+                                    }
+                                ],
+                                "tags": "Container Instance"
+                            }
+                        ],
+                        "description": "Where the UI actually runs.",
+                        "environment": "Live",
+                        "id": "57",
+                        "instances": "1",
+                        "name": "Web browser",
+                        "properties": {
+                            "structurizr.dsl.identifier": "41f3c9c5-6b88-48eb-a0d0-92c8ce84b3fb"
+                        },
+                        "tags": "Element,Deployment Node",
+                        "technology": "Chrome, Firefox, Safari or Edge"
+                    }
+                ],
+                "description": "Outside our infrastructure entirely.",
+                "environment": "Live",
+                "id": "56",
+                "instances": "1",
+                "name": "Customer's computer",
+                "properties": {
+                    "structurizr.dsl.identifier": "3216dccc-db1e-489d-b5bb-b8e028113925"
+                },
+                "tags": "Element,Deployment Node",
+                "technology": "Microsoft Windows or Apple macOS"
+            },
+            {
+                "description": "DNS, and a proxy in front of the static content.",
+                "environment": "Live",
+                "id": "59",
+                "infrastructureNodes": [
+                    {
+                        "description": "A CNAME aliasing the S3 bucket, proxied so static content is cached.",
+                        "environment": "Live",
+                        "id": "60",
+                        "name": "ib.bigbank.com",
+                        "properties": {
+                            "structurizr.dsl.identifier": "cdn"
+                        },
+                        "relationships": [
+                            {
+                                "description": "Caches and serves",
+                                "destinationId": "71",
+                                "id": "76",
+                                "sourceId": "60",
+                                "tags": "Relationship",
+                                "technology": "HTTPS"
+                            }
+                        ],
+                        "tags": "Element,Infrastructure Node",
+                        "technology": "DNS CNAME"
+                    },
+                    {
+                        "description": "A CNAME aliasing the load balancer. Not proxied — API calls cannot be cached.",
+                        "environment": "Live",
+                        "id": "61",
+                        "name": "ib-api.bigbank.com",
+                        "properties": {
+                            "structurizr.dsl.identifier": "apiDns"
+                        },
+                        "relationships": [
+                            {
+                                "description": "Resolves to",
+                                "destinationId": "63",
+                                "id": "78",
+                                "sourceId": "61",
+                                "tags": "Relationship"
+                            }
+                        ],
+                        "tags": "Element,Infrastructure Node",
+                        "technology": "DNS CNAME"
+                    }
+                ],
+                "instances": "1",
+                "name": "Cloudflare",
+                "properties": {
+                    "structurizr.dsl.identifier": "db88c846-57a3-482f-9732-f8fc08526703"
+                },
+                "tags": "Element,Deployment Node",
+                "technology": "Cloudflare"
+            },
+            {
+                "children": [
+                    {
+                        "containerInstances": [
+                            {
+                                "containerId": "5",
+                                "deploymentGroups": [
+                                    "Default"
+                                ],
+                                "environment": "Live",
+                                "id": "65",
+                                "instanceId": 1,
+                                "properties": {
+                                    "structurizr.dsl.identifier": "liveBackend"
+                                },
+                                "relationships": [
+                                    {
+                                        "description": "Reads from and writes to",
+                                        "destinationId": "68",
+                                        "id": "69",
+                                        "linkedRelationshipId": "24",
+                                        "sourceId": "65",
+                                        "technology": "SQL/TCP"
+                                    },
+                                    {
+                                        "description": "Reads from and writes to",
+                                        "destinationId": "73",
+                                        "id": "74",
+                                        "linkedRelationshipId": "25",
+                                        "sourceId": "65",
+                                        "technology": "AWS S3 API"
+                                    }
+                                ],
+                                "tags": "Container Instance"
+                            }
+                        ],
+                        "description": "Runs the Docker image without provisioning servers.",
+                        "environment": "Live",
+                        "id": "64",
+                        "instances": "1",
+                        "name": "Fargate",
+                        "properties": {
+                            "structurizr.dsl.identifier": "3f0f64f2-2024-46da-91fe-853de3095a72"
+                        },
+                        "tags": "Element,Deployment Node",
+                        "technology": "AWS Fargate"
+                    },
+                    {
+                        "containerInstances": [
+                            {
+                                "containerId": "13",
+                                "deploymentGroups": [
+                                    "Default"
+                                ],
+                                "environment": "Live",
+                                "id": "68",
+                                "instanceId": 1,
+                                "properties": {
+                                    "structurizr.dsl.identifier": "liveDatabase"
+                                },
+                                "tags": "Container Instance"
+                            }
+                        ],
+                        "description": "AWS provisions the underlying infrastructure.",
+                        "environment": "Live",
+                        "id": "67",
+                        "instances": "1",
+                        "name": "RDS",
+                        "properties": {
+                            "structurizr.dsl.identifier": "2838f514-5391-4723-b4cf-a6b005fcf6c8"
+                        },
+                        "tags": "Element,Deployment Node",
+                        "technology": "Amazon RDS"
+                    },
+                    {
+                        "containerInstances": [
+                            {
+                                "containerId": "4",
+                                "deploymentGroups": [
+                                    "Default"
+                                ],
+                                "environment": "Live",
+                                "id": "71",
+                                "instanceId": 1,
+                                "properties": {
+                                    "structurizr.dsl.identifier": "liveStatic"
+                                },
+                                "tags": "Container Instance"
+                            },
+                            {
+                                "containerId": "14",
+                                "deploymentGroups": [
+                                    "Default"
+                                ],
+                                "environment": "Live",
+                                "id": "73",
+                                "instanceId": 1,
+                                "properties": {
+                                    "structurizr.dsl.identifier": "liveStore"
+                                },
+                                "tags": "Container Instance"
+                            }
+                        ],
+                        "description": "Two buckets: the static content, and the generated statements.",
+                        "environment": "Live",
+                        "id": "70",
+                        "instances": "1",
+                        "name": "S3",
+                        "properties": {
+                            "structurizr.dsl.identifier": "cd486061-4e3d-431c-b674-8ecb0f0675df"
+                        },
+                        "tags": "Element,Deployment Node",
+                        "technology": "Amazon S3"
+                    }
+                ],
+                "description": "Where the majority of the software runs.",
+                "environment": "Live",
+                "id": "62",
+                "infrastructureNodes": [
+                    {
+                        "description": "Forwards API traffic to the backend.",
+                        "environment": "Live",
+                        "id": "63",
+                        "name": "Application load balancer",
+                        "properties": {
+                            "structurizr.dsl.identifier": "lb"
+                        },
+                        "relationships": [
+                            {
+                                "description": "Forwards traffic to",
+                                "destinationId": "65",
+                                "id": "79",
+                                "sourceId": "63",
+                                "tags": "Relationship",
+                                "technology": "HTTPS"
+                            }
+                        ],
+                        "tags": "Element,Infrastructure Node",
+                        "technology": "AWS ALB"
+                    }
+                ],
+                "instances": "1",
+                "name": "Amazon Web Services",
+                "properties": {
+                    "structurizr.dsl.identifier": "c3deb58d-113b-4899-8704-1896c521f1b9"
+                },
+                "tags": "Element,Deployment Node",
+                "technology": "AWS"
+            }
+        ],
+        "people": [
+            {
+                "description": "A customer of the bank, with personal bank accounts.",
+                "id": "1",
+                "name": "Personal Banking Customer",
+                "properties": {
+                    "structurizr.dsl.identifier": "customer"
+                },
+                "relationships": [
+                    {
+                        "description": "Views account balances, and makes payments using",
+                        "destinationId": "2",
+                        "id": "17",
+                        "sourceId": "1",
+                        "tags": "Relationship"
+                    },
+                    {
+                        "description": "Views account balances, and makes payments using",
+                        "destinationId": "3",
+                        "id": "21",
+                        "sourceId": "1",
+                        "tags": "Relationship"
+                    }
+                ],
+                "tags": "Element,Person"
+            }
+        ],
+        "softwareSystems": [
+            {
+                "containers": [
+                    {
+                        "description": "Provides all of the Internet banking functionality to customers via their web browser.",
+                        "documentation": {},
+                        "id": "3",
+                        "name": "Single-Page Application",
+                        "properties": {
+                            "structurizr.dsl.identifier": "singlePageApp"
+                        },
+                        "relationships": [
+                            {
+                                "description": "Is delivered to the customer's web browser from",
+                                "destinationId": "4",
+                                "id": "22",
+                                "sourceId": "3",
+                                "tags": "Relationship"
+                            },
+                            {
+                                "description": "Makes API calls to",
+                                "destinationId": "5",
+                                "id": "23",
+                                "sourceId": "3",
+                                "tags": "Relationship",
+                                "technology": "JSON/HTTP"
+                            },
+                            {
+                                "description": "Makes API calls to",
+                                "destinationId": "6",
+                                "id": "28",
+                                "sourceId": "3",
+                                "tags": "Relationship",
+                                "technology": "JSON/HTTP"
+                            },
+                            {
+                                "description": "Makes API calls to",
+                                "destinationId": "7",
+                                "id": "29",
+                                "sourceId": "3",
+                                "tags": "Relationship",
+                                "technology": "JSON/HTTP"
+                            },
+                            {
+                                "description": "Makes API calls to",
+                                "destinationId": "8",
+                                "id": "30",
+                                "sourceId": "3",
+                                "tags": "Relationship",
+                                "technology": "JSON/HTTP"
+                            }
+                        ],
+                        "tags": "Element,Container",
+                        "technology": "JavaScript and Angular"
+                    },
+                    {
+                        "description": "Delivers the static content that makes up the single-page application.",
+                        "documentation": {},
+                        "id": "4",
+                        "name": "Static Content",
+                        "properties": {
+                            "structurizr.dsl.identifier": "staticContent"
+                        },
+                        "tags": "Element,Container,Data Store",
+                        "technology": "Directory"
+                    },
+                    {
+                        "components": [
+                            {
+                                "description": "Allows users to sign in to the Internet Banking System.",
+                                "documentation": {},
+                                "id": "6",
+                                "name": "Sign In API",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "signInApi"
+                                },
+                                "relationships": [
+                                    {
+                                        "description": "Uses",
+                                        "destinationId": "9",
+                                        "id": "31",
+                                        "sourceId": "6",
+                                        "tags": "Relationship"
+                                    }
+                                ],
+                                "tags": "Element,Component",
+                                "technology": "Spring Web MVC"
+                            },
+                            {
+                                "description": "Provides customers with a summary of their bank accounts.",
+                                "documentation": {},
+                                "id": "7",
+                                "name": "Accounts Summary API",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "accountsSummaryApi"
+                                },
+                                "relationships": [
+                                    {
+                                        "description": "Uses",
+                                        "destinationId": "9",
+                                        "id": "32",
+                                        "sourceId": "7",
+                                        "tags": "Relationship"
+                                    },
+                                    {
+                                        "description": "Uses",
+                                        "destinationId": "12",
+                                        "id": "37",
+                                        "sourceId": "7",
+                                        "tags": "Relationship"
+                                    }
+                                ],
+                                "tags": "Element,Component",
+                                "technology": "Spring Web MVC"
+                            },
+                            {
+                                "description": "Allows customers to request a bank statement.",
+                                "documentation": {},
+                                "id": "8",
+                                "name": "Statement API",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "statementApi"
+                                },
+                                "relationships": [
+                                    {
+                                        "description": "Uses",
+                                        "destinationId": "9",
+                                        "id": "33",
+                                        "sourceId": "8",
+                                        "tags": "Relationship"
+                                    },
+                                    {
+                                        "description": "Uses",
+                                        "destinationId": "11",
+                                        "id": "38",
+                                        "sourceId": "8",
+                                        "tags": "Relationship"
+                                    }
+                                ],
+                                "tags": "Element,Component",
+                                "technology": "Spring Web MVC"
+                            },
+                            {
+                                "description": "Validates credentials, and issues and validates authentication tokens.",
+                                "documentation": {},
+                                "id": "9",
+                                "name": "Security Component",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "securityComponent"
+                                },
+                                "relationships": [
+                                    {
+                                        "description": "Reads from and writes to",
+                                        "destinationId": "13",
+                                        "id": "34",
+                                        "sourceId": "9",
+                                        "tags": "Relationship",
+                                        "technology": "SQL/TCP"
+                                    },
+                                    {
+                                        "description": "Uses",
+                                        "destinationId": "10",
+                                        "id": "35",
+                                        "sourceId": "9",
+                                        "tags": "Relationship"
+                                    }
+                                ],
+                                "tags": "Element,Component",
+                                "technology": "Spring Bean"
+                            },
+                            {
+                                "description": "Sends emails to customers.",
+                                "documentation": {},
+                                "id": "10",
+                                "name": "Email Component",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "emailComponent"
+                                },
+                                "relationships": [
+                                    {
+                                        "description": "Sends emails using",
+                                        "destinationId": "16",
+                                        "id": "36",
+                                        "sourceId": "10",
+                                        "tags": "Relationship",
+                                        "technology": "AWS SES API"
+                                    }
+                                ],
+                                "tags": "Element,Component",
+                                "technology": "Spring Bean"
+                            },
+                            {
+                                "description": "Returns a cached statement, or generates one from the Core Banking System.",
+                                "documentation": {},
+                                "id": "11",
+                                "name": "Statement Component",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "statementComponent"
+                                },
+                                "relationships": [
+                                    {
+                                        "description": "Reads from and writes to",
+                                        "destinationId": "14",
+                                        "id": "39",
+                                        "sourceId": "11",
+                                        "tags": "Relationship",
+                                        "technology": "AWS S3 API"
+                                    },
+                                    {
+                                        "description": "Uses",
+                                        "destinationId": "12",
+                                        "id": "40",
+                                        "sourceId": "11",
+                                        "tags": "Relationship"
+                                    }
+                                ],
+                                "tags": "Element,Component",
+                                "technology": "Spring Bean"
+                            },
+                            {
+                                "description": "Talks to the Core Banking System.",
+                                "documentation": {},
+                                "id": "12",
+                                "name": "Core Banking System Adapter",
+                                "properties": {
+                                    "structurizr.dsl.identifier": "coreBankingAdapter"
+                                },
+                                "relationships": [
+                                    {
+                                        "description": "Makes API calls to",
+                                        "destinationId": "15",
+                                        "id": "41",
+                                        "sourceId": "12",
+                                        "tags": "Relationship",
+                                        "technology": "XML/HTTPS"
+                                    }
+                                ],
+                                "tags": "Element,Component",
+                                "technology": "Spring Bean"
+                            }
+                        ],
+                        "description": "Provides Internet banking functionality via a JSON/HTTP API, and makes calls to the Core Banking System.",
+                        "documentation": {},
+                        "id": "5",
+                        "name": "Backend",
+                        "properties": {
+                            "structurizr.dsl.identifier": "backend"
+                        },
+                        "relationships": [
+                            {
+                                "description": "Reads from and writes to",
+                                "destinationId": "13",
+                                "id": "24",
+                                "sourceId": "5",
+                                "tags": "Relationship",
+                                "technology": "SQL/TCP"
+                            },
+                            {
+                                "description": "Reads from and writes to",
+                                "destinationId": "14",
+                                "id": "25",
+                                "sourceId": "5",
+                                "tags": "Relationship",
+                                "technology": "AWS S3 API"
+                            },
+                            {
+                                "description": "Gets account information from, and makes payments using",
+                                "destinationId": "15",
+                                "id": "26",
+                                "sourceId": "5",
+                                "tags": "Relationship",
+                                "technology": "XML/HTTPS"
+                            },
+                            {
+                                "description": "Sends emails using",
+                                "destinationId": "16",
+                                "id": "27",
+                                "sourceId": "5",
+                                "tags": "Relationship",
+                                "technology": "AWS SES API"
+                            }
+                        ],
+                        "tags": "Element,Container",
+                        "technology": "Java and Spring Boot"
+                    },
+                    {
+                        "description": "Stores user registration information and hashed authentication credentials.",
+                        "documentation": {},
+                        "id": "13",
+                        "name": "Database",
+                        "properties": {
+                            "structurizr.dsl.identifier": "database"
+                        },
+                        "tags": "Element,Container,Data Store",
+                        "technology": "MySQL"
+                    },
+                    {
+                        "description": "Caches generated PDF bank statements.",
+                        "documentation": {},
+                        "id": "14",
+                        "name": "Statement Store",
+                        "properties": {
+                            "structurizr.dsl.identifier": "statementStore"
+                        },
+                        "tags": "Element,Container,Data Store",
+                        "technology": "AWS S3"
+                    }
+                ],
+                "description": "Lets customers view information about their bank accounts, and make payments.",
+                "documentation": {},
+                "id": "2",
+                "name": "Internet Banking System",
+                "properties": {
+                    "structurizr.dsl.identifier": "internetBanking"
+                },
+                "relationships": [
+                    {
+                        "description": "Gets account information from, and makes payments using",
+                        "destinationId": "15",
+                        "id": "18",
+                        "sourceId": "2",
+                        "tags": "Relationship"
+                    },
+                    {
+                        "description": "Sends emails using",
+                        "destinationId": "16",
+                        "id": "19",
+                        "sourceId": "2",
+                        "tags": "Relationship"
+                    }
+                ],
+                "tags": "Element,Software System"
+            },
+            {
+                "description": "Stores all of the core banking information about customers, accounts, transactions, etc.",
+                "documentation": {},
+                "id": "15",
+                "name": "Core Banking System",
+                "properties": {
+                    "structurizr.dsl.identifier": "coreBanking"
+                },
+                "tags": "Element,Software System,Existing System"
+            },
+            {
+                "description": "Sends emails to customers.",
+                "documentation": {},
+                "id": "16",
+                "name": "Amazon Simple Email Service",
+                "properties": {
+                    "structurizr.dsl.identifier": "email"
+                },
+                "relationships": [
+                    {
+                        "description": "Sends emails to",
+                        "destinationId": "1",
+                        "id": "20",
+                        "sourceId": "16",
+                        "tags": "Relationship"
+                    }
+                ],
+                "tags": "Element,Software System,Existing System"
+            }
+        ]
     },
-    "containerViews" : [ {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 0,
-        "implementation" : "Graphviz",
-        "nodeSeparation" : 300,
-        "rankDirection" : "LeftRight",
-        "rankSeparation" : 400,
-        "vertices" : false
-      },
-      "description" : "Inside the system: the applications and data stores it is built from.",
-      "elements" : [ {
-        "id" : "1",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "3",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "4",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "5",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "13",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "14",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "15",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "16",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalSoftwareSystemBoundariesVisible" : false,
-      "key" : "Containers",
-      "name" : "Container View: Internet Banking System",
-      "order" : 2,
-      "relationships" : [ {
-        "id" : "20"
-      }, {
-        "id" : "21"
-      }, {
-        "id" : "22"
-      }, {
-        "id" : "23"
-      }, {
-        "id" : "24"
-      }, {
-        "id" : "25"
-      }, {
-        "id" : "26"
-      }, {
-        "id" : "27"
-      } ],
-      "softwareSystemId" : "2"
-    } ],
-    "dynamicViews" : [ {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 0,
-        "implementation" : "Graphviz",
-        "nodeSeparation" : 300,
-        "rankDirection" : "LeftRight",
-        "rankSeparation" : 400,
-        "vertices" : false
-      },
-      "description" : "Signing in: six steps, and three of them are the way back.",
-      "elementId" : "5",
-      "elements" : [ {
-        "id" : "3",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "6",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "9",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "13",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalBoundariesVisible" : false,
-      "key" : "SignIn",
-      "name" : "Dynamic View: Internet Banking System - Backend",
-      "order" : 4,
-      "relationships" : [ {
-        "description" : "Submits credentials to",
-        "id" : "28",
-        "order" : "1",
-        "response" : false
-      }, {
-        "description" : "Validates credentials using",
-        "id" : "31",
-        "order" : "2",
-        "response" : false
-      }, {
-        "description" : "select * from users where username = ?",
-        "id" : "34",
-        "order" : "3",
-        "response" : false
-      }, {
-        "description" : "Returns user data to",
-        "id" : "34",
-        "order" : "4",
-        "response" : true
-      }, {
-        "description" : "Issues a session token if authentication succeeds",
-        "id" : "31",
-        "order" : "5",
-        "response" : true
-      }, {
-        "description" : "Sends back a session token to",
-        "id" : "28",
-        "order" : "6",
-        "response" : true
-      } ]
-    } ],
-    "systemContextViews" : [ {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 0,
-        "implementation" : "Graphviz",
-        "nodeSeparation" : 300,
-        "rankDirection" : "LeftRight",
-        "rankSeparation" : 400,
-        "vertices" : false
-      },
-      "description" : "The system in its world: who uses it, and what it talks to.",
-      "elements" : [ {
-        "id" : "1",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "2",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "15",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "16",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "enterpriseBoundaryVisible" : true,
-      "key" : "SystemContext",
-      "name" : "System Context View: Internet Banking System",
-      "order" : 1,
-      "relationships" : [ {
-        "id" : "17"
-      }, {
-        "id" : "18"
-      }, {
-        "id" : "19"
-      }, {
-        "id" : "20"
-      } ],
-      "softwareSystemId" : "2"
-    } ]
-  }
+    "name": "Internet Banking System",
+    "properties": {
+        "structurizr.inspection.error": "19",
+        "structurizr.dsl": "LyoKICogVGhlIGZpY3Rpb25hbCBJbnRlcm5ldCBCYW5raW5nIFN5c3RlbSwgZnJvbSBUaGUgQzQgTW9kZWwgKFNpbW9uIEJyb3duLCBPJ1JlaWxseSAyMDI2KS4KICoKICogV0hZIFRISVMgTU9ERUwgQU5EIE5PVCBPVVJTIEZJUlNULiBFdmVyeSBkaWFncmFtIHR5cGUgdGhpcyBmYWN0b3J5IG5lZWRzIGFscmVhZHkgZXhpc3RzIGluIHRoZQogKiBib29rIGZvciB0aGlzIG9uZSBzeXN0ZW06IHN5c3RlbSBjb250ZXh0IChjaDAzLCBmaWd1cmVzIDMtMSB0byAzLTQpLCBjb250YWluZXJzIChjaDA0LCA0LTEgdG8KICogNC02KSwgY29tcG9uZW50cyBvZiB0aGUgYmFja2VuZCAoY2gwNSwgNS0xIHRvIDUtNCksIHRoZSBzaWduLWluIGR5bmFtaWMgdmlldyAoY2gwNywgNy0zIGFuZCA3LTQpLAogKiBkZXYgYW5kIGxpdmUgZGVwbG95bWVudCAoY2gwOCwgOC0xIHRvIDgtMTApLCBhbmQgdGhlIGJhbmsncyBsYW5kc2NhcGUgd2l0aCBkZXBhcnRtZW50cyAoY2gwOSwKICogOS0xIHRvIDktNCkuIFNvIHRoZSBpbmNyZW1lbnRzIHRlc3QgdGhlIFRPT0xJTkc7IG5vdGhpbmcgaGVyZSBpcyBpbnZlbnRlZCwgYW5kIGV2ZXJ5IGVsZW1lbnQgY2FuCiAqIGJlIGNoZWNrZWQgYWdhaW5zdCBhIHBhZ2UuIExvY2FsIGdyb3VuZGluZywgd2l0aCBhbmNob3JzOgogKiAgIFNvdXJjZSBhdXRob3JpdHkgY29udGVudC9jNC1tb2RlbC1zaW1vbi1icm93bi0yMDI2L21kL2NoMDMubWQjLi4uIGFuZCB0aGUgSU5ERVgubWQgZmlndXJlIHRhYmxlLgogKgogKiBTQ09QRSBPRiBUSElTIEZJTEUgVE9EQVk6IGNoZWNrcG9pbnRzIDEgdG8gMyDigJQgdGhlIHN5c3RlbSBjb250ZXh0IGFuZCB0aGUgY29udGFpbmVycy4gQ29tcG9uZW50cywKICogdGhlIGR5bmFtaWMgdmlldywgZGVwbG95bWVudCBhbmQgdGhlIGxhbmRzY2FwZSBhcnJpdmUgYXQgY2hlY2twb2ludHMgNCwgNiwgNyBhbmQgOCwgZWFjaCB3aXRoIGl0cwogKiBvd24gcmV2aWV3LiBBIHZpZXcgdGhhdCBpcyBub3QgbW9kZWxsZWQgeWV0IGlzIEFCU0VOVCwgbmV2ZXIgYSBzdHViLgogKi8Kd29ya3NwYWNlICJJbnRlcm5ldCBCYW5raW5nIFN5c3RlbSIgIlRoZSBmaWN0aW9uYWwgYmFuayBmcm9tIFRoZSBDNCBNb2RlbCwgY2gwMzogc3lzdGVtIGNvbnRleHQuIiB7CgogICAgbW9kZWwgewogICAgICAgIGN1c3RvbWVyID0gcGVyc29uICJQZXJzb25hbCBCYW5raW5nIEN1c3RvbWVyIiAiQSBjdXN0b21lciBvZiB0aGUgYmFuaywgd2l0aCBwZXJzb25hbCBiYW5rIGFjY291bnRzLiIKCiAgICAgICAgLyogQ09OVEFJTkVSUywgY2gwNCwgaW4gdGhlIGJvb2sncyBvd24gc2l4IHN0ZXBzLiBUd28gcnVsaW5ncyBmcm9tIHRoYXQgY2hhcHRlciBhcmUgbW9kZWxsZWQKICAgICAgICAgICByYXRoZXIgdGhhbiBwYXJhcGhyYXNlZDoKICAgICAgICAgICAgIMK3IHRoZSBzdGF0aWMgY29udGVudCBpcyBhIERJUkVDVE9SWSwgbm90IGEgd2ViIHNlcnZlciwgc28gY2hhcHRlciA4IGNhbiBzZXJ2ZSBpdCBieSBhCiAgICAgICAgICAgICAgIGRpZmZlcmVudCBtZWNoYW5pc20gcGVyIGRlcGxveW1lbnQgZW52aXJvbm1lbnQ7CiAgICAgICAgICAgICDCtyB0aGUgUzMgYnVja2V0IGlzIGEgQ09OVEFJTkVSIGFuZCBTaW1wbGUgRW1haWwgU2VydmljZSBpcyBhIFNPRlRXQVJFIFNZU1RFTSwgYmVjYXVzZSB3ZQogICAgICAgICAgICAgICBvd24gd2hhdCBnb2VzIGluIHRoZSBidWNrZXQgYW5kIG1lcmVseSBjYWxsIHRoZSBlbWFpbCBBUEkuICovCiAgICAgICAgaW50ZXJuZXRCYW5raW5nID0gc29mdHdhcmVTeXN0ZW0gIkludGVybmV0IEJhbmtpbmcgU3lzdGVtIiAiTGV0cyBjdXN0b21lcnMgdmlldyBpbmZvcm1hdGlvbiBhYm91dCB0aGVpciBiYW5rIGFjY291bnRzLCBhbmQgbWFrZSBwYXltZW50cy4iIHsKICAgICAgICAgICAgc2luZ2xlUGFnZUFwcCA9IGNvbnRhaW5lciAiU2luZ2xlLVBhZ2UgQXBwbGljYXRpb24iICJQcm92aWRlcyBhbGwgb2YgdGhlIEludGVybmV0IGJhbmtpbmcgZnVuY3Rpb25hbGl0eSB0byBjdXN0b21lcnMgdmlhIHRoZWlyIHdlYiBicm93c2VyLiIgIkphdmFTY3JpcHQgYW5kIEFuZ3VsYXIiCiAgICAgICAgICAgIHN0YXRpY0NvbnRlbnQgPSBjb250YWluZXIgIlN0YXRpYyBDb250ZW50IiAiRGVsaXZlcnMgdGhlIHN0YXRpYyBjb250ZW50IHRoYXQgbWFrZXMgdXAgdGhlIHNpbmdsZS1wYWdlIGFwcGxpY2F0aW9uLiIgIkRpcmVjdG9yeSIgewogICAgICAgICAgICAgICAgdGFncyAiRGF0YSBTdG9yZSIKICAgICAgICAgICAgfQogICAgICAgICAgICAvKiBDT01QT05FTlRTLCBjaDA1LCBpbiB0aGUgYm9vaydzIG93biBmb3VyIHN0ZXBzOiB0aHJlZSBBUEkgY29udHJvbGxlcnMgYnVpbHQgd2l0aCBTcHJpbmcKICAgICAgICAgICAgICAgV2ViIE1WQywgYW5kIGZvdXIgU3ByaW5nIGJlYW5zIGJlaGluZCB0aGVtLiBUaGUgY2hhcHRlcidzIG93biBub3RlIGlzIGtlcHQ6IGRlc2NyaXB0aW9ucwogICAgICAgICAgICAgICB3ZXJlIGRyb3BwZWQgZnJvbSBJVFMgcHJpbnRlZCBmaWd1cmVzIGZvciBzcGFjZSwgbm90IGZyb20gdGhlIG1vZGVsLCBzbyB0aGV5IHN0YXkgaGVyZS4gKi8KICAgICAgICAgICAgYmFja2VuZCA9IGNvbnRhaW5lciAiQmFja2VuZCIgIlByb3ZpZGVzIEludGVybmV0IGJhbmtpbmcgZnVuY3Rpb25hbGl0eSB2aWEgYSBKU09OL0hUVFAgQVBJLCBhbmQgbWFrZXMgY2FsbHMgdG8gdGhlIENvcmUgQmFua2luZyBTeXN0ZW0uIiAiSmF2YSBhbmQgU3ByaW5nIEJvb3QiIHsKICAgICAgICAgICAgICAgIHNpZ25JbkFwaSA9IGNvbXBvbmVudCAiU2lnbiBJbiBBUEkiICJBbGxvd3MgdXNlcnMgdG8gc2lnbiBpbiB0byB0aGUgSW50ZXJuZXQgQmFua2luZyBTeXN0ZW0uIiAiU3ByaW5nIFdlYiBNVkMiCiAgICAgICAgICAgICAgICBhY2NvdW50c1N1bW1hcnlBcGkgPSBjb21wb25lbnQgIkFjY291bnRzIFN1bW1hcnkgQVBJIiAiUHJvdmlkZXMgY3VzdG9tZXJzIHdpdGggYSBzdW1tYXJ5IG9mIHRoZWlyIGJhbmsgYWNjb3VudHMuIiAiU3ByaW5nIFdlYiBNVkMiCiAgICAgICAgICAgICAgICBzdGF0ZW1lbnRBcGkgPSBjb21wb25lbnQgIlN0YXRlbWVudCBBUEkiICJBbGxvd3MgY3VzdG9tZXJzIHRvIHJlcXVlc3QgYSBiYW5rIHN0YXRlbWVudC4iICJTcHJpbmcgV2ViIE1WQyIKICAgICAgICAgICAgICAgIHNlY3VyaXR5Q29tcG9uZW50ID0gY29tcG9uZW50ICJTZWN1cml0eSBDb21wb25lbnQiICJWYWxpZGF0ZXMgY3JlZGVudGlhbHMsIGFuZCBpc3N1ZXMgYW5kIHZhbGlkYXRlcyBhdXRoZW50aWNhdGlvbiB0b2tlbnMuIiAiU3ByaW5nIEJlYW4iCiAgICAgICAgICAgICAgICBlbWFpbENvbXBvbmVudCA9IGNvbXBvbmVudCAiRW1haWwgQ29tcG9uZW50IiAiU2VuZHMgZW1haWxzIHRvIGN1c3RvbWVycy4iICJTcHJpbmcgQmVhbiIKICAgICAgICAgICAgICAgIHN0YXRlbWVudENvbXBvbmVudCA9IGNvbXBvbmVudCAiU3RhdGVtZW50IENvbXBvbmVudCIgIlJldHVybnMgYSBjYWNoZWQgc3RhdGVtZW50LCBvciBnZW5lcmF0ZXMgb25lIGZyb20gdGhlIENvcmUgQmFua2luZyBTeXN0ZW0uIiAiU3ByaW5nIEJlYW4iCiAgICAgICAgICAgICAgICBjb3JlQmFua2luZ0FkYXB0ZXIgPSBjb21wb25lbnQgIkNvcmUgQmFua2luZyBTeXN0ZW0gQWRhcHRlciIgIlRhbGtzIHRvIHRoZSBDb3JlIEJhbmtpbmcgU3lzdGVtLiIgIlNwcmluZyBCZWFuIgogICAgICAgICAgICB9CiAgICAgICAgICAgIGRhdGFiYXNlID0gY29udGFpbmVyICJEYXRhYmFzZSIgIlN0b3JlcyB1c2VyIHJlZ2lzdHJhdGlvbiBpbmZvcm1hdGlvbiBhbmQgaGFzaGVkIGF1dGhlbnRpY2F0aW9uIGNyZWRlbnRpYWxzLiIgIk15U1FMIiB7CiAgICAgICAgICAgICAgICB0YWdzICJEYXRhIFN0b3JlIgogICAgICAgICAgICB9CiAgICAgICAgICAgIHN0YXRlbWVudFN0b3JlID0gY29udGFpbmVyICJTdGF0ZW1lbnQgU3RvcmUiICJDYWNoZXMgZ2VuZXJhdGVkIFBERiBiYW5rIHN0YXRlbWVudHMuIiAiQVdTIFMzIiB7CiAgICAgICAgICAgICAgICB0YWdzICJEYXRhIFN0b3JlIgogICAgICAgICAgICB9CiAgICAgICAgfQoKICAgICAgICBjb3JlQmFua2luZyA9IHNvZnR3YXJlU3lzdGVtICJDb3JlIEJhbmtpbmcgU3lzdGVtIiAiU3RvcmVzIGFsbCBvZiB0aGUgY29yZSBiYW5raW5nIGluZm9ybWF0aW9uIGFib3V0IGN1c3RvbWVycywgYWNjb3VudHMsIHRyYW5zYWN0aW9ucywgZXRjLiIgewogICAgICAgICAgICB0YWdzICJFeGlzdGluZyBTeXN0ZW0iCiAgICAgICAgfQoKICAgICAgICBlbWFpbCA9IHNvZnR3YXJlU3lzdGVtICJBbWF6b24gU2ltcGxlIEVtYWlsIFNlcnZpY2UiICJTZW5kcyBlbWFpbHMgdG8gY3VzdG9tZXJzLiIgewogICAgICAgICAgICB0YWdzICJFeGlzdGluZyBTeXN0ZW0iCiAgICAgICAgfQoKICAgICAgICBjdXN0b21lciAtPiBpbnRlcm5ldEJhbmtpbmcgIlZpZXdzIGFjY291bnQgYmFsYW5jZXMsIGFuZCBtYWtlcyBwYXltZW50cyB1c2luZyIKICAgICAgICBpbnRlcm5ldEJhbmtpbmcgLT4gY29yZUJhbmtpbmcgIkdldHMgYWNjb3VudCBpbmZvcm1hdGlvbiBmcm9tLCBhbmQgbWFrZXMgcGF5bWVudHMgdXNpbmciCiAgICAgICAgaW50ZXJuZXRCYW5raW5nIC0+IGVtYWlsICJTZW5kcyBlbWFpbHMgdXNpbmciCiAgICAgICAgZW1haWwgLT4gY3VzdG9tZXIgIlNlbmRzIGVtYWlscyB0byIKCiAgICAgICAgY3VzdG9tZXIgLT4gc2luZ2xlUGFnZUFwcCAiVmlld3MgYWNjb3VudCBiYWxhbmNlcywgYW5kIG1ha2VzIHBheW1lbnRzIHVzaW5nIgogICAgICAgIHNpbmdsZVBhZ2VBcHAgLT4gc3RhdGljQ29udGVudCAiSXMgZGVsaXZlcmVkIHRvIHRoZSBjdXN0b21lcidzIHdlYiBicm93c2VyIGZyb20iCiAgICAgICAgc2luZ2xlUGFnZUFwcCAtPiBiYWNrZW5kICJNYWtlcyBBUEkgY2FsbHMgdG8iICJKU09OL0hUVFAiCiAgICAgICAgYmFja2VuZCAtPiBkYXRhYmFzZSAiUmVhZHMgZnJvbSBhbmQgd3JpdGVzIHRvIiAiU1FML1RDUCIKICAgICAgICBiYWNrZW5kIC0+IHN0YXRlbWVudFN0b3JlICJSZWFkcyBmcm9tIGFuZCB3cml0ZXMgdG8iICJBV1MgUzMgQVBJIgogICAgICAgIGJhY2tlbmQgLT4gY29yZUJhbmtpbmcgIkdldHMgYWNjb3VudCBpbmZvcm1hdGlvbiBmcm9tLCBhbmQgbWFrZXMgcGF5bWVudHMgdXNpbmciICJYTUwvSFRUUFMiCiAgICAgICAgYmFja2VuZCAtPiBlbWFpbCAiU2VuZHMgZW1haWxzIHVzaW5nIiAiQVdTIFNFUyBBUEkiCgogICAgICAgIC8qIENvbXBvbmVudCByZWxhdGlvbnNoaXBzLCBjaDA1IHN0ZXBzIDIgdG8gNC4gVGhlIHRocmVlIEFQSSBjb250cm9sbGVycyBhcmUgZW50ZXJlZCBmcm9tIHRoZQogICAgICAgICAgIFVJOyBldmVyeXRoaW5nIGJlaGluZCB0aGVtIGlzIGEgYmVhbiwgYW5kIG9ubHkgdGhlIGJlYW5zIHJlYWNoIGEgZGF0YSBzdG9yZSBvciBhbiBleHRlcm5hbAogICAgICAgICAgIHN5c3RlbS4gVGhhdCBhc3ltbWV0cnkgaXMgdGhlIHN0b3J5IHRoZSBjb21wb25lbnQgZGlhZ3JhbSB0ZWxscy4gKi8KICAgICAgICBzaW5nbGVQYWdlQXBwIC0+IHNpZ25JbkFwaSAiTWFrZXMgQVBJIGNhbGxzIHRvIiAiSlNPTi9IVFRQIgogICAgICAgIHNpbmdsZVBhZ2VBcHAgLT4gYWNjb3VudHNTdW1tYXJ5QXBpICJNYWtlcyBBUEkgY2FsbHMgdG8iICJKU09OL0hUVFAiCiAgICAgICAgc2luZ2xlUGFnZUFwcCAtPiBzdGF0ZW1lbnRBcGkgIk1ha2VzIEFQSSBjYWxscyB0byIgIkpTT04vSFRUUCIKCiAgICAgICAgc2lnbkluQXBpIC0+IHNlY3VyaXR5Q29tcG9uZW50ICJVc2VzIgogICAgICAgIGFjY291bnRzU3VtbWFyeUFwaSAtPiBzZWN1cml0eUNvbXBvbmVudCAiVXNlcyIKICAgICAgICBzdGF0ZW1lbnRBcGkgLT4gc2VjdXJpdHlDb21wb25lbnQgIlVzZXMiCgogICAgICAgIHNlY3VyaXR5Q29tcG9uZW50IC0+IGRhdGFiYXNlICJSZWFkcyBmcm9tIGFuZCB3cml0ZXMgdG8iICJTUUwvVENQIgogICAgICAgIHNlY3VyaXR5Q29tcG9uZW50IC0+IGVtYWlsQ29tcG9uZW50ICJVc2VzIgogICAgICAgIGVtYWlsQ29tcG9uZW50IC0+IGVtYWlsICJTZW5kcyBlbWFpbHMgdXNpbmciICJBV1MgU0VTIEFQSSIKCiAgICAgICAgYWNjb3VudHNTdW1tYXJ5QXBpIC0+IGNvcmVCYW5raW5nQWRhcHRlciAiVXNlcyIKICAgICAgICBzdGF0ZW1lbnRBcGkgLT4gc3RhdGVtZW50Q29tcG9uZW50ICJVc2VzIgogICAgICAgIHN0YXRlbWVudENvbXBvbmVudCAtPiBzdGF0ZW1lbnRTdG9yZSAiUmVhZHMgZnJvbSBhbmQgd3JpdGVzIHRvIiAiQVdTIFMzIEFQSSIKICAgICAgICBzdGF0ZW1lbnRDb21wb25lbnQgLT4gY29yZUJhbmtpbmdBZGFwdGVyICJVc2VzIgogICAgICAgIGNvcmVCYW5raW5nQWRhcHRlciAtPiBjb3JlQmFua2luZyAiTWFrZXMgQVBJIGNhbGxzIHRvIiAiWE1ML0hUVFBTIgoKICAgICAgICAvKiDilIDilIAgREVQTE9ZTUVOVCwgY2gwOCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAKICAgICAgICAgICBUd28gZW52aXJvbm1lbnRzLCBiZWNhdXNlIHRoZSBjaGFwdGVyIGlzIGV4cGxpY2l0IHRoYXQgb25lIGRpYWdyYW0gY2Fubm90IGNhcnJ5IGJvdGg6ICJJCiAgICAgICAgICAgbWlnaHQgcnVuIGEgSmF2YSBhcHBsaWNhdGlvbiBkaXJlY3RseSBvbiBhIEpWTSBvbiBteSBsYXB0b3Agd2hlbiBkb2luZyBkZXZlbG9wbWVudCwgYnV0CiAgICAgICAgICAgdGhhdCBzYW1lIEphdmEgYXBwbGljYXRpb24gbWlnaHQgYmUgYnVpbHQgaW50byBhIERvY2tlciBpbWFnZSBhbmQgZGVwbG95ZWQgb250byBBV1MuIgoKICAgICAgICAgICBUSEUgREVWRUxPUE1FTlQgT05FIElTIEZPVVIgTEVWRUxTIERFRVAgT04gUFVSUE9TRSDigJQgYmFuayBXQU4sIGxhcHRvcCwgRG9ja2VyLCB0aGVuIHRoZQogICAgICAgICAgIGNvbnRhaW5lciBlbmdpbmUgaW5zaWRlIGl0IOKAlCBiZWNhdXNlIHRoZSBwcmVyZWdpc3RlcmVkIHJlZHByb29mIGZvciB0aGlzIGNoZWNrcG9pbnQgc2F5cwogICAgICAgICAgICJuZXN0aW5nIHBhc3QgdHdvIGxldmVscyBjb2xsYXBzZXMgb3Igb3ZlcmxhcHMiLCBhbmQgYSB0b3BvbG9neSB0aGF0IG5ldmVyIG5lc3RzIGNvdWxkIG5vdAogICAgICAgICAgIHB1dCB0aGF0IHRvIHRoZSB0ZXN0LiAqLwogICAgICAgIGRlcGxveW1lbnRFbnZpcm9ubWVudCAiRGV2ZWxvcG1lbnQiIHsKICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkJhbmsgV0FOIiAiQWxsIGRldmVsb3BtZW50IGhhcHBlbnMgaW5zaWRlIHRoZSBiYW5rJ3Mgb3duIG5ldHdvcmsuIiAiQ29ycG9yYXRlIG5ldHdvcmsiIHsKICAgICAgICAgICAgICAgIGRlcGxveW1lbnROb2RlICJEZXZlbG9wZXIgbGFwdG9wIiAiV2luZG93cyBvciBtYWNPUywgY2hvc2VuIHdoZW4gYW4gZW5naW5lZXIgam9pbnMuIiAiTWljcm9zb2Z0IFdpbmRvd3Mgb3IgQXBwbGUgbWFjT1MiIHsKICAgICAgICAgICAgICAgICAgICBkZXBsb3ltZW50Tm9kZSAiV2ViIGJyb3dzZXIiICJUaGUgVUkgaXMgcnVuIGxvY2FsbHkgc28gaXQgY2FuIGJlIGRlYnVnZ2VkLiIgIkNocm9tZSwgRmlyZWZveCwgU2FmYXJpIG9yIEVkZ2UiIHsKICAgICAgICAgICAgICAgICAgICAgICAgZGV2U3BhID0gY29udGFpbmVySW5zdGFuY2Ugc2luZ2xlUGFnZUFwcAogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICBkZXBsb3ltZW50Tm9kZSAiSmF2YSBWaXJ0dWFsIE1hY2hpbmUiICJUaGUgYmFja2VuZCBydW5zIHN0cmFpZ2h0IG9uIGEgSlZNIGhlcmUsIG5vdCBpbiBhIGNvbnRhaW5lci4iICJPcGVuSkRLIiB7CiAgICAgICAgICAgICAgICAgICAgICAgIGRldkJhY2tlbmQgPSBjb250YWluZXJJbnN0YW5jZSBiYWNrZW5kCiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIGRlcGxveW1lbnROb2RlICJEb2NrZXIiICJSYXRoZXIgdGhhbiBpbnN0YWxsIHRoZXNlIG9uIHRoZSBsYXB0b3AgaXRzZWxmLiIgIkRvY2tlciBEZXNrdG9wIiB7CiAgICAgICAgICAgICAgICAgICAgICAgIGRlcGxveW1lbnROb2RlICJuZ2lueCIgIlNlcnZlcyB0aGUgc3RhdGljIGNvbnRlbnQgb3ZlciBhIGxvY2FsIGFkZHJlc3MuIiAibmdpbnggMS4yNyIgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgZGV2U3RhdGljID0gY29udGFpbmVySW5zdGFuY2Ugc3RhdGljQ29udGVudAogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgICAgIGRlcGxveW1lbnROb2RlICJNeVNRTCIgIlRoZSBzYW1lIHNjaGVtYSBhcyBsaXZlLCBvbmUgY29udGFpbmVyIGF3YXkuIiAiTXlTUUwgOCIgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgZGV2RGF0YWJhc2UgPSBjb250YWluZXJJbnN0YW5jZSBkYXRhYmFzZQogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CiAgICAgICAgfQoKICAgICAgICBkZXBsb3ltZW50RW52aXJvbm1lbnQgIkxpdmUiIHsKICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkN1c3RvbWVyJ3MgY29tcHV0ZXIiICJPdXRzaWRlIG91ciBpbmZyYXN0cnVjdHVyZSBlbnRpcmVseS4iICJNaWNyb3NvZnQgV2luZG93cyBvciBBcHBsZSBtYWNPUyIgewogICAgICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIldlYiBicm93c2VyIiAiV2hlcmUgdGhlIFVJIGFjdHVhbGx5IHJ1bnMuIiAiQ2hyb21lLCBGaXJlZm94LCBTYWZhcmkgb3IgRWRnZSIgewogICAgICAgICAgICAgICAgICAgIGxpdmVTcGEgPSBjb250YWluZXJJbnN0YW5jZSBzaW5nbGVQYWdlQXBwCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkNsb3VkZmxhcmUiICJETlMsIGFuZCBhIHByb3h5IGluIGZyb250IG9mIHRoZSBzdGF0aWMgY29udGVudC4iICJDbG91ZGZsYXJlIiB7CiAgICAgICAgICAgICAgICBjZG4gPSBpbmZyYXN0cnVjdHVyZU5vZGUgImliLmJpZ2JhbmsuY29tIiAiQSBDTkFNRSBhbGlhc2luZyB0aGUgUzMgYnVja2V0LCBwcm94aWVkIHNvIHN0YXRpYyBjb250ZW50IGlzIGNhY2hlZC4iICJETlMgQ05BTUUiCiAgICAgICAgICAgICAgICBhcGlEbnMgPSBpbmZyYXN0cnVjdHVyZU5vZGUgImliLWFwaS5iaWdiYW5rLmNvbSIgIkEgQ05BTUUgYWxpYXNpbmcgdGhlIGxvYWQgYmFsYW5jZXIuIE5vdCBwcm94aWVkIOKAlCBBUEkgY2FsbHMgY2Fubm90IGJlIGNhY2hlZC4iICJETlMgQ05BTUUiCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkFtYXpvbiBXZWIgU2VydmljZXMiICJXaGVyZSB0aGUgbWFqb3JpdHkgb2YgdGhlIHNvZnR3YXJlIHJ1bnMuIiAiQVdTIiB7CiAgICAgICAgICAgICAgICBsYiA9IGluZnJhc3RydWN0dXJlTm9kZSAiQXBwbGljYXRpb24gbG9hZCBiYWxhbmNlciIgIkZvcndhcmRzIEFQSSB0cmFmZmljIHRvIHRoZSBiYWNrZW5kLiIgIkFXUyBBTEIiCiAgICAgICAgICAgICAgICBkZXBsb3ltZW50Tm9kZSAiRmFyZ2F0ZSIgIlJ1bnMgdGhlIERvY2tlciBpbWFnZSB3aXRob3V0IHByb3Zpc2lvbmluZyBzZXJ2ZXJzLiIgIkFXUyBGYXJnYXRlIiB7CiAgICAgICAgICAgICAgICAgICAgbGl2ZUJhY2tlbmQgPSBjb250YWluZXJJbnN0YW5jZSBiYWNrZW5kCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICBkZXBsb3ltZW50Tm9kZSAiUkRTIiAiQVdTIHByb3Zpc2lvbnMgdGhlIHVuZGVybHlpbmcgaW5mcmFzdHJ1Y3R1cmUuIiAiQW1hem9uIFJEUyIgewogICAgICAgICAgICAgICAgICAgIGxpdmVEYXRhYmFzZSA9IGNvbnRhaW5lckluc3RhbmNlIGRhdGFiYXNlCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICBkZXBsb3ltZW50Tm9kZSAiUzMiICJUd28gYnVja2V0czogdGhlIHN0YXRpYyBjb250ZW50LCBhbmQgdGhlIGdlbmVyYXRlZCBzdGF0ZW1lbnRzLiIgIkFtYXpvbiBTMyIgewogICAgICAgICAgICAgICAgICAgIGxpdmVTdGF0aWMgPSBjb250YWluZXJJbnN0YW5jZSBzdGF0aWNDb250ZW50CiAgICAgICAgICAgICAgICAgICAgbGl2ZVN0b3JlID0gY29udGFpbmVySW5zdGFuY2Ugc3RhdGVtZW50U3RvcmUKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQoKICAgICAgICAgICAgbGl2ZVNwYSAtPiBjZG4gIkxvYWRzIHRoZSBVSSBmcm9tIiAiSFRUUFMiCiAgICAgICAgICAgIGNkbiAtPiBsaXZlU3RhdGljICJDYWNoZXMgYW5kIHNlcnZlcyIgIkhUVFBTIgogICAgICAgICAgICBsaXZlU3BhIC0+IGFwaURucyAiTWFrZXMgQVBJIGNhbGxzIHRvIiAiSFRUUFMiCiAgICAgICAgICAgIGFwaURucyAtPiBsYiAiUmVzb2x2ZXMgdG8iCiAgICAgICAgICAgIGxiIC0+IGxpdmVCYWNrZW5kICJGb3J3YXJkcyB0cmFmZmljIHRvIiAiSFRUUFMiCiAgICAgICAgfQogICAgfQoKICAgIHZpZXdzIHsKICAgICAgICBzeXN0ZW1Db250ZXh0IGludGVybmV0QmFua2luZyAiU3lzdGVtQ29udGV4dCIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dCBsciA0MDAgMzAwCiAgICAgICAgICAgIGRlc2NyaXB0aW9uICJUaGUgc3lzdGVtIGluIGl0cyB3b3JsZDogd2hvIHVzZXMgaXQsIGFuZCB3aGF0IGl0IHRhbGtzIHRvLiIKICAgICAgICB9CgogICAgICAgIGNvbnRhaW5lciBpbnRlcm5ldEJhbmtpbmcgIkNvbnRhaW5lcnMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQgbHIgNDAwIDMwMAogICAgICAgICAgICBkZXNjcmlwdGlvbiAiSW5zaWRlIHRoZSBzeXN0ZW06IHRoZSBhcHBsaWNhdGlvbnMgYW5kIGRhdGEgc3RvcmVzIGl0IGlzIGJ1aWx0IGZyb20uIgogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IGJhY2tlbmQgIkNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQgbHIgNDAwIDMwMAogICAgICAgICAgICBkZXNjcmlwdGlvbiAiSW5zaWRlIHRoZSBiYWNrZW5kOiB0aHJlZSBBUEkgY29udHJvbGxlcnMsIGFuZCB0aGUgYmVhbnMgYmVoaW5kIHRoZW0uIgogICAgICAgIH0KCiAgICAgICAgZGVwbG95bWVudCBpbnRlcm5ldEJhbmtpbmcgIkRldmVsb3BtZW50IiAiRGVwbG95bWVudERldiIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dCBscgogICAgICAgICAgICBkZXNjcmlwdGlvbiAiQSBsYXB0b3AgaW5zaWRlIHRoZSBiYW5rJ3MgbmV0d29yazogdGhlIFVJIGluIGEgYnJvd3NlciwgdGhlIGJhY2tlbmQgb24gYSBKVk0sIGFuZCB0aGUgcmVzdCBpbiBEb2NrZXIuIgogICAgICAgIH0KCiAgICAgICAgZGVwbG95bWVudCBpbnRlcm5ldEJhbmtpbmcgIkxpdmUiICJEZXBsb3ltZW50TGl2ZSIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dCBscgogICAgICAgICAgICBkZXNjcmlwdGlvbiAiVGhlIFVJIHJ1bnMgb24gdGhlIGN1c3RvbWVyJ3MgbWFjaGluZTsgYWxtb3N0IGV2ZXJ5dGhpbmcgZWxzZSBydW5zIGluIEFXUywgd2l0aCBDbG91ZGZsYXJlIGluIGZyb250LiIKICAgICAgICB9CgoKCiAgICAgICAgLyogVEhFIFNJR04tSU4gRkVBVFVSRSBBVCBSVU5USU1FIOKAlCBjaDA3LCBmaWd1cmUgNy0zLCBpdHMgc2l4IHN0ZXBzIGNvcGllZCB2ZXJiYXRpbSBmcm9tIHRoZQogICAgICAgICAgIGZpZ3VyZSByYXRoZXIgdGhhbiBwYXJhcGhyYXNlZC4gVGhlIGNoYXB0ZXIncyBvd24gY2F1dGlvbiBpcyB3b3J0aCBrZWVwaW5nIGJlc2lkZSBpdDogaXQKICAgICAgICAgICByZWNvbW1lbmRzIGR5bmFtaWMgZGlhZ3JhbXMgU1BBUklOR0xZLCBmb3IgaW50ZXJlc3Rpbmcgb3IgcmVjdXJyaW5nIHBhdHRlcm5zLCBiZWNhdXNlIGEKICAgICAgICAgICBodW5kcmVkIGZlYXR1cmVzIGRvIG5vdCB3YW50IGEgaHVuZHJlZCBkaWFncmFtcyBub2JvZHkgbWFpbnRhaW5zLgoKICAgICAgICAgICBXSFkgVEhJUyBWSUVXIEVYSVNUUyBBTkQgVEhFIFNUQVRJQyBPTkVTIERPIE5PVCBBTlNXRVIgSVQ6IHRoZSBzdGF0aWMgc3RydWN0dXJlIHNob3dzCiAgICAgICAgICAgZXZlcnkgZWxlbWVudCBhbmQgcmVsYXRpb25zaGlwIHRoYXQgZXhpc3RzLiBJdCBjYW5ub3Qgc2hvdyB3aGljaCBzdWJzZXQgY29sbGFib3JhdGVzIHRvCiAgICAgICAgICAgZGVsaXZlciBPTkUgZmVhdHVyZSwgb3IgaW4gd2hhdCBvcmRlci4gVGhhdCBpcyB0aGUgd2hvbGUgaW50ZW50IG9mIGEgZHluYW1pYyB2aWV3LgoKICAgICAgICAgICBTVEVQUyA0LCA1IEFORCA2IEFSRSBSRVRVUk5TLCBhbmQgcmV0dXJucyBhcmUgdGhlIHRoaW5nIHRvIHdhdGNoIGhlcmU6IHRoZSBzdGF0aWMgbW9kZWwKICAgICAgICAgICBoYXMgbm8gZGF0YWJhc2UgLT4gc2VjdXJpdHksIHNlY3VyaXR5IC0+IHNpZ24taW4gb3Igc2lnbi1pbiAtPiBVSSByZWxhdGlvbnNoaXAsIGJlY2F1c2UKICAgICAgICAgICBub3RoaW5nIGluIHRoZSBzdGF0aWMgcGljdHVyZSBmbG93cyB0aGF0IHdheS4gV2hldGhlciB0aGlzIHZpZXcgY2FuIHNob3cgYSByZXNwb25zZQogICAgICAgICAgIHdpdGhvdXQgaW52ZW50aW5nIHN0YXRpYyByZWxhdGlvbnNoaXBzIGlzIGV4YWN0bHkgd2hhdCB0aGlzIGNoZWNrcG9pbnQgdGVzdHMuICovCiAgICAgICAgZHluYW1pYyBiYWNrZW5kICJTaWduSW4iIHsKICAgICAgICAgICAgc2luZ2xlUGFnZUFwcCAtPiBzaWduSW5BcGkgIlN1Ym1pdHMgY3JlZGVudGlhbHMgdG8iCiAgICAgICAgICAgIHNpZ25JbkFwaSAtPiBzZWN1cml0eUNvbXBvbmVudCAiVmFsaWRhdGVzIGNyZWRlbnRpYWxzIHVzaW5nIgogICAgICAgICAgICBzZWN1cml0eUNvbXBvbmVudCAtPiBkYXRhYmFzZSAic2VsZWN0ICogZnJvbSB1c2VycyB3aGVyZSB1c2VybmFtZSA9ID8iCiAgICAgICAgICAgIGRhdGFiYXNlIC0+IHNlY3VyaXR5Q29tcG9uZW50ICJSZXR1cm5zIHVzZXIgZGF0YSB0byIKICAgICAgICAgICAgc2VjdXJpdHlDb21wb25lbnQgLT4gc2lnbkluQXBpICJJc3N1ZXMgYSBzZXNzaW9uIHRva2VuIGlmIGF1dGhlbnRpY2F0aW9uIHN1Y2NlZWRzIgogICAgICAgICAgICBzaWduSW5BcGkgLT4gc2luZ2xlUGFnZUFwcCAiU2VuZHMgYmFjayBhIHNlc3Npb24gdG9rZW4gdG8iCiAgICAgICAgICAgIGF1dG9MYXlvdXQgbHIgNDAwIDMwMAogICAgICAgICAgICBkZXNjcmlwdGlvbiAiU2lnbmluZyBpbjogc2l4IHN0ZXBzLCBhbmQgdGhyZWUgb2YgdGhlbSBhcmUgdGhlIHdheSBiYWNrLiIKICAgICAgICB9CgogICAgICAgIC8qIOKUgOKUgCBUSEUgUEFMRVRURSwgQU5EIFdIWSBFVkVSWSBWQUxVRSBJUyBBIE1FQVNVUkVNRU5UIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgICAgIFRBS0VOIEZST00gdGhlIG9wZXJhdG9yJ3Mgb3duIE5vdGVib29rTE0gbWluZG1hcCwgMjAyNi0wOS0wNCwgYW5kIG1hcHBlZCBvbnRvIHRoZSBzYW1lCiAgICAgICAgICAgdGhyZWUgc3RhdGVzIHRoZSB2aWV3ZXIncyBsZXZlbCByYWlsIHVzZXMsIHNvIHRoZSBwaWN0dXJlIGFuZCB0aGUgcmFpbCBjYW5ub3QgZGlzYWdyZWU6CiAgICAgICAgICAgICBWSU9MRVQgIHRoZSB0aGluZyBpbiBmb2N1cyDigJQgdGhpcyBkaWFncmFtIGlzIGFib3V0IGl0CiAgICAgICAgICAgICBTTEFURSAgIGEgbGV2ZWwgeW91IGNhbiBvcGVuIOKAlCBhIGNvbnRhaW5lciwgYSBjb21wb25lbnQKICAgICAgICAgICAgIEdSRUVOICAgdGhlIGJvdHRvbSDigJQgYSBwZXJzb24sIGFuIGV4dGVybmFsIHN5c3RlbSwgYSBkYXRhIHN0b3JlOiBub3RoaW5nIGJlbG93IGl0CgogICAgICAgICAgIFRIRSBERUZFQ1QgVEhJUyBSRVBMQUNFUyB3YXMgcmVhbCBhbmQgaXMgbWVhc3VyZWQ6ICJFeGlzdGluZyBTeXN0ZW0iIHdhcyAjOTk5OTk5IHdpdGggdGhlCiAgICAgICAgICAgcmVuZGVyZXIncyB3aGl0ZSB0ZXh0LCB3aGljaCBpcyAyLjg1OjEg4oCUIHVuZGVyIHRoZSA0LjU6MSBmbG9vciBmb3IgdGV4dCwgYW5kIGl0IGlzIHRoZQogICAgICAgICAgIGdyZXkgYm94IHRoZSBvcGVyYXRvciBjb3VsZCBub3QgcmVhZC4KCiAgICAgICAgICAgVEhFIFNFQ09ORCBERUZFQ1QgSVMgVEhFIE9ORSBUSEUgTUlORE1BUCBJVFNFTEYgSEFTLiBJdHMgZmlsbHMgYXJlIGJlYXV0aWZ1bCBhbmQgdGhleSBkbwogICAgICAgICAgIG5vdCBzZXBhcmF0ZSBmcm9tIGl0cyBncm91bmQ6ICM0MzQ5NTAgb24gIzFBMUQyMiBpcyAxLjk6MSwgc28gdGhlIGNhcmQgbWVsdHMgaW50byB0aGUKICAgICAgICAgICBjYW52YXMgYW5kIHRoZSB3aG9sZSBwbGF0ZSByZWFkcyBhcyBsb3cgY29udHJhc3QgZXZlbiB0aG91Z2ggdGhlIFRFWFQgaXMgZmluZS4gS2VlcGluZwogICAgICAgICAgIHRob3NlIGZpbGxzIG1lYW5zIHRoZSBlZGdlIGhhcyB0byBkbyB0aGUgd29yaywgc28gZXZlcnkgZWxlbWVudCBjYXJyaWVzIGEgMnB4IHN0cm9rZQogICAgICAgICAgIG1lYXN1cmVkIGFnYWluc3QgdGhlIGNhbnZhcyByYXRoZXIgdGhhbiBsZWZ0IHRvIHRoZSByZW5kZXJlcidzIGRlZmF1bHQgc2hhZGUuCgogICAgICAgICAgIE1FQVNVUkVELCB3aGl0ZSB0ZXh0IG9uIGZpbGwgwrcgc3Ryb2tlIGFnYWluc3QgdGhlICMxRjIyMjYgY2FudmFzOgogICAgICAgICAgICAgdmlvbGV0ICAjNUY2Mjg1ICA1Ljg4IMK3IHN0cm9rZSAjQTVBOUYwICA3LjI1CiAgICAgICAgICAgICBzbGF0ZSAgICMzRjQ2NTAgIDkuNTMgwrcgc3Ryb2tlICM3Qzg3OTggIDQuMzkKICAgICAgICAgICAgIGxpZ2h0ZXIgIzRBNTM2MSAgNy43NyDCtyBzdHJva2UgIzhBOTRBNiAgNS4yMgogICAgICAgICAgICAgZ3JlZW4gICAjM0E0RTQyICA4Ljk0IMK3IHN0cm9rZSAjNkZBNTg4ICA1LjY0CiAgICAgICAgICAgICByZWxhdGlvbnNoaXAgbGluZSBhbmQgbGFiZWwgI0E1QTlGMCAvICNEN0RCRTMgb24gY2FudmFzOiA3LjI1IGFuZCAxMS41MSAqLwogICAgICAgIC8qIEdFTkVSQVRFRCBGUk9NIGFyY2hpdGVjdHVyZS90aGVtZS5qc29uIGJ5IGNoZWNrcy9kaWFncmFtLWNvbnRyYXN0Lm1qcyAtLXdyaXRlLgogICAgICAgICAgIEVkaXQgdGhlIHRoZW1lLCBub3QgdGhpcyBibG9jazogdGhlIGNoZWNrIHJlZnVzZXMgYW55IGRyaWZ0IGJldHdlZW4gdGhlbS4gKi8KICAgICAgICAvKiBHRU5FUkFURUQgRlJPTSBhcmNoaXRlY3R1cmUvdGhlbWUuanNvbiBieSBjaGVja3MvZGlhZ3JhbS1jb250cmFzdC5tanMgLS13cml0ZS4KICAgICAgICAgICBFZGl0IHRoZSB0aGVtZSwgbm90IHRoaXMgYmxvY2s6IHRoZSBjaGVjayByZWZ1c2VzIGFueSBkcmlmdCBiZXR3ZWVuIHRoZW0uICovCiAgICAgICAgc3R5bGVzIHsKICAgICAgICAgICAgZWxlbWVudCAiRWxlbWVudCIgewogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICAgICAgc3Ryb2tlV2lkdGggMgogICAgICAgICAgICAgICAgZm9udFNpemUgMjYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJQZXJzb24iIHsKICAgICAgICAgICAgICAgIHNoYXBlIFBlcnNvbgogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjMmIzYTMzCiAgICAgICAgICAgICAgICBzdHJva2UgIzZmYTU4OAogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkV4aXN0aW5nIFN5c3RlbSIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjMmIzYTMzCiAgICAgICAgICAgICAgICBzdHJva2UgIzZmYTU4OAogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIlNvZnR3YXJlIFN5c3RlbSIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjM2Y0MzgzCiAgICAgICAgICAgICAgICBzdHJva2UgI2E1YTlmMAogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkNvbnRhaW5lciIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjNWE1ZmE2CiAgICAgICAgICAgICAgICBzdHJva2UgI2I5YmRmNQogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkNvbXBvbmVudCIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjOGI5MmNlCiAgICAgICAgICAgICAgICBzdHJva2UgI2QyZDVmYQogICAgICAgICAgICAgICAgY29sb3IgIzE0MTYyYgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkRhdGEgU3RvcmUiIHsKICAgICAgICAgICAgICAgIHNoYXBlIEN5bGluZGVyCiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM1YTVmYTYKICAgICAgICAgICAgICAgIHN0cm9rZSAjYjliZGY1CiAgICAgICAgICAgIH0KICAgICAgICAgICAgcmVsYXRpb25zaGlwICJSZWxhdGlvbnNoaXAiIHsKICAgICAgICAgICAgICAgIGNvbG9yICNkN2RiZTMKICAgICAgICAgICAgICAgIGZvbnRTaXplIDI0CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9Cn0=",
+        "structurizr.inspection.info": "0",
+        "structurizr.inspection.ignore": "0",
+        "structurizr.inspection.warning": "0"
+    },
+    "views": {
+        "componentViews": [
+            {
+                "automaticLayout": {
+                    "applied": false,
+                    "edgeSeparation": 0,
+                    "implementation": "Graphviz",
+                    "nodeSeparation": 300,
+                    "rankDirection": "LeftRight",
+                    "rankSeparation": 400,
+                    "vertices": false
+                },
+                "containerId": "5",
+                "description": "Inside the backend: three API controllers, and the beans behind them.",
+                "elements": [
+                    {
+                        "id": "3",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "6",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "7",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "8",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "9",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "10",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "11",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "12",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "13",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "14",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "15",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "16",
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "externalContainerBoundariesVisible": false,
+                "key": "Components",
+                "name": "Component View: Internet Banking System - Backend",
+                "order": 3,
+                "relationships": [
+                    {
+                        "id": "28"
+                    },
+                    {
+                        "id": "29"
+                    },
+                    {
+                        "id": "30"
+                    },
+                    {
+                        "id": "31"
+                    },
+                    {
+                        "id": "32"
+                    },
+                    {
+                        "id": "33"
+                    },
+                    {
+                        "id": "34"
+                    },
+                    {
+                        "id": "35"
+                    },
+                    {
+                        "id": "36"
+                    },
+                    {
+                        "id": "37"
+                    },
+                    {
+                        "id": "38"
+                    },
+                    {
+                        "id": "39"
+                    },
+                    {
+                        "id": "40"
+                    },
+                    {
+                        "id": "41"
+                    }
+                ]
+            }
+        ],
+        "configuration": {
+            "branding": {},
+            "styles": {
+                "elements": [
+                    {
+                        "background": "#8b92ce",
+                        "color": "#14162b",
+                        "stroke": "#d2d5fa",
+                        "tag": "Component"
+                    },
+                    {
+                        "background": "#5a5fa6",
+                        "stroke": "#b9bdf5",
+                        "tag": "Container"
+                    },
+                    {
+                        "background": "#5a5fa6",
+                        "shape": "Cylinder",
+                        "stroke": "#b9bdf5",
+                        "tag": "Data Store"
+                    },
+                    {
+                        "color": "#ffffff",
+                        "fontSize": 26,
+                        "strokeWidth": 2,
+                        "tag": "Element"
+                    },
+                    {
+                        "background": "#2b3a33",
+                        "stroke": "#6fa588",
+                        "tag": "Existing System"
+                    },
+                    {
+                        "background": "#2b3a33",
+                        "shape": "Person",
+                        "stroke": "#6fa588",
+                        "tag": "Person"
+                    },
+                    {
+                        "background": "#3f4383",
+                        "stroke": "#a5a9f0",
+                        "tag": "Software System"
+                    }
+                ],
+                "relationships": [
+                    {
+                        "color": "#d7dbe3",
+                        "fontSize": 24,
+                        "tag": "Relationship"
+                    }
+                ]
+            },
+            "terminology": {}
+        },
+        "containerViews": [
+            {
+                "automaticLayout": {
+                    "applied": false,
+                    "edgeSeparation": 0,
+                    "implementation": "Graphviz",
+                    "nodeSeparation": 300,
+                    "rankDirection": "LeftRight",
+                    "rankSeparation": 400,
+                    "vertices": false
+                },
+                "description": "Inside the system: the applications and data stores it is built from.",
+                "elements": [
+                    {
+                        "id": "1",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "3",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "4",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "5",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "13",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "14",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "15",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "16",
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "externalSoftwareSystemBoundariesVisible": false,
+                "key": "Containers",
+                "name": "Container View: Internet Banking System",
+                "order": 2,
+                "relationships": [
+                    {
+                        "id": "20"
+                    },
+                    {
+                        "id": "21"
+                    },
+                    {
+                        "id": "22"
+                    },
+                    {
+                        "id": "23"
+                    },
+                    {
+                        "id": "24"
+                    },
+                    {
+                        "id": "25"
+                    },
+                    {
+                        "id": "26"
+                    },
+                    {
+                        "id": "27"
+                    }
+                ],
+                "softwareSystemId": "2"
+            }
+        ],
+        "deploymentViews": [
+            {
+                "automaticLayout": {
+                    "applied": false,
+                    "edgeSeparation": 0,
+                    "implementation": "Graphviz",
+                    "nodeSeparation": 300,
+                    "rankDirection": "LeftRight",
+                    "rankSeparation": 300,
+                    "vertices": false
+                },
+                "description": "A laptop inside the bank's network: the UI in a browser, the backend on a JVM, and the rest in Docker.",
+                "elements": [
+                    {
+                        "id": "42",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "43",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "44",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "45",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "46",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "47",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "49",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "50",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "51",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "53",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "54",
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "environment": "Development",
+                "key": "DeploymentDev",
+                "name": "Deployment View: Internet Banking System - Development",
+                "order": 4,
+                "relationships": [
+                    {
+                        "id": "48"
+                    },
+                    {
+                        "id": "52"
+                    },
+                    {
+                        "id": "55"
+                    }
+                ],
+                "softwareSystemId": "2"
+            },
+            {
+                "automaticLayout": {
+                    "applied": false,
+                    "edgeSeparation": 0,
+                    "implementation": "Graphviz",
+                    "nodeSeparation": 300,
+                    "rankDirection": "LeftRight",
+                    "rankSeparation": 300,
+                    "vertices": false
+                },
+                "description": "The UI runs on the customer's machine; almost everything else runs in AWS, with Cloudflare in front.",
+                "elements": [
+                    {
+                        "id": "56",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "57",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "58",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "59",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "60",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "61",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "62",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "63",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "64",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "65",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "67",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "68",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "70",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "71",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "73",
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "environment": "Live",
+                "key": "DeploymentLive",
+                "name": "Deployment View: Internet Banking System - Live",
+                "order": 5,
+                "relationships": [
+                    {
+                        "id": "66"
+                    },
+                    {
+                        "id": "69"
+                    },
+                    {
+                        "id": "72"
+                    },
+                    {
+                        "id": "74"
+                    },
+                    {
+                        "id": "75"
+                    },
+                    {
+                        "id": "76"
+                    },
+                    {
+                        "id": "77"
+                    },
+                    {
+                        "id": "78"
+                    },
+                    {
+                        "id": "79"
+                    }
+                ],
+                "softwareSystemId": "2"
+            }
+        ],
+        "dynamicViews": [
+            {
+                "automaticLayout": {
+                    "applied": false,
+                    "edgeSeparation": 0,
+                    "implementation": "Graphviz",
+                    "nodeSeparation": 300,
+                    "rankDirection": "LeftRight",
+                    "rankSeparation": 400,
+                    "vertices": false
+                },
+                "description": "Signing in: six steps, and three of them are the way back.",
+                "elementId": "5",
+                "elements": [
+                    {
+                        "id": "3",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "6",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "9",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "13",
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "externalBoundariesVisible": false,
+                "key": "SignIn",
+                "name": "Dynamic View: Internet Banking System - Backend",
+                "order": 6,
+                "relationships": [
+                    {
+                        "description": "Submits credentials to",
+                        "id": "28",
+                        "order": "1",
+                        "response": false
+                    },
+                    {
+                        "description": "Validates credentials using",
+                        "id": "31",
+                        "order": "2",
+                        "response": false
+                    },
+                    {
+                        "description": "select * from users where username = ?",
+                        "id": "34",
+                        "order": "3",
+                        "response": false
+                    },
+                    {
+                        "description": "Returns user data to",
+                        "id": "34",
+                        "order": "4",
+                        "response": true
+                    },
+                    {
+                        "description": "Issues a session token if authentication succeeds",
+                        "id": "31",
+                        "order": "5",
+                        "response": true
+                    },
+                    {
+                        "description": "Sends back a session token to",
+                        "id": "28",
+                        "order": "6",
+                        "response": true
+                    }
+                ],
+                "animations": [
+                    {
+                        "order": 1,
+                        "elements": [
+                            "3",
+                            "6"
+                        ],
+                        "relationships": [
+                            "28"
+                        ]
+                    },
+                    {
+                        "order": 2,
+                        "elements": [
+                            "9"
+                        ],
+                        "relationships": [
+                            "31"
+                        ]
+                    },
+                    {
+                        "order": 3,
+                        "elements": [
+                            "13"
+                        ],
+                        "relationships": [
+                            "34"
+                        ]
+                    },
+                    {
+                        "order": 4,
+                        "elements": [],
+                        "relationships": [
+                            "34"
+                        ]
+                    },
+                    {
+                        "order": 5,
+                        "elements": [],
+                        "relationships": [
+                            "31"
+                        ]
+                    },
+                    {
+                        "order": 6,
+                        "elements": [],
+                        "relationships": [
+                            "28"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "systemContextViews": [
+            {
+                "automaticLayout": {
+                    "applied": false,
+                    "edgeSeparation": 0,
+                    "implementation": "Graphviz",
+                    "nodeSeparation": 300,
+                    "rankDirection": "LeftRight",
+                    "rankSeparation": 400,
+                    "vertices": false
+                },
+                "description": "The system in its world: who uses it, and what it talks to.",
+                "elements": [
+                    {
+                        "id": "1",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "2",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "15",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "id": "16",
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "enterpriseBoundaryVisible": true,
+                "key": "SystemContext",
+                "name": "System Context View: Internet Banking System",
+                "order": 1,
+                "relationships": [
+                    {
+                        "id": "17"
+                    },
+                    {
+                        "id": "18"
+                    },
+                    {
+                        "id": "19"
+                    },
+                    {
+                        "id": "20"
+                    }
+                ],
+                "softwareSystemId": "2"
+            }
+        ]
+    }
 }

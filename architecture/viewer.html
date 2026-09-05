@@ -165,6 +165,7 @@
      rather than a round one, and a chip that names the kind — none of which the recipe covers.
      A trace is not a level: the rest of the rail is structure, and this is a story through it. */
   .dot--flow { border-radius: 2px; background: var(--edge); border-color: var(--edge); transform: rotate(45deg); }
+  .dot--env { border-radius: 2px; background: transparent; border-color: var(--edge); }
   .chip {
     flex: none; margin-left: auto; padding: 1px 7px; border-radius: 999px;
     background: color-mix(in srgb, var(--edge) 18%, transparent);
@@ -253,8 +254,14 @@
          repo with a feature trace would have had a rail that cannot reach it — a gap in the machine,
          not in this bank's diagram. A dynamic view hangs off whatever it is scoped to. */
       for (const v of ws.views.dynamicViews ?? []) views.push({ key: v.key, level: 'flow', scope: v.elementId, title: v.description || v.key, elements: new Set((v.elements ?? []).map((e) => e.id)) });
+      /* DEPLOYMENT VIEWS ARE VIEWS TOO, and the rail could not reach one — measured on the bank's
+         Development plate, which rendered correctly while the rail showed a single folded row. A
+         deployment view is scoped to a software system and named by its ENVIRONMENT, so two of them
+         over one system are two different answers to "where does this run", not two levels. */
+      for (const v of ws.views.deploymentViews ?? []) views.push({ key: v.key, level: 'deployment', scope: v.softwareSystemId, title: v.environment || v.key });
       const viewFor = (level, scope) => views.find((v) => v.level === level && v.scope === scope)?.key ?? null;
       const flowsFor = (scope) => views.filter((v) => v.level === 'flow' && v.scope === scope);
+      const deploysFor = (scope) => views.filter((v) => v.level === 'deployment' && v.scope === scope);
       /* Which traces walk the elements THIS view draws — by element overlap, not by scope, because a
          trace scoped to a container still explains half of the container view above it. */
       const staticElements = new Map();
@@ -277,6 +284,9 @@
         if (!contextView && !containerView) continue;          // a system nobody drew
         const node = { name: s.name, kind: 'Software System', view: contextView || containerView, children: [] };
         for (const f of flowsFor(s.id)) node.children.push({ name: f.title || f.key, kind: 'Feature trace', view: f.key, children: [] });
+        const deploys = deploysFor(s.id);
+        if (deploys.length) node.children.push({ name: 'Deployed', kind: deploys.length + ' environment' + (deploys.length === 1 ? '' : 's'), view: null,
+          children: deploys.map((v) => ({ name: v.title || v.key, kind: 'Environment', view: v.key, children: [] })) });
         if (containerView) {
           node.children.push({
             name: 'Containers',
@@ -567,16 +577,17 @@
           caret.textContent = node.children.length ? '▸' : '';
 
           const dot = document.createElement('span');
-          dot.className = 'dot' + (isHere ? ' dot--here' : '') + (node.kind === 'Feature trace' ? ' dot--flow' : '');
+          dot.className = 'dot' + (isHere ? ' dot--here' : '') + (node.kind === 'Feature trace' ? ' dot--flow' : '') + (node.kind === 'Environment' ? ' dot--env' : '');
           dot.setAttribute('aria-hidden', 'true');
 
           const text = document.createElement('span');
           text.className = 'rowtext'; text.textContent = node.name;
 
           const isFlow = node.kind === 'Feature trace';
+          const isEnv = node.kind === 'Environment';
           const kind = document.createElement('span');
-          kind.className = isFlow ? 'chip' : 'kind';
-          kind.textContent = isFlow ? 'trace' : node.kind;
+          kind.className = isFlow || isEnv ? 'chip' : 'kind';
+          kind.textContent = isFlow ? 'trace' : isEnv ? 'deploy' : node.kind;
 
           b.append(caret, dot, text, kind);
           /* ONE GESTURE, TWO EFFECTS, deliberately: the row opens its view and unfolds its branch
