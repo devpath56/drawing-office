@@ -502,6 +502,38 @@
       #tooltip p:last-child { margin-bottom: 0 !important; white-space: pre-wrap !important; }
       #tooltip b { font-weight: 600 !important; letter-spacing: .01em; }
     `;
+    /* THE HEADINGS ARE BOLDED AFTER RENDER, because they cannot be bolded before it. The renderer
+       runs every perspective description through structurizr.util.escapeHtml, so a <b> written into
+       the model arrives on screen as the four characters of the tag. What it does convert is \n to
+       <br/>, which is how the three parts became lines in the first place.
+
+       So the wrapper watches the one node the renderer writes into and re-marks it. A heading is a
+       line that is not empty and does not start with the bullet marker — the same rule the bullet
+       budget in checks/perspectives.mjs uses to decide what it measures, so the two cannot disagree
+       about which lines are headings.
+
+       THE OBSERVER MUST NOT SEE ITS OWN WRITE. It fires on the subtree it edits, so a naive version
+       loops forever; the marked node carries a flag and a marked node is skipped. */
+    const BOLD_MARK = 'doBolded';
+    function boldHeadings(doc) {
+      const box = doc.getElementById('tooltipAdditionalContent');
+      if (!box || box.dataset[BOLD_MARK] === box.innerHTML.length + '') return;
+      const parts = [...box.querySelectorAll('p')];
+      /* The LAST paragraph is the description; the first is "Perspective: <name>", already bold. */
+      const body = parts[parts.length - 1];
+      if (!body || /<b>/.test(body.innerHTML)) { box.dataset[BOLD_MARK] = box.innerHTML.length + ''; return; }
+      const lines = body.innerHTML.split(/<br\s*\/?>/i);
+      let touched = false;
+      const out = lines.map((line) => {
+        const text = line.replace(/<[^>]+>/g, '').trim();
+        if (!text || text.startsWith('·')) return line;
+        touched = true;
+        return '<b>' + line + '</b>';
+      });
+      if (touched) body.innerHTML = out.join('<br />');
+      box.dataset[BOLD_MARK] = box.innerHTML.length + '';
+    }
+
     function soften() {
       try {
         const doc = frame.contentDocument;
@@ -510,6 +542,8 @@
         s.id = SOFTEN_ID;
         s.textContent = SOFTEN;
         (doc.head || doc.documentElement).append(s);
+        const box = doc.getElementById('tooltipAdditionalContent');
+        if (box) new doc.defaultView.MutationObserver(() => boldHeadings(doc)).observe(box, { childList: true, subtree: true, characterData: true });
       } catch { /* a cross-origin site keeps its own tooltip; the diagram is unaffected */ }
     }
     frame.addEventListener('load', soften);
