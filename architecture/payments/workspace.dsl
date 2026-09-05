@@ -59,11 +59,17 @@ workspace "Payments Platform" "A message-driven architecture, modelled per chapt
 
     views {
         systemContext payments "Context" "Who uses the platform." {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             include *
             autoLayout lr 500 400
         }
 
         container payments "Containers" "The services, and the two channels they talk through." {
+            properties {
+                "structurizr.tooltips" "true"
+            }
             include *
             autoLayout lr 500 400
         }

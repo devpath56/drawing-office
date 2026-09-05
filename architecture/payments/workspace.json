@@ -308,6 +308,9 @@
       "key" : "Containers",
       "name" : "Container View: Payments Platform",
       "order" : 2,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
       "relationships" : [ {
         "id" : "10"
       }, {
@@ -426,6 +429,9 @@
       "key" : "Context",
       "name" : "System Context View: Payments Platform",
       "order" : 1,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
       "relationships" : [ {
         "id" : "11"
       } ],

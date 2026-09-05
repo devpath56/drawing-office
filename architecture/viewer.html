@@ -63,7 +63,20 @@
   body {
     margin: 0; background: var(--canvas); color: var(--ink);
     font: 400 var(--t3)/1.5 "Google Sans Text", system-ui, -apple-system, sans-serif;
-    display: grid; grid-template-rows: auto auto 1fr; height: 100vh;
+    /* THE LAYOUT NO LONGER COUNTS ITS CHILDREN, and that is the fix rather than the number.
+       This was `grid-template-rows: auto auto 1fr` from when the page had a header, an order bar and
+       a main. Merging the order bar into the header left the count behind: main landed in an AUTO
+       track sized by its tallest item — the rail — the leftover 1fr track was an empty strip of
+       canvas, and opening the rail grew the tree, grew the track and pushed the page past the
+       viewport. That is the black space at the bottom. Measured before the fix: the track list
+       resolved to `55px 570px 0px` against two children.
+
+       Correcting it to `auto 1fr` would have been the same bug waiting for the next child. A track
+       list is a promise about how many children exist, made in the stylesheet, kept in the markup,
+       and checked by nothing. A column flex makes the promise unnecessary: the header takes its
+       content height, main takes the rest, and adding or removing a sibling cannot silently create
+       an empty strip because there are no tracks to fall out of step with. */
+    display: flex; flex-direction: column; height: 100vh;
   }
 
   header {
@@ -96,7 +109,9 @@
   .btn--quiet { min-height: 30px; }
   .btn--row { width: 100%; min-height: 34px; justify-content: flex-start; text-align: left; }
 
-  main { display: grid; grid-template-columns: var(--shut) 1fr; min-height: 0; background: var(--canvas); }
+  /* min-height: 0 is what lets a flex child shrink below its content, which is what keeps the rail's
+     own scrollbar inside the rail instead of growing the page. */
+  main { flex: 1 1 auto; display: grid; grid-template-columns: var(--shut) 1fr; min-height: 0; background: var(--canvas); }
   iframe { width: 100%; height: 100%; border: 0; display: block; background: var(--canvas); }
 
   /* ── THE RAIL: SHUT, AND OPEN ON APPROACH ─────────────────────────────────────────────────────

@@ -181,6 +181,36 @@ if (IS_MAIN) {
     : [];
   if (!targets.length) { console.log('UNEVALUABLE — no exported workspace.json found; export the DSL first'); process.exit(3); }
 
+  /* --write STAMPS THE PROPERTY, because I typed it into six views by hand today and the seventh is
+     where it gets forgotten. checks/diagram-contrast.mjs already owns this pattern for the palette:
+     the check refuses drift and the writer removes the reason anyone would hand-edit. The property
+     name has one home, TOOLTIP_PROPERTY, and both the reader and the writer take it from there. */
+  if (argv.includes('--write')) {
+    const dsl = flag('--write', null);
+    if (!dsl || !fs.existsSync(dsl)) { console.error('usage: node checks/perspectives.mjs --write <workspace.dsl>'); process.exit(2); }
+    let src = fs.readFileSync(dsl, 'utf8');
+    /* A view header is a keyword, an optional scope, a quoted key and an opening brace. The property
+       block goes on the line after it, at the header's own indent plus four. */
+    const HEAD = /^([ \t]*)(systemLandscape|systemContext|container|component)\b[^\n{]*\{[ \t]*$/gm;
+    const already = new RegExp(TOOLTIP_PROPERTY.replace('.', '\\.'));
+    let added = 0, out = '', at = 0;
+    for (const m of src.matchAll(HEAD)) {
+      const lineEnd = src.indexOf('\n', m.index + m[0].length) + 1;
+      /* Look only as far as this view's own block, so a property on the NEXT view is not mistaken
+         for one on this one. */
+      const window = src.slice(lineEnd, lineEnd + 400);
+      if (already.test(window)) continue;
+      const pad = m[1] + '    ';
+      out += src.slice(at, lineEnd) + `${pad}properties {\n${pad}    "${TOOLTIP_PROPERTY}" "true"\n${pad}}\n`;
+      at = lineEnd;
+      added++;
+    }
+    out += src.slice(at);
+    if (added) fs.writeFileSync(dsl, out);
+    console.log(`${added} view(s) gained ${TOOLTIP_PROPERTY} in ${path.relative(process.cwd(), dsl)}${added ? ' — re-export before checking' : ' (all of them already had it)'}`);
+    process.exit(0);
+  }
+
   let bad = 0;
   for (const f of targets) {
     let ws;
