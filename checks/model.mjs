@@ -60,6 +60,12 @@ export function elements(ws) {
     group: e.group ?? null,
     tags: String(e.tags ?? '').split(',').map((t) => t.trim()).filter(Boolean),
     perspectives: e.perspectives ?? [],
+    /* PROPERTIES SURVIVE THE EXPORT, measured 2026-09-07 against structurizr-cli: a DSL
+       `properties { "implementation" "src/x.ts" }` comes back on the element as a plain object
+       beside structurizr's own dsl.identifier. It is the only field that can carry a POINTER OUT of
+       the model — to the file that implements a component — which is what checks/stage.mjs needs to
+       ask whether a box claiming to be built actually is. */
+    properties: e.properties ?? {},
     ...extra,
   });
 
@@ -200,6 +206,34 @@ function rawOf(ws, id) {
     return null;
   };
   return hunt(ws?.model?.deploymentNodes);
+}
+
+/**
+ * WHICH ELEMENT CONTAINS THIS ONE, and it lives here because it is a fact about the MODEL.
+ *
+ * C4's nesting is not one field: a component names its container, a container names its system, and
+ * a system names nothing. That three-case expression was written out identically in checks/delivery
+ * .mjs and checks/element-state.mjs, which is two homes for the shape of the model — and the model
+ * has exactly one reader, which is this file.
+ *
+ * It could not live in either of those two: element-state imports delivery, so putting it in
+ * element-state and importing it back would be a cycle. The right home was never one of them.
+ */
+export function parentOf(el) {
+  return el.containerId ?? (el.kind === 'Container' ? el.systemId : null);
+}
+
+/** Parent id → its immediate children, over a list from elements(). */
+export function childrenOf(els) {
+  const kids = new Map();
+  for (const e of els) {
+    const parent = parentOf(e);
+    if (!parent) continue;
+    const k = String(parent);
+    if (!kids.has(k)) kids.set(k, []);
+    kids.get(k).push(e);
+  }
+  return kids;
 }
 
 /** The decisions the workspace declares, workspace-scoped and element-scoped alike. */

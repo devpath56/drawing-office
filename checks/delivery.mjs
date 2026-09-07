@@ -35,7 +35,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { elements, decisions, views } from './model.mjs';
+import { elements, decisions, views, childrenOf } from './model.mjs';
 
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -65,14 +65,22 @@ export const DEFAULT_STATES = Object.freeze(['Modified', 'Proposal']);
  * itself in the returned `basis`.
  */
 export function statesOf(theme) {
-  const tagFor = theme?.delivery?.tagFor;
+  /* THE SEAT AXIS IS THE AUTHORITY, and `delivery.tagFor` is its mirror kept for one turn's worth
+     of compatibility. The machine grew a second axis — `delivery.stage`, derived rather than typed
+     and owned by checks/stage.mjs — so `delivery.tagFor` no longer names the whole thing. Reading
+     the seat block first makes this file take its vocabulary from the half it actually owns. */
+  const tagFor = theme?.delivery?.seat?.tagFor ?? theme?.delivery?.tagFor;
   if (tagFor && Object.keys(tagFor).length) return Object.values(tagFor);
   if (Array.isArray(theme?.deliveryStates)) return theme.deliveryStates;
   return DEFAULT_STATES;
 }
 
 export function basisOf(theme) {
-  if (theme?.delivery?.tagFor) return 'delivery machine';
+  /* THE BASIS NAMES WHICH HALF, not just that a machine answered. `delivery` now covers two axes,
+     and a line reading "delivery machine" on the one report whose job is to say where a number came
+     from would leave a reader unable to tell the tagged axis from the derived one. */
+  if (theme?.delivery?.seat?.tagFor) return 'delivery.seat.tagFor — the tagged axis';
+  if (theme?.delivery?.tagFor) return 'delivery.tagFor — the seat axis, pre-split spelling';
   if (Array.isArray(theme?.deliveryStates)) return 'deliveryStates list (no machine declared)';
   return 'DEFAULT_STATES — the theme declares neither a machine nor a list';
 }
@@ -122,16 +130,9 @@ export function inspect(ws, theme) {
      not. The tags were correct on the components; nothing carried the fact upward.
      A parent holding a changed child must say so. */
   const markedIds = new Set(marked.map((x) => x.el.id));
-  const childrenOf = new Map();
+  const kids = childrenOf(els);
   for (const e of els) {
-    const parent = e.containerId ?? (e.kind === 'Container' ? e.systemId : null);
-    if (!parent) continue;
-    if (!childrenOf.has(String(parent))) childrenOf.set(String(parent), []);
-    childrenOf.get(String(parent)).push(e);
-  }
-  for (const e of els) {
-    const kids = childrenOf.get(e.id) ?? [];
-    const changed = kids.filter((k) => markedIds.has(k.id));
+    const changed = (kids.get(e.id) ?? []).filter((k) => markedIds.has(k.id));
     if (!changed.length) continue;
     if (stateOf(e, states).state) continue;
     findings.push({
@@ -171,7 +172,7 @@ export function inspect(ws, theme) {
        system for its own ADR and would have grown a duplicate at every level of nesting. */
     const inheritsFrom = (id, depth = 0) => {
       if (depth > 8) return false;
-      return (childrenOf.get(id) ?? []).some((k) =>
+      return (kids.get(id) ?? []).some((k) =>
         (markedIds.has(k.id) && governed.has(k.id)) || inheritsFrom(k.id, depth + 1));
     };
     const inherits = inheritsFrom(m.el.id);
@@ -222,14 +223,23 @@ if (IS_MAIN) {
 
   if (argv.includes('--negative')) {
     let ok = 0;
-    const say = (n, pass, saw) => { console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${n}${pass ? '' : `\n       saw: ${JSON.stringify(saw)?.slice(0, 280)}`}`); if (pass) ok++; };
+    let total = 0;
+    const say = (n, pass, saw) => { total++; console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${n}${pass ? '' : `\n       saw: ${JSON.stringify(saw)?.slice(0, 280)}`}`); if (pass) ok++; };
     const theme = { deliveryStates: ['Modified', 'Proposal'], elements: [{ tag: 'Modified', stroke: '#b8863b' }, { tag: 'Proposal', stroke: '#ffb454' }] };
     const rules = (ws, t = theme) => inspect(ws, t).findings.map((f) => f.rule);
+
+    /* THE HOLDER'S WORD FOLLOWS THE HOLDER'S TAG, and a hard-coded one made this fixture lie. The
+       system inherits whichever state the container carries (CF-106), and its description said
+       "modified" whatever that state was — so on a Proposal fixture the system was marked Proposal
+       and worded modified, and `label-missing` fired on the SYSTEM while the assertion was about the
+       CONTAINER. The check was right and the fixture was wrong, which is the harder half to see:
+       eighteen of nineteen assertions passed and the typed pin agreed with the eighteen. */
+    const wordFor = (tags) => (/Proposal/.test(tags) ? 'proposed' : 'modified');
 
     const build = ({ tags, decided = true, drawn = true }) => ({
       /* THE SYSTEM CARRIES THE STATE ITS CONTAINER DOES (CF-106). This fixture predates that rule
          and the rule caught it: a Guard system holding a marked Scorer, drawn as untouched. */
-      model: { softwareSystems: [{ id: 's1', name: 'Guard', tags: `Element,Software System${/Proposal|Modified/.test(tags) ? ',' + (tags.match(/Proposal|Modified/) ?? [''])[0] : ''}`, description: 'modified — hover for details. holder',
+      model: { softwareSystems: [{ id: 's1', name: 'Guard', tags: `Element,Software System${/Proposal|Modified/.test(tags) ? ',' + (tags.match(/Proposal|Modified/) ?? [''])[0] : ''}`, description: `${wordFor(tags)} — hover for details. holder`,
         containers: [{ id: 'c1', name: 'Scorer', tags, description: 'modified — hover for details. leaf', documentation: decided ? { decisions: [{ id: '1', title: 'why', status: 'Accepted', content: 'because' }] } : undefined }] }] },
       views: { containerViews: [{ key: 'Containers', elements: drawn ? [{ id: 's1' }, { id: 'c1' }] : [] }] },
     });
@@ -313,8 +323,16 @@ if (IS_MAIN) {
       basisOf({}) !== basisOf({ delivery: { tagFor: { a: 'A' } } }) && /DEFAULT_STATES/.test(basisOf({})),
       { none: basisOf({}), machine: basisOf({ delivery: { tagFor: { a: 'A' } } }) });
 
-    console.log(`\n${ok} of 18 held`);
-    process.exit(ok === 18 ? 0 : 1);
+    /* THE DENOMINATOR IS COUNTED, NOT TYPED, and this file is the reason the rule exists. It printed
+       "18 of 18 held" with a FAIL line five rows above it, and exited 0: nineteen assertions ran,
+       eighteen passed, and the hand-typed pin agreed with the eighteen. A typed total does not drift
+       towards being obviously wrong — it drifts towards AGREEING with whatever currently passes,
+       which is the one direction that hides a failure rather than showing one.
+       Comparing the RUN count against the pin makes the drift itself a failure, and requiring
+       ok === total makes a red line red. */
+    const PINNED = 19;
+    console.log(`\n${ok} of ${total} held` + (total === PINNED ? '' : `  · MISCOUNT: ${PINNED} pinned`));
+    process.exit(ok === total && total === PINNED ? 0 : 1);
   }
 
   let theme;
