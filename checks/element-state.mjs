@@ -38,6 +38,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { elements, childrenOf } from './model.mjs';
+import { projects, theme as themeOf } from './projects.mjs';
 import { statesOf, stateOf, basisOf } from './delivery.mjs';
 import { inspect as stageInspect, stagesOf } from './stage.mjs';
 
@@ -201,6 +202,41 @@ export function overlay(result, theme) {
   return { key: conf.key ?? 'r', banner: conf.banner ?? 'TEST RESULTS', legend: fill, at };
 }
 
+export const FRESH_STATES = Object.freeze(['fresh', 'stale', 'ABSENT', 'not-needed']);
+
+/**
+ * IS THE PAINTED OVERLAY THE ONE THE CHECK WOULD PRODUCE NOW.
+ *
+ * THE GAP THIS CLOSES IS THE ONE site-fresh.mjs ALREADY PAID FOR, one layer up. stage.json is
+ * generated, committed, and fetched by the browser; every instrument here reads workspace.json and
+ * nothing read the payload. So a DSL change, a re-export, and a green suite were all consistent with
+ * a viewer painting rungs for a model that no longer exists — and this is the one surface in the
+ * repo whose entire claim is "these are the test results". A stale one does not degrade, it lies.
+ *
+ * THE COMPARISON IS EXACT, and it can be, which is the difference from site-fresh: both sides come
+ * out of the same overlay() over the same export, so any difference at all is a real difference.
+ * site-fresh compares view keys and counts because its two sides are different FORMATS; here there
+ * is no formatting slack to allow for.
+ *
+ * ABSENT IS NOT STALE, and `not-needed` is a fourth answer rather than silence: a model with no
+ * rungs has no payload to write, and a repo that never opens the viewer is not broken.
+ */
+export function freshness(file, fresh, result, { read = fs } = {}) {
+  if (!(result.rows ?? []).some((r) => r.stage)) return { state: 'not-needed', why: 'no element has reached a rung, so there is nothing for the overlay to paint' };
+  if (!read.existsSync(file)) return { state: 'ABSENT', why: 'no payload has been written; the viewer\'s key will say so rather than paint nothing silently — run --write' };
+  let have;
+  try { have = read.readFileSync(file, 'utf8'); }
+  catch (e) { return { state: 'stale', why: `the payload could not be read (${e.message}), so what the browser fetches cannot be compared to what the check computes` }; }
+  if (have === fresh) return { state: 'fresh' };
+  let n = 0;
+  try {
+    const a = JSON.parse(have).at ?? {};
+    const b = JSON.parse(fresh).at ?? {};
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) n++;
+  } catch { n = -1; }
+  return { state: 'stale', why: `the committed payload is not what this model produces${n >= 0 ? ` — ${n} element(s) differ` : ' and does not parse'}; the viewer would paint rungs for a model that has moved. Run --write` };
+}
+
 /* ── CLI ─────────────────────────────────────────────────────────────────────────────────────── */
 const real = (q) => { try { return fs.realpathSync(q); } catch { return path.resolve(q); } };
 const IS_MAIN = process.argv[1] && real(path.resolve(process.argv[1])) === real(fileURLToPath(import.meta.url));
@@ -308,20 +344,42 @@ if (IS_MAIN) {
     try { inspect(cyclic, theme, io()); returned = true; } catch { returned = false; }
     say('an export naming an element as its own child returns instead of walking forever', returned, 'threw or hung');
 
-    const PINNED = 15;
+    /* ── THE PAINTED PAYLOAD MUST BE THE ONE THE CHECK WOULD PRODUCE NOW ───────────────────── */
+    r = inspect(ws(built, scorerBuilt, { sys: 'Element,Software System,Modified', con: 'Element,Container,Modified', k1: 'Element,Component,Modified', k2: 'Element,Component,Modified' }), theme, io());
+    const payload = JSON.stringify(overlay(r, theme), null, 2) + '\n';
+    const disk = (text) => ({ existsSync: () => text !== null, readFileSync: () => text });
+    say('a payload matching the model is fresh',
+      freshness('x', payload, r, { read: disk(payload) }).state === 'fresh', freshness('x', payload, r, { read: disk(payload) }));
+    const drifted = JSON.parse(payload); drifted.at.k1.stage = 'assembled'; drifted.at.k1.fill = '#2f7d4f';
+    const v = freshness('x', payload, r, { read: disk(JSON.stringify(drifted, null, 2) + '\n') });
+    say('a payload claiming a rung the model does not reach is STALE — the one lie this surface can tell',
+      v.state === 'stale', v);
+    say('and it counts how many elements differ, so the fix is scoped from the line',
+      /1 element\(s\) differ/.test(v.why), v.why);
+    say('a payload that is not there is ABSENT, not stale — nothing was painted, so nothing is wrong',
+      freshness('x', payload, r, { read: disk(null) }).state === 'ABSENT', freshness('x', payload, r, { read: disk(null) }));
+    const bare = inspect(ws({}, {}), theme, io({ registry: {} }));
+    say('a model with no rungs needs no payload at all, which is a fourth answer and not silence',
+      freshness('x', '', bare, { read: disk(null) }).state === 'not-needed',
+      freshness('x', '', bare, { read: disk(null) }));
+    say('an unparseable payload is stale rather than throwing, because a check that dies says nothing',
+      freshness('x', payload, r, { read: disk('{oh dear') }).state === 'stale',
+      freshness('x', payload, r, { read: disk('{oh dear') }));
+
+    const PINNED = 21;
     console.log(`\n${ok} of ${total} held` + (total === PINNED ? '' : `  · MISCOUNT: ${PINNED} pinned`));
     process.exit(ok === total && total === PINNED ? 0 : 1);
   }
 
-  let theme;
-  try { theme = JSON.parse(fs.readFileSync(path.join(root, 'architecture', 'theme.json'), 'utf8')); }
-  catch (e) { console.log(`UNEVALUABLE — architecture/theme.json could not be read (${e.message})`); process.exit(3); }
+  const palette = themeOf(root);
+  if (palette.state !== 'found') { console.log(`UNEVALUABLE — ${palette.why}`); process.exit(3); }
+  const theme = palette.theme;
 
-  const dir = path.join(root, 'architecture');
-  const targets = fs.existsSync(dir)
-    ? fs.readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory())
-        .map((d) => path.join(dir, d.name, 'workspace.json')).filter((f) => fs.existsSync(f))
-    : [];
+  /* ONE DOOR FOR 'WHERE ARE THE MODELS'. This block was copied into eleven modules and had
+     already drifted into three shapes; checks/projects.mjs owns it now, and it distinguishes an
+     un-exported tree (ABSENT) from an unreadable one (UNEVALUABLE), which the copies did not. */
+  const found = projects(root);
+  const targets = found.list.map((p) => p.file);
   if (!targets.length) { console.log('UNEVALUABLE — no exported workspace.json found; export the DSL first'); process.exit(3); }
 
   let bad = 0;
@@ -342,10 +400,15 @@ if (IS_MAIN) {
     console.log('    ↑ = rolled up from something below it, not evidence about this box');
     for (const x of r.findings) { bad++; console.log(`    FAIL ${x.rule}\n         ${x.where}\n         ${x.why}\n         ${x.cite}`); }
 
+    const out = path.join(path.dirname(f), 'stage.json');
+    const fresh = JSON.stringify(overlay(r, theme), null, 2) + '\n';
     if (argv.includes('--write')) {
-      const out = path.join(path.dirname(f), 'stage.json');
-      fs.writeFileSync(out, JSON.stringify(overlay(r, theme), null, 2) + '\n');
+      fs.writeFileSync(out, fresh);
       console.log(`    wrote ${path.relative(process.cwd(), out)} — the overlay the viewer paints from`);
+    } else {
+      const v = freshness(out, fresh, r, { read: fs });
+      console.log(`    overlay · ${v.state}${v.why ? ` — ${v.why}` : ''}`);
+      if (v.state === 'stale') { bad++; console.log('    FAIL overlay-stale\n         architecture/*/stage.json\n         ' + v.why + '\n         CF-class of site-fresh — two sources, one fresh and one stale, and nothing said so'); }
     }
   }
   console.log(`\n  ${bad} finding(s)`);

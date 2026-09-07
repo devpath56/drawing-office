@@ -28,6 +28,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { decisions as modelDecisions, elements, views } from './model.mjs';
+import { projects } from './projects.mjs';
 
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -145,11 +146,11 @@ if (IS_MAIN) {
     process.exit(ok === 8 ? 0 : 1);
   }
 
-  const dir = path.join(root, 'architecture');
-  const targets = fs.existsSync(dir)
-    ? fs.readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory())
-        .map((d) => path.join(dir, d.name, 'workspace.json')).filter((f) => fs.existsSync(f))
-    : [];
+  /* ONE DOOR FOR 'WHERE ARE THE MODELS'. This block was copied into eleven modules and had
+     already drifted into three shapes; checks/projects.mjs owns it now, and it distinguishes an
+     un-exported tree (ABSENT) from an unreadable one (UNEVALUABLE), which the copies did not. */
+  const found = projects(root);
+  const targets = found.list.map((p) => p.file);
   if (!targets.length) { console.log('UNEVALUABLE — no exported workspace.json found; export the DSL first'); process.exit(3); }
 
   let bad = 0;

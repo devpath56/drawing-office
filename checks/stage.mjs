@@ -54,6 +54,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import { elements } from './model.mjs';
+import { projects, theme as themeOf } from './projects.mjs';
 
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -474,18 +475,18 @@ if (IS_MAIN) {
     process.exit(ok === total && total === PINNED ? 0 : 1);
   }
 
-  let theme;
-  try { theme = JSON.parse(fs.readFileSync(path.join(root, 'architecture', 'theme.json'), 'utf8')); }
-  catch (e) { console.log(`UNEVALUABLE — architecture/theme.json could not be read (${e.message})`); process.exit(3); }
+  const palette = themeOf(root);
+  if (palette.state !== 'found') { console.log(`UNEVALUABLE — ${palette.why}`); process.exit(3); }
+  const theme = palette.theme;
 
   const reg = registryOf(root);
   if (reg.state === 'UNEVALUABLE') { console.log(`UNEVALUABLE — ${reg.file} does not parse: ${reg.why}`); process.exit(3); }
 
-  const dir = path.join(root, 'architecture');
-  const targets = fs.existsSync(dir)
-    ? fs.readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory())
-        .map((d) => path.join(dir, d.name, 'workspace.json')).filter((f) => fs.existsSync(f))
-    : [];
+  /* ONE DOOR FOR 'WHERE ARE THE MODELS'. This block was copied into eleven modules and had
+     already drifted into three shapes; checks/projects.mjs owns it now, and it distinguishes an
+     un-exported tree (ABSENT) from an unreadable one (UNEVALUABLE), which the copies did not. */
+  const found = projects(root);
+  const targets = found.list.map((p) => p.file);
   if (!targets.length) { console.log('UNEVALUABLE — no exported workspace.json found; export the DSL first'); process.exit(3); }
 
   let bad = 0;

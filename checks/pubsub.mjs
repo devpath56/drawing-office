@@ -43,6 +43,7 @@ import { fileURLToPath } from 'node:url';
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 import { containers as modelContainers, byId as modelById, relationships as modelRelationships } from './model.mjs';
+import { theme as themeOf } from './projects.mjs';
 
 export const STATES = Object.freeze(['clean', 'findings', 'ABSENT', 'UNEVALUABLE']);
 
@@ -357,9 +358,9 @@ if (IS_MAIN) {
     process.exit(ok === 19 ? 0 : 1);
   }
 
-  let theme;
-  try { theme = JSON.parse(fs.readFileSync(path.join(root, 'architecture', 'theme.json'), 'utf8')); }
-  catch (e) { console.log(`UNEVALUABLE — architecture/theme.json could not be read (${e.message}); two of the six rules resolve shapes and line styles through it`); process.exit(3); }
+  const palette = themeOf(root);
+  if (palette.state !== 'found') { console.log(`UNEVALUABLE — ${palette.why}`); process.exit(3); }
+  const theme = palette.theme;
 
   const targets = flag('--workspace', null)
     ? [flag('--workspace', null)]
