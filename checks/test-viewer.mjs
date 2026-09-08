@@ -37,6 +37,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { EXAMPLE_PREFIX } from './hop-examples.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 export const STATES = Object.freeze(['held', 'FAILED', 'UNEVALUABLE']);
@@ -104,7 +106,13 @@ export function inspect(src) {
   const mentions = (clean.match(/\bsayLayer\s*\(/g) ?? []).length;
   const definesNotice = /function\s+sayLayer\s*\(/.test(clean);
   const sayLayerCalls = mentions - (definesNotice ? 1 : 0);
-  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext, sayLayerCalls, definesNotice, frames: frames.length, framesWithoutFullscreen, opens };
+  /* THE EXAMPLE REGISTER'S PROPERTY NAME HAS ONE HOME IN THE WRAPPER, AND IT IS THE CHECK'S. The
+     viewer reads drawing-office.example.<hop> off a dynamic view and checks/hop-examples.mjs judges
+     the same keys; the two must spell the prefix identically or a model the check passes is one the
+     key does nothing on. Counted as literals of the check's own constant, so the wrapper cannot
+     drift from it without this going red. */
+  const examplePrefix = (clean.match(new RegExp(`'${EXAMPLE_PREFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`, 'g')) ?? []).length;
+  return { statement: stmt, literals: stmt === null ? [] : nonEmptyLiterals(stmt), rowtext, sayLayerCalls, definesNotice, frames: frames.length, framesWithoutFullscreen, opens, examplePrefix };
 }
 
 /* ── CLI ─────────────────────────────────────────────────────────────────────────────────────── */
@@ -193,8 +201,14 @@ if (IS_MAIN) {
     say('and the token is only added when the model actually reports an age',
       /if \(stamp\)/.test(shipped), 'guarded');
 
-    console.log(`\n${held} of 19 held`);
-    process.exit(held === 19 ? 0 : 1);
+    /* THE EXAMPLE REGISTER'S PREFIX: one home, spelled the check's way. */
+    const twoPrefixes = clean + `<script>const a = '${EXAMPLE_PREFIX}'; const b = '${EXAMPLE_PREFIX}';</script>`;
+    say('a wrapper spelling the example prefix in two places is caught', inspect(twoPrefixes).examplePrefix === 2, inspect(twoPrefixes).examplePrefix);
+    const misspelt = clean + `<script>const a = 'drawing-office.examples.';</script>`;
+    say('a wrapper spelling it differently from the check has no home for it at all', inspect(misspelt).examplePrefix === 0, inspect(misspelt).examplePrefix);
+
+    console.log(`\n${held} of 21 held`);
+    process.exit(held === 21 ? 0 : 1);
   }
 
   const file = path.join(ROOT, 'architecture', 'viewer.html');
@@ -220,6 +234,8 @@ if (IS_MAIN) {
     r.framesWithoutFullscreen === 0, `${r.framesWithoutFullscreen} of ${r.frames} iframe(s) withhold it`);
   ok('the fold state is written in exactly one place, so being somewhere cannot be mistaken for asking for it',
     r.opens === 1, `${r.opens} writer(s) of open.add`);
+  ok('the example register\'s property prefix has one home in the wrapper, spelled as checks/hop-examples.mjs spells it',
+    r.examplePrefix === 1, `${r.examplePrefix} literal(s) of '${EXAMPLE_PREFIX}'`);
 
   console.log(`\n${bad ? `${bad} FAIL` : 'all ok'}`);
   process.exit(bad ? 1 : 0);

@@ -1,0 +1,1944 @@
+{
+  "configuration" : { },
+  "description" : "Production, HR and L&D as three deep modules with nine seams, modelled 2026-09-07.",
+  "documentation" : {
+    "decisions" : [ {
+      "content" : "# 1. The three departments are deep modules, and the lines between them are the whole interface\n\nDate: 2026-09-07\n\n## Status\n\nProposed\n\n## Context\n\nThree repositories do three jobs: design-loop's main pipe turns an utterance into a frozen requirement\n(production), advisor-builder turns a role and a corpus into a deployed advisor (HR), and\nlearn-verify-kit turns a gap into a declared competence (L&D). Read on 2026-09-07, nine seams between\nthem exist in code — a path guessed twice, a check that shells a sibling's script, a stage that writes\ninto a sibling's spec directory — and none of the three models draws any of them. Four state\nvocabularies are in use across the trees and agree on exactly one word, UNEVALUABLE.\n\n## Decision\n\nEach department is modelled as one software system whose interior a sibling never reads. Every seam is\na relationship between two containers, named for the code that carries it, and a seam the concept note\nproposes but nothing on disk performs is drawn with a description that begins ABSENT, so the drawing\ncannot claim it. The loop the factory depends on — an uncertain ruling becomes a gap, a declared weight\nranks a hire, the hire is what production recruits — is a dynamic view, and three of its hops are\nABSENT today.\n\n## Consequences\n\nA reader can see which seams are real and which are proposed without opening a file. The next edit to\nany of the three trees that adds a sibling path without a corresponding relationship here is a drift\nthe model will not show, which is why the concept note's order of work puts a seams file per repo\nbefore any new door. The picture is a claim about topology and says nothing about whether the\ndepartments are any good; the checks in each tree answer that.\n",
+      "date" : "2026-09-07T07:00:00Z",
+      "format" : "Markdown",
+      "id" : "1",
+      "status" : "Proposed",
+      "title" : "The three departments are deep modules, and the lines between them are the whole interface"
+    } ]
+  },
+  "id" : 0,
+  "model" : {
+    "people" : [ {
+      "description" : "Types asks, rules on candidates, learns, declares weights, rates advisors.",
+      "id" : "1",
+      "name" : "Operator",
+      "properties" : {
+        "structurizr.dsl.identifier" : "operator"
+      },
+      "relationships" : [ {
+        "description" : "Types asks into",
+        "destinationId" : "9",
+        "id" : "37",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Types asks into",
+        "destinationId" : "8",
+        "id" : "38",
+        "linkedRelationshipId" : "37",
+        "sourceId" : "1"
+      }, {
+        "description" : "Rules on candidates in",
+        "destinationId" : "14",
+        "id" : "39",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Starts, deploys and retires advisors through",
+        "destinationId" : "25",
+        "id" : "65",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Starts, deploys and retires advisors through",
+        "destinationId" : "24",
+        "id" : "66",
+        "linkedRelationshipId" : "65",
+        "sourceId" : "1"
+      }, {
+        "description" : "Rates one advisor answer at a time in",
+        "destinationId" : "30",
+        "id" : "67",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Learns 101 and 201 through",
+        "destinationId" : "33",
+        "id" : "68",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Learns 101 and 201 through",
+        "destinationId" : "32",
+        "id" : "69",
+        "linkedRelationshipId" : "68",
+        "sourceId" : "1"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "description" : "Two boards: Telegram ingest, Granola next steps.",
+      "documentation" : { },
+      "id" : "2",
+      "name" : "Todoist",
+      "properties" : {
+        "structurizr.dsl.identifier" : "todoist"
+      },
+      "relationships" : [ {
+        "description" : "Board cards enter as proposals into",
+        "destinationId" : "9",
+        "id" : "42",
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Board cards enter as proposals into",
+        "destinationId" : "8",
+        "id" : "43",
+        "linkedRelationshipId" : "42",
+        "sourceId" : "2"
+      } ],
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "description" : "Links a routine turns into cards.",
+      "documentation" : { },
+      "id" : "3",
+      "name" : "Telegram",
+      "properties" : {
+        "structurizr.dsl.identifier" : "telegram"
+      },
+      "relationships" : [ {
+        "description" : "A routine writes each link as a card to",
+        "destinationId" : "2",
+        "id" : "40",
+        "sourceId" : "3",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "description" : "Meetings that become cards.",
+      "documentation" : { },
+      "id" : "4",
+      "name" : "Granola",
+      "properties" : {
+        "structurizr.dsl.identifier" : "granola"
+      },
+      "relationships" : [ {
+        "description" : "Each meeting becomes a card in",
+        "destinationId" : "2",
+        "id" : "41",
+        "sourceId" : "4",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "description" : "Where OSS candidates are searched, with a quoted query.",
+      "documentation" : { },
+      "id" : "5",
+      "name" : "The web",
+      "properties" : {
+        "structurizr.dsl.identifier" : "web"
+      },
+      "relationships" : [ {
+        "description" : "Answers quoted queries from",
+        "destinationId" : "17",
+        "id" : "44",
+        "sourceId" : "5",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Answers quoted queries from",
+        "destinationId" : "8",
+        "id" : "45",
+        "linkedRelationshipId" : "44",
+        "sourceId" : "5"
+      } ],
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "description" : "Gitignored books; local grounding only.",
+      "documentation" : { },
+      "id" : "6",
+      "name" : "Source library",
+      "properties" : {
+        "structurizr.dsl.identifier" : "sourceLibrary"
+      },
+      "relationships" : [ {
+        "description" : "Supplies pages to",
+        "destinationId" : "27",
+        "id" : "70",
+        "sourceId" : "6",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Supplies pages to",
+        "destinationId" : "24",
+        "id" : "71",
+        "linkedRelationshipId" : "70",
+        "sourceId" : "6"
+      } ],
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "description" : "Does the LLM work; no API key in any tree.",
+      "documentation" : { },
+      "id" : "7",
+      "name" : "Agent in session",
+      "properties" : {
+        "structurizr.dsl.identifier" : "agent"
+      },
+      "relationships" : [ {
+        "description" : "Advances hops on behalf of the operator in",
+        "destinationId" : "10",
+        "id" : "46",
+        "sourceId" : "7",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Advances hops on behalf of the operator in",
+        "destinationId" : "8",
+        "id" : "47",
+        "linkedRelationshipId" : "46",
+        "sourceId" : "7"
+      }, {
+        "description" : "Hands a four-field spec to",
+        "destinationId" : "19",
+        "id" : "56",
+        "sourceId" : "7",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Does extraction and judgment for",
+        "destinationId" : "27",
+        "id" : "72",
+        "sourceId" : "7",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Does extraction and judgment for",
+        "destinationId" : "24",
+        "id" : "73",
+        "linkedRelationshipId" : "72",
+        "sourceId" : "7"
+      }, {
+        "description" : "Trains on the same cases through",
+        "destinationId" : "33",
+        "id" : "74",
+        "sourceId" : "7",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Trains on the same cases through",
+        "destinationId" : "32",
+        "id" : "75",
+        "linkedRelationshipId" : "74",
+        "sourceId" : "7"
+      } ],
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "containers" : [ {
+        "description" : "One ask, separately closable; the front door every message enters.",
+        "documentation" : { },
+        "id" : "9",
+        "name" : "Ask store",
+        "perspectives" : [ {
+          "description" : "Not on the PR-057 path; its own query exits 1 today: the store is lagging its source (PR-056)\n· an honest red is a read that ran; the lens counts it as answered, not broken\n· every ask of this session entered here through the hooks, none typed by hand",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP. Nearest: an issue-tracker inbox (Linear, Jira) or a queue topic. Neither keeps the utterance verbatim at the grain of one closable ask, which is the product; SQLite on the one store is right at this volume. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "askStore"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "SQLite, core/store/factory.db"
+      }, {
+        "description" : "A durable state machine over the pipe model: one run row per piece of work, every hop's verdict on the row.",
+        "documentation" : { },
+        "id" : "10",
+        "name" : "Pipe driver",
+        "perspectives" : [ {
+          "description" : "Not on the PR-057 path: a falsifier attack is not a pipe run\n· two runs exist: RUN-001 done at registry-admission, RUN-002 refused at jobs-gate on a probe that read UNEVALUABLE\n· RUN-003 (the workflow-architect advisor) opens at plan step W3 with PR-049 alive at its gate",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP, revisit at fan-out. Temporal, Restate, DBOS, XState v5 were scored; the in-tree run table led on dag-from-data, no server, node doors and human waits, and lost only durable resume, which was then built. Temporal wins when runs fan out and someone wants to watch. Basis: ADR 0018, ADAPT.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "driver"
+        },
+        "relationships" : [ {
+          "description" : "Calls the current stage's door in",
+          "destinationId" : "11",
+          "id" : "48",
+          "sourceId" : "10",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Reads the ask it carries from",
+          "destinationId" : "9",
+          "id" : "49",
+          "sourceId" : "10",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Node, core/pipe/run.mjs"
+      }, {
+        "description" : "jobs-gate, candidate-admission, job-admission, spec-freeze, registry-admission: each refuses a named thing.",
+        "documentation" : { },
+        "id" : "11",
+        "name" : "Admission doors",
+        "perspectives" : [ {
+          "description" : "Not on the PR-057 path, but its consumer: jobs-gate admits only a candidate whose probe last read HELD\n· six named refusals: no probe row, NO-TEETH, k under 1, no baseline, verdict not HELD, no surface\n· RUN-002 fell on the fifth; PR-057's HELD is what a future candidate needs at this door",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP. Nearest: Danger.js rules on a PR, Backstage scaffolder gates. Neither carries admission-by-refusal with a closed vocabulary and a pre-registered probe as the price of entry; that vocabulary is the product. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "gates"
+        },
+        "relationships" : [ {
+          "description" : "Writes candidates to and admits jobs from",
+          "destinationId" : "14",
+          "id" : "52",
+          "sourceId" : "11",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Freezes requirements into",
+          "destinationId" : "15",
+          "id" : "53",
+          "sourceId" : "11",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Admits machines into",
+          "destinationId" : "16",
+          "id" : "54",
+          "sourceId" : "11",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Shells risk_matrix --check from (matrix-gate.mjs:54)",
+          "destinationId" : "26",
+          "id" : "88",
+          "sourceId" : "11",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Shells risk_matrix --check from (matrix-gate.mjs:54)",
+          "destinationId" : "24",
+          "id" : "89",
+          "linkedRelationshipId" : "88",
+          "sourceId" : "11"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Node, core/spec"
+      }, {
+        "description" : "Runs each candidate's pre-registered kill criterion, risk-ordered; HELD, FALSIFIED, UNEVALUABLE, NO-TEETH.",
+        "documentation" : { },
+        "id" : "12",
+        "name" : "RAT falsifier",
+        "perspectives" : [ {
+          "description" : "Last run: PR-057 at k=3, one probe attacked, 55 left untouched\n· --only narrowed membership and said so on the line; 392 ms, not 128 s\n· verdict FLIP UNEVALUABLE to HELD, recorded as an attack, never an edit\n· lineage: command sha b07cff4e, criterion sha 93b7d931 pinned on the row",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP the ledger semantics, ADAPT the runner later. Inspect AI (solvers, scorers, sandboxes) and promptfoo assertions run criteria at scale; neither pre-registers a kill criterion, pins its command sha, or distinguishes could-not-look from failed. Run criteria under Inspect when sandboxing matters. Basis: OSS-036 for Inspect; the rest FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "falsifier"
+        },
+        "relationships" : [ {
+          "description" : "Reads criteria from and writes attacks to",
+          "destinationId" : "13",
+          "id" : "50",
+          "sourceId" : "12",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Kills a candidate before it enters",
+          "destinationId" : "14",
+          "id" : "51",
+          "sourceId" : "12",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Asks for the risk order from",
+          "destinationId" : "21",
+          "id" : "60",
+          "sourceId" : "12",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Runs the named criterion in",
+          "destinationId" : "22",
+          "id" : "61",
+          "sourceId" : "12",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Amends the attack, the k and the lineage through",
+          "destinationId" : "20",
+          "id" : "64",
+          "sourceId" : "12",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Runs PR-041 and PR-042 against HR's tree (checks/crit)",
+          "destinationId" : "29",
+          "id" : "96",
+          "sourceId" : "12",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Runs PR-041 and PR-042 against HR's tree (checks/crit)",
+          "destinationId" : "24",
+          "id" : "97",
+          "linkedRelationshipId" : "96",
+          "sourceId" : "12"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Node, prongs/falsifier.mjs"
+      }, {
+        "description" : "Pre-registered claims, their criteria, baselines and attacks.",
+        "documentation" : { },
+        "id" : "13",
+        "name" : "Probe ledger",
+        "perspectives" : [ {
+          "description" : "56 rows, 712 loops, deepest row k=24; 15 rows registered today through the doorway\n· PR-057 carries baseline, two attacks, command sha and criterion sha: a verdict anyone can re-derive\n· mirrored to the one store on every write, so git and the db never disagree on a row",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP. Nearest: MLflow or Weights and Biases runs, OSF pre-registration. None joins a claim, a runnable criterion, a baseline and every later attack in one row with lineage. JSONL is fine at tens of rows; SQLite when it is hundreds. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "probes"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSONL, failures/probes.jsonl"
+      }, {
+        "description" : "Candidates awaiting the operator's ruling.",
+        "documentation" : { },
+        "id" : "14",
+        "name" : "Jobs review store",
+        "perspectives" : [ {
+          "description" : "Not on the PR-057 path; the guard in front of it is: a candidate whose probe is dead never becomes a row here\n· measured 2026-09-03: 81 rows in review, 57 never ruled; the bottleneck is a person's decision\n· dated reading, not live; the store's own query answers today's count",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP the row contract, ADAPT the surface. A GitHub review queue or a Todoist board shows candidates better than a JSONL file; Todoist is already an external here. The contract row 0 enforces, subject-verb-object and FR/NFR, is the part no board has. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "reviewStore"
+        },
+        "relationships" : [ {
+          "description" : "ABSENT: an uncertain ruling becomes a gap row in",
+          "destinationId" : "34",
+          "id" : "105",
+          "sourceId" : "14",
+          "tags" : "Relationship"
+        }, {
+          "description" : "ABSENT: an uncertain ruling becomes a gap row in",
+          "destinationId" : "32",
+          "id" : "106",
+          "linkedRelationshipId" : "105",
+          "sourceId" : "14"
+        } ],
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSONL, core/research-DP"
+      }, {
+        "description" : "EARS requirements with verify and fails_when; the view is generated.",
+        "documentation" : { },
+        "id" : "15",
+        "name" : "Spec store",
+        "perspectives" : [ {
+          "description" : "Not on the PR-057 path; PR-042 sits on it: 29 of 29 HR rows refused by this store's validator today\n· by field: scope 29, layer 29, module 27; the port's bill, measured before a row moves\n· EARS as schema, RETIRED as a status, module must be a tracked path: the three things HR lacks",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP and BUILD one piece. Doorstop, StrictDoc, OpenFastTrace, Sphinx-Needs were scored; this store led six of seven axes and lost traceability by one point to tools that fail zero-install. Build the verify runner that refuses BUILT on a red exit; nobody carries it above 2 of 4. Basis: OSS-035, UNRULED by the machine, ADAPT recommended.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "specStore"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSONL, core/spec/requirements.jsonl"
+      }, {
+        "description" : "Every machine the factory counts, with its stage.",
+        "documentation" : { },
+        "id" : "16",
+        "name" : "Machinery registry",
+        "perspectives" : [ {
+          "description" : "Not on the PR-057 path; it is where the doorway and the criteria must be admitted next\n· 120 machines scoped, six layers each, the query cell executed: a declaration beside a dead query is prose\n· the corpora family (plan step 0) joins here, and PR-045 flips the day it does",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP now, REPLACE at more than one team. Backstage's software catalog is the same idea with a UI and ownership; it costs a service and a schema you do not need for one operator. OpenFastTrace tags in code are the traceability half. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "registry"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSON, core/registry"
+      }, {
+        "description" : "oss-search refuses a search with no receipt; oss-select refuses a composite score.",
+        "documentation" : { },
+        "id" : "17",
+        "name" : "Procurement doors",
+        "perspectives" : [ {
+          "description" : "Not on the PR-057 path; six records written today through it, OSS-035 to OSS-040, five UNRULED\n· a plus sign in a candidate's name made it a bundle suspect and dropped it from the ruling until renamed\n· the ADR pages now carry an assertion per probe, so the engine judged its first real decision today",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP. adrkit and MADR are already adopted for the record; no OSS tool enforces a prior-art receipt or a Pareto ruling without totals before code is written, searched 2026-09-02. The six refusals are the product. Basis: ADR 0001, the crit-bench receipts.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "ossDoors"
+        },
+        "relationships" : [ {
+          "description" : "Records adopt, adapt or build rulings for machines in",
+          "destinationId" : "16",
+          "id" : "55",
+          "sourceId" : "17",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Rules procurement for (OSS-035 to OSS-038)",
+          "destinationId" : "24",
+          "id" : "100",
+          "sourceId" : "17",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Node, prongs/oss-search.mjs, prongs/oss-select.mjs"
+      }, {
+        "description" : "verify() and render() over any pipe model, by root; the one home for both departments' pictures.",
+        "documentation" : { },
+        "id" : "18",
+        "name" : "Model verifier and renderer",
+        "perspectives" : [ {
+          "description" : "Not on the PR-057 path; it drew this picture: HR's model verified at 0 problems after three refusals\n· the refusals were real: an edge restating a blurb, two captions telling two stories\n· one verifier for two departments' models, reached by root; no second copy",
+          "name" : "Insight"
+        }, {
+          "description" : "ADAPT, done today. Structurizr DSL, LikeC4 and this in-tree verifier were scored and tied; the ruling now is both: keep verify() as the model's gate, render through Structurizr in the drawing office, which is this picture. Basis: ADR 0011, UNRULED, resolved by use.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "verifier"
+        },
+        "relationships" : [ {
+          "description" : "Verifies and renders HR's pipe model by root (0 problems, 2026-09-07)",
+          "destinationId" : "24",
+          "id" : "99",
+          "sourceId" : "18",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Node, core/doc/pipe-views.mjs"
+      }, {
+        "description" : "Registers one probe: scaffolds the criterion and its control, builds the row from the contract, hands it to the ledger door, prints the contract on refusal.",
+        "documentation" : { },
+        "id" : "19",
+        "name" : "Probe doorway",
+        "perspectives" : [ {
+          "description" : "PR-057 entered here: spec of four fields, row of twenty built from the contract\n· two refusals learned by refusal are now printed: tracked criterion, contract table\n· cost per probe fell from ~15k tokens to ~2k, measured on thirteen registrations today",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP. Built today (ousterhout-guru: fix the doorway, not the loop); no OSS registers a pre-registered kill criterion. Basis: measured, one probe cost 15k tokens before it and 2k after.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "probeDoorway"
+        },
+        "relationships" : [ {
+          "description" : "Scaffolds a criterion and its control in",
+          "destinationId" : "22",
+          "id" : "57",
+          "sourceId" : "19",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Hands the built row to",
+          "destinationId" : "20",
+          "id" : "58",
+          "sourceId" : "19",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Node, prongs/probe-new.mjs"
+      }, {
+        "description" : "The one writer of the probe and decision ledgers; runs each ledger's validator before a row lands; a dry-run returns the verdict and writes nothing.",
+        "documentation" : { },
+        "id" : "20",
+        "name" : "Ledger door",
+        "perspectives" : [ {
+          "description" : "Two doors in one run: add probe (validated, mirrored) and add pd in dry-run (the criterion's own test)\n· the pd validator closes system to harness or product; that refusal was PR-057's first FALSIFIED\n· its dry-run word is written plus DRY RUN, not DRY_RUN; that mismatch was the second false alarm",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP. Nearest: a schema-validated append-only log (Kafka with a schema registry) at a scale this factory does not have. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "ledgerDoor"
+        },
+        "relationships" : [ {
+          "description" : "Appends a validated row to",
+          "destinationId" : "13",
+          "id" : "59",
+          "sourceId" : "20",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Validates against and, on a real add, appends to",
+          "destinationId" : "23",
+          "id" : "63",
+          "sourceId" : "20",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Node, prongs/record.mjs, checks/validate-probe.mjs"
+      }, {
+        "description" : "Orders probes by exposure from the risk matrix: weight times level times component over ten; a probe with no mode runs after the ranked ones, never scored zero.",
+        "documentation" : { },
+        "id" : "21",
+        "name" : "Risk ranker",
+        "perspectives" : [ {
+          "description" : "11 of 56 probes carry a mode and are ranked; 45 run after in ledger order\n· PR-057 carries reuse_missed at 420; with --only the order decided nothing this pass\n· ranking decides order, never membership: --only is the one narrowing, and it prints itself",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP. Khosla's matrix arithmetic, the same as advisor-builder's risk_matrix.py; no OSS ranks test cases by declared exposure. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "riskRanker"
+        },
+        "tags" : "Element,Container",
+        "technology" : "Node, core/risk/probe-rank.mjs, risk-matrix.json"
+      }, {
+        "description" : "One file per kill criterion: a pure judge() the control can drive to every verdict, and a CLI that exits 0 HELD, 1 FALSIFIED, 3 UNEVALUABLE.",
+        "documentation" : { },
+        "id" : "22",
+        "name" : "Criteria",
+        "perspectives" : [ {
+          "description" : "approve-row-shape.mjs: builds the approve row, asks the pd door in dry-run, maps the answer\n· 15 criteria written today, one shared control at 51 of 51; every one reaches all three verdicts on fixtures\n· its two defects were caught by the loop, not by the control: a closed enum and a door's own word",
+          "name" : "Insight"
+        }, {
+          "description" : "ADAPT later under Inspect AI for sandboxed runs; the three-exit contract and the pure judge stay. Basis: OSS-036.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "criteria"
+        },
+        "relationships" : [ {
+          "description" : "Asks a dry-run of a decision row from",
+          "destinationId" : "20",
+          "id" : "62",
+          "sourceId" : "22",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Node, checks/crit/*.mjs"
+      }, {
+        "description" : "Product decisions: what was chosen, the rejected alternative, the reversal cost, the guard artefacts that exist if and only if it was built.",
+        "documentation" : { },
+        "id" : "23",
+        "name" : "Decisions ledger",
+        "perspectives" : [ {
+          "description" : "24 rows; PR-057 asked it to accept a 25th in dry-run and it did\n· the approve act of the review surface will live here, as decided on OSS-039 and OSS-040\n· system must be harness or product: an approve of a factory checkpoint binds the harness",
+          "name" : "Insight"
+        }, {
+          "description" : "KEEP; MADR and adrkit already adopted for the OSS records beside it. Basis: ADR 0001.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "decisionsLedger"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSONL, failures/decisions.jsonl"
+      } ],
+      "description" : "An utterance becomes a frozen requirement, or a recorded refusal, with a door at every hop.",
+      "documentation" : { },
+      "id" : "8",
+      "name" : "Production: the main pipe",
+      "properties" : {
+        "structurizr.dsl.identifier" : "production"
+      },
+      "relationships" : [ {
+        "description" : "Shells risk_matrix --check from (matrix-gate.mjs:54)",
+        "destinationId" : "26",
+        "id" : "90",
+        "linkedRelationshipId" : "88",
+        "sourceId" : "8"
+      }, {
+        "description" : "Shells risk_matrix --check from (matrix-gate.mjs:54)",
+        "destinationId" : "24",
+        "id" : "91",
+        "linkedRelationshipId" : "88",
+        "sourceId" : "8"
+      }, {
+        "description" : "Runs PR-041 and PR-042 against HR's tree (checks/crit)",
+        "destinationId" : "29",
+        "id" : "98",
+        "linkedRelationshipId" : "96",
+        "sourceId" : "8"
+      }, {
+        "description" : "ABSENT: an uncertain ruling becomes a gap row in",
+        "destinationId" : "34",
+        "id" : "107",
+        "linkedRelationshipId" : "105",
+        "sourceId" : "8"
+      }, {
+        "description" : "ABSENT: an uncertain ruling becomes a gap row in",
+        "destinationId" : "32",
+        "id" : "108",
+        "linkedRelationshipId" : "105",
+        "sourceId" : "8"
+      } ],
+      "tags" : "Element,Software System"
+    }, {
+      "containers" : [ {
+        "description" : "Birth, deployment, retirement: advisor_new, deploy_advisor, advisor_lifecycle. Operator-invoked.",
+        "documentation" : { },
+        "id" : "25",
+        "name" : "Lifecycle lane",
+        "perspectives" : [ {
+          "description" : "KEEP. Nearest: cookiecutter or Backstage templates for birth, a skills or MCP package for deployment. The value is the newborn gate, every gate RED on an empty cartridge, which no template tool enforces. Small enough that replacing it costs more than it is. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "lifecycle"
+        },
+        "relationships" : [ {
+          "description" : "Writes a newborn to and marks deployed in",
+          "destinationId" : "29",
+          "id" : "76",
+          "sourceId" : "25",
+          "tags" : "Relationship"
+        }, {
+          "description" : "ABSENT: an installed advisor a production stage can name; no stage asks yet",
+          "destinationId" : "11",
+          "id" : "109",
+          "sourceId" : "25",
+          "tags" : "Relationship"
+        }, {
+          "description" : "ABSENT: an installed advisor a production stage can name; no stage asks yet",
+          "destinationId" : "8",
+          "id" : "110",
+          "linkedRelationshipId" : "109",
+          "sourceId" : "25"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python, engine"
+      }, {
+        "description" : "Ranks what to build by risk removed per token; joins owners to the installed roster and refuses fiction.",
+        "documentation" : { },
+        "id" : "26",
+        "name" : "Khosla risk matrix and recruiter",
+        "perspectives" : [ {
+          "description" : "KEEP. No OSS implements Khosla's risk matrix with M1 to M6 refusals and a recruiter that refuses a fictional owner; the nearest genre is portfolio-prioritisation spreadsheets. Its honest limit is that levels are declared, never measured, and it says so on every line. Basis: FROM-MEMORY, searched for none.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "riskMatrix"
+        },
+        "relationships" : [ {
+          "description" : "Ranks what P0 builds first for",
+          "destinationId" : "27",
+          "id" : "77",
+          "sourceId" : "26",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python, engine/risk_matrix.py, engine/recruiter.py"
+      }, {
+        "description" : "Plan, competency map, sources, ingestion, graph, index, skill, measurement, outcome.",
+        "documentation" : { },
+        "id" : "27",
+        "name" : "Build lane P0 to P9",
+        "perspectives" : [ {
+          "description" : "ADAPT two stages, KEEP the rest. Graph construction (P4) has a mature OSS shape in Microsoft GraphRAG and LlamaIndex ingestion; skill optimisation (P6 to P7) in DSPy. Keep P0 to P2 and P8 to P9: risk-first planning, source authority and behaviour measurement are the product and exist nowhere else. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "buildLane"
+        },
+        "relationships" : [ {
+          "description" : "Writes graph and skill into",
+          "destinationId" : "29",
+          "id" : "78",
+          "sourceId" : "27",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Writes JTBD specs with graded triplets into (skill_from_triplets.py:137)",
+          "destinationId" : "15",
+          "id" : "84",
+          "sourceId" : "27",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Writes JTBD specs with graded triplets into (skill_from_triplets.py:137)",
+          "destinationId" : "8",
+          "id" : "85",
+          "linkedRelationshipId" : "84",
+          "sourceId" : "27"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python, engine"
+      }, {
+        "description" : "Fire on a candidate cartridge; nothing flows through them: triplet, graph, slop, routing, behaviour, red-proof, provenance, authorship, the ship gate.",
+        "documentation" : { },
+        "id" : "28",
+        "name" : "Sixteen guards",
+        "perspectives" : [ {
+          "description" : "KEEP the semantics, ADAPT the runner. promptfoo assertions, Guardrails AI and deepeval run deterministic checks in CI well; none carries refuses-on vocabulary, RED-on-newborn, or a different-model judge as a rule. Run the deterministic guards under promptfoo for CI, keep the verdict words here. Basis: OSS-036 for promptfoo; the rest FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "hrGuards"
+        },
+        "relationships" : [ {
+          "description" : "Fire on a candidate in",
+          "destinationId" : "29",
+          "id" : "79",
+          "sourceId" : "28",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python, engine"
+      }, {
+        "description" : "One advisor each: manifest, skill, corpus, graph; the graded case triplets live in its JTBD spec.",
+        "documentation" : { },
+        "id" : "29",
+        "name" : "Cartridges",
+        "perspectives" : [ {
+          "description" : "KEEP the directory, the format is already the OSS one. A cartridge deploys as a Claude skill; Hugging Face Hub is the nearest artefact store and adds nothing for a private roster of eleven. The graded triplet is the unit no format carries. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "cartridges"
+        },
+        "relationships" : [ {
+          "description" : "ABSENT on L&D's side: the case bank by triplet id, ordered by exposure, for both learners",
+          "destinationId" : "34",
+          "id" : "112",
+          "sourceId" : "29",
+          "tags" : "Relationship"
+        }, {
+          "description" : "ABSENT on L&D's side: the case bank by triplet id, ordered by exposure, for both learners",
+          "destinationId" : "32",
+          "id" : "113",
+          "linkedRelationshipId" : "112",
+          "sourceId" : "29"
+        } ],
+        "tags" : "Element,Container,Data Store",
+        "technology" : "Directory, cartridges/"
+      }, {
+        "description" : "The operator's verdict on one answer, who said it, per job; graded 101 and 201 on the L&D vocabulary.",
+        "documentation" : { },
+        "id" : "30",
+        "name" : "Feedback and proficiency",
+        "perspectives" : [ {
+          "description" : "ADAPT the surface at volume, KEEP the fields. Langfuse and Arize Phoenix annotation queues and Argilla give a labelling UI; none records who said it, which job it calibrates, or the repair on file (AB-13, 15, 17). The ledger is empty today, so the surface is not the bottleneck yet. Basis: OSS-036 for Langfuse; the rest FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "feedback"
+        },
+        "relationships" : [ {
+          "description" : "Writes verdicts to",
+          "destinationId" : "31",
+          "id" : "80",
+          "sourceId" : "30",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Reads the RPD slots, miss codes and slope from (proficiency.py, operators.py:29)",
+          "destinationId" : "34",
+          "id" : "92",
+          "sourceId" : "30",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Reads the RPD slots, miss codes and slope from (proficiency.py, operators.py:29)",
+          "destinationId" : "32",
+          "id" : "93",
+          "linkedRelationshipId" : "92",
+          "sourceId" : "30"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python, engine/feedback.py, engine/proficiency.py"
+      }, {
+        "description" : "One verdict on one answer. Empty until an advisor is used.",
+        "documentation" : { },
+        "id" : "31",
+        "name" : "Feedback ledger",
+        "perspectives" : [ {
+          "description" : "KEEP. Zero bytes today; the OSS question is premature. When it holds hundreds of rows, the same answer as the feedback surface: an annotation store with these fields added. Basis: measured empty 2026-09-07.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "feedbackLedger"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSONL, failures/advisor-feedback.jsonl"
+      } ],
+      "description" : "Turns a role and a corpus into a deployed advisor, and records what the operator thought of its answers.",
+      "documentation" : { },
+      "id" : "24",
+      "name" : "HR: advisor-builder",
+      "properties" : {
+        "structurizr.dsl.identifier" : "hr"
+      },
+      "relationships" : [ {
+        "description" : "Writes JTBD specs with graded triplets into (skill_from_triplets.py:137)",
+        "destinationId" : "15",
+        "id" : "86",
+        "linkedRelationshipId" : "84",
+        "sourceId" : "24"
+      }, {
+        "description" : "Writes JTBD specs with graded triplets into (skill_from_triplets.py:137)",
+        "destinationId" : "8",
+        "id" : "87",
+        "linkedRelationshipId" : "84",
+        "sourceId" : "24"
+      }, {
+        "description" : "Reads the RPD slots, miss codes and slope from (proficiency.py, operators.py:29)",
+        "destinationId" : "34",
+        "id" : "94",
+        "linkedRelationshipId" : "92",
+        "sourceId" : "24"
+      }, {
+        "description" : "Reads the RPD slots, miss codes and slope from (proficiency.py, operators.py:29)",
+        "destinationId" : "32",
+        "id" : "95",
+        "linkedRelationshipId" : "92",
+        "sourceId" : "24"
+      }, {
+        "description" : "ABSENT: an installed advisor a production stage can name; no stage asks yet",
+        "destinationId" : "11",
+        "id" : "111",
+        "linkedRelationshipId" : "109",
+        "sourceId" : "24"
+      } ],
+      "tags" : "Element,Software System"
+    }, {
+      "containers" : [ {
+        "description" : "learn, clarify, understand, revise, start, concept-sketch, track: the teaching loop as skills, no hooks, no config.",
+        "documentation" : { },
+        "id" : "33",
+        "name" : "Seven skills",
+        "perspectives" : [ {
+          "description" : "KEEP. Nearest: Anki for spacing, open tutoring agents for the loop. Neither carries the 201 five-slot vocabulary, killer simulation as the bar, or the regression suite grown only from real errors; that discipline is the product. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "skills"
+        },
+        "relationships" : [ {
+          "description" : "Reads questions and cases from",
+          "destinationId" : "34",
+          "id" : "81",
+          "sourceId" : "33",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Records attempts through the kit's door into",
+          "destinationId" : "35",
+          "id" : "82",
+          "sourceId" : "33",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Claude skills"
+      }, {
+        "description" : "A frozen question bank per topic, with 101 and 201 cases and the five-slot vocabulary.",
+        "documentation" : { },
+        "id" : "34",
+        "name" : "Packets",
+        "perspectives" : [ {
+          "description" : "KEEP the bank, ADAPT one export. Anki's deck format is the OSS home for spaced retrieval on a phone; export each packet to it and keep the frozen bank here as the source. The case bank shared with HR (graded triplets by id) has no OSS equivalent. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "packets"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "Markdown and JSONL, packets/"
+      }, {
+        "description" : "Per-learner attempts, slope and mechanism share; never pooled across learners.",
+        "documentation" : { },
+        "id" : "35",
+        "name" : "Progress store",
+        "perspectives" : [ {
+          "description" : "KEEP at one or two learners. xAPI with a learning record store (Learning Locker) is the standard at scale; it adds a server and a statement schema for a benefit that appears only with many learners. Slope and mechanism share, kept apart and never pooled, are already the right two numbers. Basis: FROM-MEMORY.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "progress"
+        },
+        "relationships" : [ {
+          "description" : "ABSENT: declared weights and levels, timestamped, into the matrix skeleton",
+          "destinationId" : "26",
+          "id" : "101",
+          "sourceId" : "35",
+          "tags" : "Relationship"
+        }, {
+          "description" : "ABSENT: declared weights and levels, timestamped, into the matrix skeleton",
+          "destinationId" : "24",
+          "id" : "102",
+          "linkedRelationshipId" : "101",
+          "sourceId" : "35"
+        } ],
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSON, progress.json, learner-record.json"
+      }, {
+        "description" : "UNBUILT: reads real transcripts for concepts that reached a decision; the only outcome signal the spec lists.",
+        "documentation" : { },
+        "id" : "36",
+        "name" : "Work tracking",
+        "perspectives" : [ {
+          "description" : "BUILD, small. No OSS reads a person's working transcripts for concepts that reached a decision; the nearest raw material is a trace store (Langfuse, Phoenix) and design-loop already keeps transcripts. The first version is a reader over the declared-weight rows, forty lines. Basis: spec O-5 UNBUILT; FROM-MEMORY on the genre.",
+          "name" : "OSS equivalent"
+        } ],
+        "properties" : {
+          "structurizr.dsl.identifier" : "workTracking"
+        },
+        "relationships" : [ {
+          "description" : "ABSENT: would write decision signals to",
+          "destinationId" : "35",
+          "id" : "83",
+          "sourceId" : "36",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Not built, spec O-5"
+      } ],
+      "description" : "Teach, test, score, space: a gap becomes a declared competence, for the operator and for agents on the same cases.",
+      "documentation" : { },
+      "id" : "32",
+      "name" : "L&D: learn-verify-kit",
+      "properties" : {
+        "structurizr.dsl.identifier" : "ld"
+      },
+      "relationships" : [ {
+        "description" : "ABSENT: declared weights and levels, timestamped, into the matrix skeleton",
+        "destinationId" : "26",
+        "id" : "103",
+        "linkedRelationshipId" : "101",
+        "sourceId" : "32"
+      }, {
+        "description" : "ABSENT: declared weights and levels, timestamped, into the matrix skeleton",
+        "destinationId" : "24",
+        "id" : "104",
+        "linkedRelationshipId" : "101",
+        "sourceId" : "32"
+      } ],
+      "tags" : "Element,Software System"
+    } ]
+  },
+  "name" : "The Factory",
+  "properties" : {
+    "drawing-office.lenses" : "Insight, OSS equivalent",
+    "structurizr.inspection.error" : "87",
+    "structurizr.inspection.info" : "0",
+    "structurizr.inspection.ignore" : "0",
+    "structurizr.inspection.warning" : "0"
+  },
+  "views" : {
+    "configuration" : {
+      "branding" : { },
+      "styles" : {
+        "elements" : [ {
+          "background" : "#5f64af",
+          "shape" : "Pipe",
+          "stroke" : "#b9bdf5",
+          "tag" : "Channel"
+        }, {
+          "background" : "#8b92ce",
+          "color" : "#14162b",
+          "stroke" : "#d2d5fa",
+          "tag" : "Component"
+        }, {
+          "background" : "#5f64af",
+          "stroke" : "#b9bdf5",
+          "tag" : "Container"
+        }, {
+          "tag" : "Container Instance"
+        }, {
+          "background" : "#5f64af",
+          "shape" : "Cylinder",
+          "stroke" : "#b9bdf5",
+          "tag" : "Data Store"
+        }, {
+          "background" : "#1f2226",
+          "color" : "#ffffff",
+          "stroke" : "#9aa4b2",
+          "tag" : "Deployment Node"
+        }, {
+          "color" : "#ffffff",
+          "fontSize" : 26,
+          "strokeWidth" : 2,
+          "tag" : "Element"
+        }, {
+          "background" : "#32433b",
+          "stroke" : "#6fa588",
+          "tag" : "Existing System"
+        }, {
+          "background" : "#5f64af",
+          "color" : "#ffffff",
+          "stroke" : "#b9bdf5",
+          "tag" : "Infrastructure Node"
+        }, {
+          "stroke" : "#ffb454",
+          "strokeWidth" : 4,
+          "tag" : "Modified"
+        }, {
+          "background" : "#32433b",
+          "shape" : "Person",
+          "stroke" : "#6fa588",
+          "tag" : "Person"
+        }, {
+          "stroke" : "#ff2fd0",
+          "strokeWidth" : 6,
+          "tag" : "Proposal"
+        }, {
+          "background" : "#494d97",
+          "stroke" : "#a5a9f0",
+          "tag" : "Software System"
+        }, {
+          "tag" : "Software System Instance"
+        } ],
+        "relationships" : [ {
+          "color" : "#d7dbe3",
+          "dashed" : true,
+          "fontSize" : 24,
+          "tag" : "Asynchronous"
+        }, {
+          "color" : "#d7dbe3",
+          "fontSize" : 24,
+          "tag" : "Relationship"
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The main pipe: stores, doors, the driver, the guard.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "16",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "17",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "18",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "21",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "22",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "23",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "Production",
+      "name" : "Container View: Production: the main pipe",
+      "order" : 5,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "100"
+      }, {
+        "id" : "104"
+      }, {
+        "id" : "106"
+      }, {
+        "id" : "111"
+      }, {
+        "id" : "37"
+      }, {
+        "id" : "39"
+      }, {
+        "id" : "42"
+      }, {
+        "id" : "44"
+      }, {
+        "id" : "46"
+      }, {
+        "id" : "48"
+      }, {
+        "id" : "49"
+      }, {
+        "id" : "50"
+      }, {
+        "id" : "51"
+      }, {
+        "id" : "52"
+      }, {
+        "id" : "53"
+      }, {
+        "id" : "54"
+      }, {
+        "id" : "55"
+      }, {
+        "id" : "56"
+      }, {
+        "id" : "57"
+      }, {
+        "id" : "58"
+      }, {
+        "id" : "59"
+      }, {
+        "id" : "60"
+      }, {
+        "id" : "61"
+      }, {
+        "id" : "62"
+      }, {
+        "id" : "63"
+      }, {
+        "id" : "64"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "69"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "86"
+      }, {
+        "id" : "89"
+      }, {
+        "id" : "95"
+      }, {
+        "id" : "97"
+      }, {
+        "id" : "99"
+      } ],
+      "softwareSystemId" : "8",
+      "title" : "Inside production"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "advisor-builder: lifecycle, matrix, build lane, guards, ledgers.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "25",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "26",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "HR",
+      "name" : "Container View: HR: advisor-builder",
+      "order" : 6,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "103"
+      }, {
+        "id" : "108"
+      }, {
+        "id" : "110"
+      }, {
+        "id" : "113"
+      }, {
+        "id" : "38"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "65"
+      }, {
+        "id" : "67"
+      }, {
+        "id" : "69"
+      }, {
+        "id" : "70"
+      }, {
+        "id" : "72"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "76"
+      }, {
+        "id" : "77"
+      }, {
+        "id" : "78"
+      }, {
+        "id" : "79"
+      }, {
+        "id" : "80"
+      }, {
+        "id" : "85"
+      }, {
+        "id" : "90"
+      }, {
+        "id" : "93"
+      }, {
+        "id" : "98"
+      } ],
+      "softwareSystemId" : "24",
+      "title" : "Inside HR"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "learn-verify-kit: skills, packets, progress, and the unbuilt outcome signal.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "33",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "34",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "35",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "36",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "LD",
+      "name" : "Container View: L&D: learn-verify-kit",
+      "order" : 7,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "102"
+      }, {
+        "id" : "107"
+      }, {
+        "id" : "38"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "68"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "74"
+      }, {
+        "id" : "81"
+      }, {
+        "id" : "82"
+      }, {
+        "id" : "83"
+      }, {
+        "id" : "87"
+      }, {
+        "id" : "91"
+      }, {
+        "id" : "94"
+      } ],
+      "softwareSystemId" : "32",
+      "title" : "Inside L&D"
+    } ],
+    "dynamicViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "How any RAT attack runs: a spec becomes a probe row, the loop runs its criterion, the verdict is amended onto the row.",
+      "elementId" : "8",
+      "elements" : [ {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "21",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "22",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "23",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "RatAttack",
+      "name" : "Dynamic View: Production: the main pipe",
+      "order" : 8,
+      "properties" : {
+        "drawing-office.example.1" : "assumption: the approve act fits the decisions ledger as it stands · criterion: HELD on dry-run accepted, FALSIFIED on refusal, UNEVALUABLE if the door cannot be imported · command: node checks/crit/approve-row-shape.mjs · mode: reuse_missed",
+        "drawing-office.example.2" : "approve-row-shape.mjs already existed; staged, not scaffolded",
+        "drawing-office.example.5" : "11 of 56 ranked; --only PR-057 narrows to one, 55 untouched",
+        "drawing-office.example.6" : "node checks/crit/approve-row-shape.mjs, 392 ms, exit 0",
+        "drawing-office.example.3" : "Row built; id assigned: PR-057",
+        "drawing-office.example.4" : "Appended; baseline FALSIFIED: the door refused system: drawing-office",
+        "drawing-office.example.9" : "PR-057 amended: k=3 HELD, command sha b07cff4e, FLIP from UNEVALUABLE",
+        "drawing-office.example.7" : "add pd in dry-run with system: harness",
+        "structurizr.tooltips" : "true",
+        "drawing-office.example.8" : "validators accepted; written plus DRY RUN; nothing written",
+        "drawing-office.example" : "PR-057 at k=3, 2026-09-07: one attack with --only, 392 ms, FLIP from UNEVALUABLE to HELD"
+      },
+      "relationships" : [ {
+        "description" : "A spec of four fields: assumption (IS / IS NOT), criterion (what HELD, FALSIFIED, UNEVALUABLE mean), command, mode",
+        "id" : "56",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Scaffolds the criterion and its control if absent; stages them so the ledger door sees a tracked file",
+        "id" : "57",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Builds the twenty-field row from the contract; the door assigns the id",
+        "id" : "58",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "Validates, appends, mirrors; the first run stamps the baseline",
+        "id" : "59",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "Asks the risk order: exposure from the matrix, unranked rows after",
+        "id" : "60",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "Runs the criterion as a process; exit 0, 1 or 3 is the verdict",
+        "id" : "61",
+        "order" : "6",
+        "response" : false
+      }, {
+        "description" : "A criterion may itself ask a door a question, in dry-run",
+        "id" : "62",
+        "order" : "7",
+        "response" : false
+      }, {
+        "description" : "The door validates; a dry-run writes nothing",
+        "id" : "63",
+        "order" : "8",
+        "response" : false
+      }, {
+        "description" : "Amends the row: attack k, verdict, command sha, judged sha; a FLIP is printed",
+        "id" : "64",
+        "order" : "9",
+        "response" : false
+      } ],
+      "title" : "A RAT attack"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The loop the concept note says must close: an uncertain ruling becomes a gap, a declared weight ranks a hire, the hire is what production recruits.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "TheLoop",
+      "name" : "Dynamic View",
+      "order" : 9,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "description" : "Cannot rule confidently on a candidate",
+        "id" : "38",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "ABSENT: the gap becomes a packet question",
+        "id" : "108",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Learns 101 then 201 on the case, declares weight and level",
+        "id" : "69",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "ABSENT: the declaration lands in the risk matrix",
+        "id" : "104",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "ABSENT: the advisor it builds is one a production stage can name",
+        "id" : "87",
+        "order" : "5",
+        "response" : false
+      } ],
+      "title" : "The loop between departments"
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "What production talks to: the operator, the agent, the two other departments, and the repos and services outside.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "ProductionContext",
+      "name" : "System Context View: Production: the main pipe",
+      "order" : 2,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "104"
+      }, {
+        "id" : "108"
+      }, {
+        "id" : "38"
+      }, {
+        "id" : "43"
+      }, {
+        "id" : "45"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "69"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "87"
+      }, {
+        "id" : "91"
+      }, {
+        "id" : "95"
+      } ],
+      "softwareSystemId" : "8",
+      "title" : "Production and its neighbours"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "What HR talks to: the operator, production, L&D, and the corpus on disk.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "HRContext",
+      "name" : "System Context View: HR: advisor-builder",
+      "order" : 3,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "104"
+      }, {
+        "id" : "108"
+      }, {
+        "id" : "38"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "69"
+      }, {
+        "id" : "71"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "87"
+      }, {
+        "id" : "91"
+      }, {
+        "id" : "95"
+      } ],
+      "softwareSystemId" : "24",
+      "title" : "HR and its neighbours"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "What L&D talks to: the learner, production, HR, and the books it teaches from.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "LDContext",
+      "name" : "System Context View: L&D: learn-verify-kit",
+      "order" : 4,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "104"
+      }, {
+        "id" : "108"
+      }, {
+        "id" : "38"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "69"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "87"
+      }, {
+        "id" : "91"
+      }, {
+        "id" : "95"
+      } ],
+      "softwareSystemId" : "32",
+      "title" : "L&D and its neighbours"
+    } ],
+    "systemLandscapeViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The three departments, the operator, and what comes in from outside.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "Factory",
+      "name" : "System Landscape View",
+      "order" : 1,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "104"
+      }, {
+        "id" : "108"
+      }, {
+        "id" : "38"
+      }, {
+        "id" : "40"
+      }, {
+        "id" : "41"
+      }, {
+        "id" : "43"
+      }, {
+        "id" : "45"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "69"
+      }, {
+        "id" : "71"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "87"
+      }, {
+        "id" : "91"
+      }, {
+        "id" : "95"
+      } ],
+      "title" : "The factory"
+    } ]
+  }
+}

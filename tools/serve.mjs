@@ -52,8 +52,67 @@ export function resolveRequest(url, root) {
   return full;
 }
 
-export function handler(root) {
+/* ── THE TWO ROUTES THE CONTROL PANEL NEEDS, AND WHY THEY LIVE HERE ──────────────────────────
+   The panel (architecture/panel.html, ADR 0002) is a static page over one JSON and one act. The
+   JSON is computed on request by tools/panel-data.mjs so it can never be stale, which is this
+   server's whole reason to exist. The act, approve or reject, must reach the FACTORY's ledger door
+   (prongs/record.mjs::add('pd') in the tree named by --factory), and a browser cannot call a Node
+   module; so this server imports that door by path and calls it, adding nothing of its own. Both
+   routes exist only when --factory names a tree; without it the server is the static server it was,
+   and the panel says so instead of showing an empty table. */
+export const PANEL_ROUTE = '/panel.json';
+export const APPROVE_ROUTE = '/approve';
+const MACHINE_ROW = 'core/machines.json M4';
+
+async function readBody(req) {
+  return new Promise((resolve) => { let s = ''; req.on('data', (d) => { s += d; }); req.on('end', () => resolve(s)); });
+}
+
+export function panelApi({ factory, plans, office }) {
+  const json = (res, code, obj) => { const body = JSON.stringify(obj); res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(body), 'Cache-Control': NO_STORE }); res.end(body); };
+  return async (req, res) => {
+    const url = String(req.url).split('?')[0];
+    if (req.method === 'GET' && url === PANEL_ROUTE) {
+      const { panelData } = await import('./panel-data.mjs');
+      json(res, 200, await panelData({ factory, plans, office }));
+      return true;
+    }
+    if (req.method === 'POST' && url === APPROVE_ROUTE) {
+      let body; try { body = JSON.parse(await readBody(req) || '{}'); } catch { json(res, 400, { state: 'REFUSED', why: 'body is not JSON' }); return true; }
+      const { panelData, approveRow } = await import('./panel-data.mjs');
+      const data = await panelData({ factory, plans, office });
+      const row = (data.checkpoints ?? []).find((c) => c.id === body.rowId && (!body.session || c.session === body.session));
+      if (!row) { json(res, 404, { state: 'REFUSED', why: `no checkpoint row ${JSON.stringify(body.rowId)}${body.session ? ` in session ${body.session}` : ''}` }); return true; }
+      if (body.sha && body.sha !== row.sha) { json(res, 409, { state: 'REFUSED', why: `the row changed since you read it (sha ${body.sha} → ${row.sha}); reload and read it again` }); return true; }
+      /* THE MACHINE IS THE GATE ON THE SERVER TOO. A hand-built POST must not reach the ledger with an
+         edge the row's state does not allow; the page hides the button, this refuses the press. */
+      if (row.edges === null) { json(res, 422, { state: 'REFUSED', why: data.machine_why || 'no checkpoint machine is declared; no lever exists' }); return true; }
+      const edge = (row.edges ?? []).find((e) => e.event === body.verdict);
+      if (!edge) { json(res, 422, { state: 'REFUSED', why: `no edge '${body.verdict}' is legal from ${row.review} at stage ${row.stage}${row.edges.length ? ` — legal: ${row.edges.map((e) => e.event).join(', ')}` : ' — none is'}` }); return true; }
+      if (edge.reason_required && !(body.because && body.because.trim())) { json(res, 422, { state: 'REFUSED', why: `'${edge.event}' requires a reason (${MACHINE_ROW}.reason_required)` }); return true; }
+      const pd = approveRow({ row, verdict: body.verdict, operator: body.operator, session: row.session, because: body.because });
+      let door; try { door = await import(path.join(factory, 'prongs', 'record.mjs')); } catch (e) { json(res, 503, { state: 'UNEVALUABLE', why: `the factory's ledger door could not be imported from ${factory}: ${e.message}` }); return true; }
+      const r = door.add('pd', pd, { dryRun: !!body.dryRun });
+      json(res, r.state === 'written' ? 200 : 422, { ...r, row: pd });
+      return true;
+    }
+    return false;
+  };
+}
+
+export function handler(root, api = null) {
   return (req, res) => {
+    if (api) {
+      api(req, res).then((handled) => { if (!handled) serveFile(req, res, root); })
+        .catch((e) => { res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': NO_STORE }); res.end(`panel route failed: ${e.message}\n`); });
+      return;
+    }
+    serveFile(req, res, root);
+  };
+}
+
+function serveFile(req, res, root) {
+  {
     const file = resolveRequest(req.url, root);
     if (!file) { res.writeHead(403, { 'Cache-Control': NO_STORE }); res.end('outside the served root'); return; }
     fs.readFile(file, (err, body) => {
@@ -70,7 +129,7 @@ export function handler(root) {
       });
       res.end(body);
     });
-  };
+  }
 }
 
 /* ── CLI ─────────────────────────────────────────────────────────────────────────────────────── */
@@ -134,13 +193,16 @@ if (IS_MAIN) {
     process.exit(ok === 11 ? 0 : 1);
   }
 
-  const i = argv.indexOf('--root');
-  const root = fs.realpathSync(i >= 0 && argv[i + 1] ? argv[i + 1] : HERE);
+  const flag = (n) => { const i = argv.indexOf(n); return i >= 0 && argv[i + 1] ? argv[i + 1] : null; };
+  const root = fs.realpathSync(flag('--root') ?? HERE);
   const port = Number(argv.find((a) => /^\d+$/.test(a)) ?? 8015);
-  http.createServer(handler(root)).listen(port, () => {
+  const factory = flag('--factory') ? fs.realpathSync(flag('--factory')) : null;
+  const api = factory ? panelApi({ factory, plans: flag('--plans') ?? undefined, office: root }) : null;
+  http.createServer(handler(root, api)).listen(port, () => {
     console.log(`\n  serving ${root} on http://localhost:${port}`);
     console.log(`  every response carries Cache-Control: ${NO_STORE}`);
     console.log(`  so a re-export is visible on a plain reload — no hard refresh needed\n`);
-    console.log(`  http://localhost:${port}/architecture/viewer.html\n`);
+    console.log(`  http://localhost:${port}/architecture/viewer.html`);
+    console.log(factory ? `  http://localhost:${port}/architecture/panel.html  (factory ${factory})\n` : `  panel routes OFF: pass --factory <design-loop> to serve /panel.json and /approve\n`);
   });
 }

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control panel</title>
+<!--
+  THE CONTROL PANEL — one page, one act. ADR 0002 in architecture/factory/adrs.
+
+  It shows the plan's checkpoint rows filtered by the session that owns them, one tile per factory
+  store with the query that produced its count printed under it, the declared servers with their
+  state, a files strip, and the four reward terms. Its one act is Approve or Reject on a row, which
+  writes a decision row through the factory's ledger door (tools/serve.mjs::panelApi calls
+  prongs/record.mjs::add('pd')) with the row's text sha, the operator and the session.
+
+  NOTHING HERE IS TYPED. Every figure arrives from /panel.json (tools/panel-data.mjs) with the query
+  or file that produced it; this page only lays it out. A tile with no query cannot be drawn with a
+  number, because the data module never sends one.
+
+  GRAFTED, NOT INVENTED (graft skill, 2026-09-07): donor Linear for a dense keyboard-first internal
+  tool — 12px caption, 14px control at weight 500, a 4/8/12/16/24 spacing scale, radius 6/8/12;
+  identity swapped to the drawing office's own tokens (same names as viewer.html) and a system font
+  stack. Borrowed: Superhuman's inline key hints (matches the viewer's E and N); Vercel's tile grid
+  for stores. Cut: display type, marketing sections, motion.
+-->
+<style>
+  :root {
+    --canvas: #14171C; --surface: #272C34; --surface-2: #1C2026; --ink: #F1F3F4; --ink-2: #AEB4BE; --ink-3: #7C838E;
+    --hairline: #3A424D; --accent: #A5A9F0; --root: #5A5C7A; --leaf: #35473C; --leaf-ink: #9ED4AE;
+    --amber: #D9A441; --red: #E06C6C; --magenta: #D67AD2;
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --r1: 6px; --r2: 8px; --r3: 12px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --canvas: #F2F1EE; --surface: #FFFFFF; --surface-2: #E9E7E2; --ink: #1B1D22; --ink-2: #4A4F58; --ink-3: #7A7F88; --hairline: #D3D0C9; --accent: #5F63C4; --root: #6F72A0; --leaf: #DCE8DF; --leaf-ink: #2F6B44; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--canvas); color: var(--ink); font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+  kbd { font: 11px ui-monospace, Menlo, monospace; border: 1px solid var(--hairline); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--ink-2); }
+  header { display: flex; align-items: center; gap: var(--s4); padding: var(--s3) var(--s5); border-bottom: 1px solid var(--hairline); position: sticky; top: 0; background: var(--canvas); z-index: 2; }
+  header h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: -0.1px; }
+  header .sub { color: var(--ink-3); font-size: 12px; }
+  header .grow { flex: 1; }
+  header input { background: var(--surface-2); color: var(--ink); border: 1px solid var(--hairline); border-radius: var(--r1); padding: 4px 8px; font: inherit; font-size: 12px; width: 150px; }
+  main { padding: var(--s4) var(--s5) 64px; max-width: 1480px; margin: 0 auto; }
+  section { margin-top: var(--s5); }
+  .sechead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); margin-bottom: var(--s2); }
+  .sechead h2 { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); margin: 0; }
+  .sechead .src { color: var(--ink-3); font-size: 11px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--s3); }
+  .tile { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--r3); padding: var(--s3) var(--s4); min-height: 88px; display: flex; flex-direction: column; gap: 2px; }
+  .tile .k { font-size: 12px; color: var(--ink-2); }
+  .tile .v { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  .tile .v.dim { font-size: 14px; font-weight: 500; color: var(--ink-3); }
+  .tile .q { color: var(--ink-3); margin-top: auto; padding-top: var(--s2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile.absent { border-style: dashed; }
+  .strip { display: flex; flex-wrap: wrap; gap: var(--s2); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--hairline); border-radius: 999px; padding: 3px 10px; font-size: 12px; background: var(--surface); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+  .dot.on { background: var(--leaf-ink); } .dot.off { background: var(--red); } .dot.none { background: var(--ink-3); border: 1px dashed var(--ink-2); }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--s2); margin-bottom: var(--s3); }
+  .chip { cursor: pointer; border: 1px solid var(--hairline); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 12px; }
+  .chip[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); background: var(--surface-2); }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--r3); overflow: hidden; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-top: 1px solid var(--hairline); font-size: 12.5px; }
+  th { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; background: var(--surface-2); border-top: 0; }
+  td.id { font-family: ui-monospace, Menlo, monospace; font-size: 12px; white-space: nowrap; }
+  td.muted { color: var(--ink-2); }
+  .stage { display: inline-block; border-radius: var(--r1); padding: 2px 8px; font-size: 11px; font-weight: 600; letter-spacing: .02em; white-space: nowrap; }
+  .stage.designed { border: 1px solid var(--accent); color: var(--accent); }
+  .stage.built { background: var(--leaf); color: var(--leaf-ink); }
+  .stage.assembled, .stage.shipped { background: var(--accent); color: #14171C; }
+  .stage.FAILED { background: var(--red); color: #14171C; }
+  .stage.notdrawn { border: 1px dashed var(--ink-3); color: var(--ink-3); }
+  .acts { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+  button.act { cursor: pointer; font: inherit; font-size: 12px; font-weight: 500; border: 1px solid var(--hairline); background: var(--surface-2); color: var(--ink); border-radius: var(--r1); padding: 4px 10px; }
+  button.act:hover { border-color: var(--accent); }
+  button.act.reject { color: var(--ink-2); }
+  .verdict { font-size: 11px; color: var(--ink-2); }
+  .verdict.approved { color: var(--leaf-ink); } .verdict.rejected { color: var(--red); }
+  .note { border: 1px solid var(--hairline); border-radius: var(--r2); padding: var(--s3) var(--s4); background: var(--surface); color: var(--ink-2); }
+  .note b { color: var(--ink); }
+  .session { font-size: 11px; color: var(--ink-3); }
+  tr.hidden { display: none; }
+  footer { margin-top: var(--s5); color: var(--ink-3); font-size: 11px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>The Factory</h1>
+  <span class="sub">Control panel</span>
+  <span class="grow"></span>
+  <a href="viewer.html?w=factory">viewer</a>
+  <label class="sub">operator <input id="operator" placeholder="learner id" aria-label="operator id"></label>
+  <span class="sub" id="stamp">reading…</span>
+  <span class="sub"><kbd>R</kbd> reload</span>
+</header>
+<main>
+  <div class="note" id="status" hidden></div>
+
+  <section>
+    <div class="sechead"><h2>Reward terms</h2><span class="src">core/docs/REWARD-THREE-TERMS.md · a term reads UNEVALUABLE until its reader exists</span></div>
+    <div class="grid" id="reward"></div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Machines</h2><span class="src" id="machines-src"></span></div>
+    <div class="strip" id="machines"></div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Checkpoints</h2><span class="src" id="checkpoints-src"></span></div>
+    <div class="chips" id="chips"></div>
+    <table>
+      <thead><tr><th>#</th><th>capability</th><th>see in the drawing office</th><th>see in this panel</th><th>stage</th><th>act</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Stores</h2><span class="src" id="stores-src"></span></div>
+    <div class="grid" id="stores"></div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Files</h2><span class="src" id="files-src"></span></div>
+    <table>
+      <thead><tr><th>directory</th><th>tracked</th><th>archive flags</th><th>modules that fired</th><th>last git touch</th></tr></thead>
+      <tbody id="files"></tbody>
+    </table>
+  </section>
+
+  <footer id="foot"></footer>
+</main>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const store = { get: (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* private window */ } } };
+
+  const operator = $('operator');
+  operator.value = store.get('do.operator', '');
+  operator.addEventListener('change', () => store.set('do.operator', operator.value.trim()));
+
+  let DATA = null;
+  let SESSION = new URLSearchParams(location.search).get('session') || store.get('do.session', 'all');
+
+  function status(html, kind) { const el = $('status'); if (!html) { el.hidden = true; return; } el.hidden = false; el.innerHTML = html; el.dataset.kind = kind || ''; }
+
+  async function load() {
+    $('stamp').textContent = 'reading…';
+    let res;
+    try { res = await fetch('/panel.json?t=' + Date.now(), { cache: 'no-store' }); } catch (e) { status('<b>The panel routes are not answering.</b> Start the office with <code>node tools/serve.mjs 8017 --factory ~/dev/design-loop</code>; without <code>--factory</code> the server is static and this page has nothing to read.'); $('stamp').textContent = 'no data'; return; }
+    if (!res.ok) { status('<b>/panel.json answered ' + res.status + '.</b> The server was started without <code>--factory</code>, so the panel routes are off.'); $('stamp').textContent = 'no data'; return; }
+    DATA = await res.json();
+    if (DATA.state !== 'ok') { status('<b>UNEVALUABLE.</b> ' + esc(DATA.why)); $('stamp').textContent = 'no data'; return; }
+    status('');
+    $('stamp').textContent = 'read ' + new Date(DATA.generated_at).toLocaleTimeString();
+    render();
+  }
+
+  function stageClass(s) { return s === 'not drawn' ? 'notdrawn' : s; }
+
+  /* THE LEVERS COME FROM A MACHINE OR THEY DO NOT EXIST. Operator, 2026-09-07: deciding control
+     levers without state modelling is stupid. /panel.json will carry `machine` (plan row CP0, one
+     more entry in core/machines.json) with the edges legal from each row's current state; until it
+     does, a row offers no act and says why, rather than two buttons whose meaning nobody declared. */
+  function levers(c, i) {
+    const edges = c.edges ?? (DATA.machine ? [] : null);
+    if (edges === null) return '<span class="verdict">no levers: ' + esc(DATA.machine_why || 'the checkpoint machine (CP0) is not declared yet') + '</span>';
+    if (!edges.length) return `<span class="verdict">${esc(c.review)} · no edge is legal from here${c.review === 'unreviewed' ? ' (approve needs a built box; only reject, and reject needs a reason)' : ''}</span>`;
+    return '<div class="acts">' + edges.map((e) => `<button class="act ${e.event === 'reject' ? 'reject' : ''}" data-v="${esc(e.event)}" data-i="${i}" title="${esc(e.guard || '')}">${esc(e.label || e.event)}</button>`).join('') + '</div>';
+  }
+
+  function render() {
+    const d = DATA;
+    $('reward').innerHTML = d.reward.map((r) => `<div class="tile"><div class="k">${esc(r.term)}</div><div class="v dim">${esc(r.state)}</div><div class="q" title="${esc(r.why)}">${esc(r.question)}</div></div>`).join('');
+
+    $('machines-src').textContent = d.machines.source || d.machines.why || '';
+    $('machines').innerHTML = (d.machines.rows || []).map((m) => `<span class="pill" title="${esc(m.why)}"><span class="dot ${m.state === 'ONLINE' ? 'on' : m.state === 'OFFLINE' ? 'off' : 'none'}"></span>${esc(m.name)}${m.port ? ' <span class="mono">' + m.port + '</span>' : ''} <span class="session">${esc(m.state)}</span></span>`).join('') || '<span class="note">no servers declared</span>';
+
+    const sessions = d.sessions || [];
+    $('checkpoints-src').textContent = d.plans.state === 'ok' ? `rows from ${sessions.length} plan file(s) under ${d.plans.dir} · decisions from failures/decisions.jsonl (${d.decisions.count} rows) · stage from the model where a box exists, ${d.model.checkpoints_drawn ?? 0} drawn` : d.plans.why;
+    const chips = [{ slug: 'all', title: 'every session', rows: d.checkpoints.length }, ...sessions];
+    $('chips').innerHTML = chips.map((s) => `<button class="chip" type="button" data-s="${esc(s.slug)}" aria-pressed="${String(SESSION === s.slug)}" title="${esc(s.title || '')}">${esc(s.slug)} <span class="session">${s.rows}</span></button>`).join('');
+    for (const b of $('chips').querySelectorAll('.chip')) b.addEventListener('click', () => { SESSION = b.dataset.s; store.set('do.session', SESSION); render(); });
+
+    $('rows').innerHTML = d.checkpoints.map((c, i) => {
+      const hidden = SESSION !== 'all' && c.session !== SESSION;
+      const v = c.decision ? `<div class="verdict ${c.decision.verdict}">${esc(c.decision.verdict)} · ${esc(String(c.decision.date).slice(0, 10))} · ${esc(c.decision.operator)}${c.decision.session ? ' · ' + esc(c.decision.session) : ''}</div>` : '';
+      return `<tr class="${hidden ? 'hidden' : ''}" data-i="${i}">
+        <td class="id" title="row sha ${esc(c.sha)}">${esc(c.id)}<div class="session">${esc(c.session)}</div></td>
+        <td>${esc(c.capability)}</td>
+        <td class="muted">${esc(c.office)}</td>
+        <td class="muted">${esc(c.panel)}</td>
+        <td><span class="stage ${stageClass(c.stage)}">${esc(c.stage)}</span></td>
+        <td>${levers(c, i)}${v}<div class="verdict" id="out-${i}"></div></td>
+      </tr>`;
+    }).join('');
+    for (const b of $('rows').querySelectorAll('button.act')) b.addEventListener('click', () => act(Number(b.dataset.i), b.dataset.v));
+
+    $('stores-src').textContent = d.stores.source || d.stores.why || '';
+    $('stores').innerHTML = (d.stores.tiles || []).map((t) => {
+      const val = t.state === 'read' || t.state === 'EMPTY' ? `<div class="v">${t.count.toLocaleString()}</div>` : `<div class="v dim">${esc(t.state)}</div>`;
+      return `<div class="tile ${t.state === 'ABSENT' ? 'absent' : ''}" title="${esc(t.why)}"><div class="k">${esc(t.name)}</div>${val}<div class="q mono">${esc(t.query || 'no query')}</div></div>`;
+    }).join('');
+
+    $('files-src').textContent = d.files.source || d.files.why || '';
+    $('files').innerHTML = (d.files.rows || []).map((f) => `<tr><td class="id">${esc(f.dir)}</td><td>${f.tracked}</td><td>${f.flagged == null ? 'UNEVALUABLE' : f.flagged}</td><td>${f.fired_modules == null ? 'UNEVALUABLE' : f.fired_modules}</td><td class="muted">${esc(f.last_touch || 'UNEVALUABLE')}</td></tr>`).join('');
+
+    $('foot').textContent = `factory ${d.factory} · office ${d.office} · a figure without its query is a defect; a zero that means "could not look" is a worse one`;
+  }
+
+  async function act(i, verdict) {
+    const c = DATA.checkpoints[i];
+    const out = $('out-' + i);
+    const op = operator.value.trim();
+    if (!op) { out.textContent = 'name the operator first (top right); an approval by nobody is refused'; operator.focus(); return; }
+    const because = verdict === 'reject' ? (prompt('Why is ' + c.id + ' rejected? One sentence, recorded on the row.') || '') : '';
+    out.textContent = 'writing…';
+    let res, body;
+    try {
+      res = await fetch('/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rowId: c.id, session: c.session, sha: c.sha, verdict, operator: op, because }) });
+      body = await res.json();
+    } catch (e) { out.textContent = 'the approve route did not answer: ' + e.message; return; }
+    out.textContent = body.state === 'written' ? `${body.id} written` : `${body.state}: ${body.why}`;
+    if (body.state === 'written') load();
+  }
+
+  addEventListener('keydown', (e) => { if (e.key.toLowerCase() === 'r' && !e.metaKey && !e.ctrlKey && document.activeElement !== operator) load(); });
+  load();
+})();
+</script>
+</body>
+</html>

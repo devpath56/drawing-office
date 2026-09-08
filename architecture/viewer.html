@@ -334,7 +334,13 @@
          current marker, because the tree was built from three view kinds and there are four. Every
          repo with a feature trace would have had a rail that cannot reach it — a gap in the machine,
          not in this bank's diagram. A dynamic view hangs off whatever it is scoped to. */
-      for (const v of ws.views.dynamicViews ?? []) views.push({ key: v.key, level: 'flow', scope: v.elementId, title: v.description || v.key, elements: new Set((v.elements ?? []).map((e) => e.id)) });
+      /* A ROW PRINTS THE TITLE AND SAYS THE DESCRIPTION ON HOVER. The first draft printed the
+         description, and a trace described in a sentence became a row truncated at its verb —
+         measured 2026-09-07 on the factory: two rows opening "How any RAT attack runs: a spec
+         becomes a probe row, the loop runs its criterion, the verdict is amended onto" and nothing
+         after. The DSL has a title keyword for this; a view without one falls back to its key,
+         which is short by construction, never to the sentence. */
+      for (const v of ws.views.dynamicViews ?? []) views.push({ key: v.key, level: 'flow', scope: v.elementId, title: v.title || v.key, hint: v.description || '', elements: new Set((v.elements ?? []).map((e) => e.id)) });
       /* DEPLOYMENT VIEWS ARE VIEWS TOO, and the rail could not reach one — measured on the bank's
          Development plate, which rendered correctly while the rail showed a single folded row. A
          deployment view is scoped to a software system and named by its ENVIRONMENT, so two of them
@@ -346,7 +352,9 @@
       /* Which traces walk the elements THIS view draws — by element overlap, not by scope, because a
          trace scoped to a container still explains half of the container view above it. */
       const staticElements = new Map();
-      for (const k of ['systemContextViews', 'containerViews', 'componentViews']) {
+      /* THE LANDSCAPE IS A STATIC VIEW TOO. Without it in this list the strip said "no trace covers
+         these elements yet" on the one plate every system-level trace covers. */
+      for (const k of ['systemLandscapeViews', 'systemContextViews', 'containerViews', 'componentViews']) {
         for (const v of ws.views[k] ?? []) staticElements.set(v.key, new Set((v.elements ?? []).map((e) => e.id)));
       }
       const tracesOver = (key) => {
@@ -375,13 +383,31 @@
       }
 
       const roots = [];
+      const flowRow = (f) => ({ name: f.title || f.key, hint: f.hint, kind: 'Feature trace', view: f.key, children: [] });
+      /* THE LANDSCAPE IS THE TOP RUNG, and the rail could not reach it. Measured 2026-09-07 on the
+         factory: the workspace opened on its landscape view, and the rail — built from systems
+         downward — had no row for the plate on screen and no current marker, so the first thing a
+         reader saw was a picture the navigation denied existed. A trace scoped to nothing (the DSL's
+         `dynamic *`) hangs here too, because it crosses systems and belongs to none. */
+      const landscape = (ws.views.systemLandscapeViews ?? [])[0] ?? null;
+      const unscoped = views.filter((v) => v.level === 'flow' && !v.scope);
+      if (landscape) {
+        roots.push({ name: landscape.title || landscape.key, hint: landscape.description || '', kind: 'System landscape', view: landscape.key,
+          children: unscoped.map(flowRow) });
+      }
       for (const s of ws.model.softwareSystems ?? []) {
         const containers = s.containers ?? [];
         const containerView = viewFor('containers', s.id);
         const contextView = viewFor('context', s.id);
         if (!contextView && !containerView) continue;          // a system nobody drew
-        const node = { name: s.name, kind: 'Software System', view: contextView || containerView, children: [] };
-        for (const f of flowsFor(s.id)) node.children.push({ name: f.title || f.key, kind: 'Feature trace', view: f.key, children: [] });
+        /* THE ROW SAYS WHICH RUNG IT OPENS. A system with a context view opens on its neighbours;
+           one drawn only from the inside opens on its containers, and the kind says so rather than
+           letting the reader find out from the plate. */
+        const node = { name: s.name, kind: contextView ? 'Software System · neighbours' : 'Software System · containers', view: contextView || containerView, children: [] };
+        for (const f of flowsFor(s.id)) node.children.push(flowRow(f));
+        /* A TRACE SCOPED TO NOTHING WITH NO LANDSCAPE TO HANG FROM still has to be reachable; the
+           first system carries it, and only when there is no landscape row. */
+        if (!landscape && roots.length === 0) for (const f of unscoped) node.children.push(flowRow(f));
         /* WHY, beside the levels rather than under them: a decision is not a deeper view of the
            system, it is the reason the system looks like this. Workspace-scoped records sit at the
            top; one governing an element also appears on that element's own row. */
@@ -404,7 +430,7 @@
               kind: 'Container' + (c.technology ? ' · ' + c.technology : ''),
               view: viewFor('components', c.id),
               children: [
-                ...flowsFor(c.id).map((f) => ({ name: f.title || f.key, kind: 'Feature trace', view: f.key, children: [] })),
+                ...flowsFor(c.id).map(flowRow),
                 /* THE DECISION IS REACHED FROM THE ELEMENT IT GOVERNS, which is the half of
                    checkpoint 12 the static export dropped. */
                 ...ADRS.filter((d) => d.elementId === String(c.id)).map((d) => ({ name: d.id + '. ' + d.title, kind: 'Decision', decision: d, view: null, children: [] })),
@@ -440,7 +466,10 @@
     /** Every view key this workspace actually has, in the order a reader should meet them. */
     function viewKeys(ws) {
       const out = [];
-      for (const k of ['systemContextViews', 'containerViews', 'componentViews', 'dynamicViews', 'deploymentViews', 'systemLandscapeViews']) {
+      /* THE LANDSCAPE COMES FIRST, because it is the top of the ladder and the rail now says so; it
+         used to sit last here, which was invisible while no workspace drew one alongside context views
+         and opened the factory on production's neighbours the day it did. */
+      for (const k of ['systemLandscapeViews', 'systemContextViews', 'containerViews', 'componentViews', 'dynamicViews', 'deploymentViews']) {
         for (const v of ws.views?.[k] ?? []) out.push(v.key);
       }
       return out;
@@ -499,40 +528,13 @@
         line-height: 1.6 !important;
       }
       #tooltip p { margin: 0 0 6px 0 !important; }
-      #tooltip p:last-child { margin-bottom: 0 !important; white-space: pre-wrap !important; }
+      #tooltip p:last-child { margin-bottom: 0 !important; }
       #tooltip b { font-weight: 600 !important; letter-spacing: .01em; }
+      /* THE LENSES ARE THE WRAPPER'S OWN MARKUP (composeLenses), so headings are bold at write time
+         and no observer re-marks them after the fact. */
+      #tooltip .do-lens-name { margin-top: 10px !important; font-weight: 700 !important; text-transform: uppercase; letter-spacing: .06em; font-size: 9px !important; opacity: .8; }
+      #tooltip .do-lens { white-space: pre-wrap !important; }
     `;
-    /* THE HEADINGS ARE BOLDED AFTER RENDER, because they cannot be bolded before it. The renderer
-       runs every perspective description through structurizr.util.escapeHtml, so a <b> written into
-       the model arrives on screen as the four characters of the tag. What it does convert is \n to
-       <br/>, which is how the three parts became lines in the first place.
-
-       So the wrapper watches the one node the renderer writes into and re-marks it. A heading is a
-       line that is not empty and does not start with the bullet marker — the same rule the bullet
-       budget in checks/perspectives.mjs uses to decide what it measures, so the two cannot disagree
-       about which lines are headings.
-
-       THE OBSERVER MUST NOT SEE ITS OWN WRITE. It fires on the subtree it edits, so a naive version
-       loops forever; the marked node carries a flag and a marked node is skipped. */
-    const BOLD_MARK = 'doBolded';
-    function boldHeadings(doc) {
-      const box = doc.getElementById('tooltipAdditionalContent');
-      if (!box || box.dataset[BOLD_MARK] === box.innerHTML.length + '') return;
-      const parts = [...box.querySelectorAll('p')];
-      /* The LAST paragraph is the description; the first is "Perspective: <name>", already bold. */
-      const body = parts[parts.length - 1];
-      if (!body || /<b>/.test(body.innerHTML)) { box.dataset[BOLD_MARK] = box.innerHTML.length + ''; return; }
-      const lines = body.innerHTML.split(/<br\s*\/?>/i);
-      let touched = false;
-      const out = lines.map((line) => {
-        const text = line.replace(/<[^>]+>/g, '').trim();
-        if (!text || text.startsWith('·')) return line;
-        touched = true;
-        return '<b>' + line + '</b>';
-      });
-      if (touched) body.innerHTML = out.join('<br />');
-      box.dataset[BOLD_MARK] = box.innerHTML.length + '';
-    }
 
     function soften() {
       try {
@@ -542,8 +544,6 @@
         s.id = SOFTEN_ID;
         s.textContent = SOFTEN;
         (doc.head || doc.documentElement).append(s);
-        const box = doc.getElementById('tooltipAdditionalContent');
-        if (box) new doc.defaultView.MutationObserver(() => boldHeadings(doc)).observe(box, { childList: true, subtree: true, characterData: true });
       } catch { /* a cross-origin site keeps its own tooltip; the diagram is unaffected */ }
     }
     frame.addEventListener('load', soften);
@@ -608,34 +608,64 @@
     /* PERSPECTIVES WORK OFFLINE, measured 2026-09-04 against a preregistered claim that they would
        be cloud-only. What changed since is how they are reached: the rail used to list them as
        switchable layers, and the operator's ruling is that the reasoning should just be there. */
-    /* THE RATIONALE IS ALWAYS ON, AND THE DIMMING IS GONE. Two calls in the renderer look alike and
-       are not: showPerspective sets the filter AND runs it, which dims every element carrying no
-       value; setPerspective sets the filter and stops. showTooltipForElement reads filter.perspective
-       either way. So the content is available with no layer to switch on, no row in the rail and no
-       dimmed plate — which is what the operator asked for and what the dimming kept costing.
+    /* THE FIRST DRAFT ARMED A "RATIONALE" LAYER ALWAYS ON, on the reading that setPerspective sets
+       the renderer's filter without dimming, so the reasoning would be on every hover with no rail
+       row to switch. THAT READING WAS WRONG, AND THE WAY IT WAS WRONG DIMMED EVERY PLATE. setPerspective
+       does not dim the plate already on screen — that much was measured — but the NEXT render
+       honours the filter: elementMatchesFilter and relationshipMatchesFilter read filter.perspective
+       while a view is drawn, and every element and every relationship carrying no value for it is
+       shaded into the canvas. A layer armed once and left on therefore dimmed every view drawn after
+       it. Measured 2026-09-07 on the factory: six externals and all thirty-odd arrows on the
+       production plate as ghosts; the landscape, the three context views and the loop entirely
+       grey; HR dark under "Insight", which none of its containers has.
 
-       ONE THING BREAKS, AND IT IS STATED RATHER THAN LEFT TO BE DISCOVERED. showTooltipForElement
-       opens with `if (filter.perspective !== undefined && elementHasPerspective(element) === false)
-       return;` — so with a perspective set, an element carrying none shows NO tooltip at all, where
-       before it showed its name and tags. checks/perspectives.mjs already prints that number per
-       view; what it measures is now how many boxes answer a hover, not how many light up. */
-    const RATIONALE = () => {
-      const names = new Set();
-      const seek = (e) => { for (const p of e.perspectives ?? []) names.add(p.name); };
-      for (const p of WS?.model?.people ?? []) seek(p);
-      for (const s of WS?.model?.softwareSystems ?? []) {
-        seek(s);
-        for (const c of s.containers ?? []) { seek(c); for (const k of c.components ?? []) seek(k); }
-      }
-      return [...names].sort()[0] ?? null;
-    };
+       THE ROOT OF IT IS A BORROWED MECHANISM. The wrapper wanted one thing — the values a box
+       carries should reach its hover — and reached for the renderer's perspective FILTER to get it,
+       because the filter is what makes the renderer pass a perspective to its tooltip. But the
+       filter is chapter 12's LAYER: a comparison that dims non-carriers by design. Using a
+       comparison as a delivery channel made dimming an unavoidable side effect of every render, and
+       the comment that claimed otherwise had been checked on the one plate where every box carried
+       the value. A per-plate arming rule (the previous draft) only moved the dimming to plates with
+       mixed coverage; it did not remove the borrowed mechanism.
 
-    /* Re-armed on every view change, because the renderer rebuilds its filter when the plate does. */
-    const armRationale = () => {
-      const name = RATIONALE();
-      if (!name) return;
-      try { frame.contentWindow.structurizr.diagram.setPerspective(name); } catch { /* not loaded yet */ }
+       WHAT STANDS NOW. The wrapper never arms a layer. It wraps the site's tooltip method once per
+       load, lets the renderer draw the plain tooltip, and appends every perspective the element
+       carries — in the order the MODEL declares under drawing-office.lenses, then any others by
+       name. The renderer's own p picker still arms a layer on request, and that dimming is the
+       reader's choice. The site declares its tooltip as a top-level const, a global binding that is
+       not a window property, so it is reached through the frame's own global scope. */
+    const LENSES_PROPERTY = 'drawing-office.lenses';
+    const LENS_MARK = 'doComposed';
+    const lensOrder = () => String(WS?.properties?.[LENSES_PROPERTY] ?? WS?.model?.properties?.[LENSES_PROPERTY] ?? '')
+      .split(',').map((s) => s.trim()).filter(Boolean);
+    const lensesOf = (element) => {
+      const order = lensOrder();
+      const rank = (p) => { const i = order.indexOf(p.name); return i < 0 ? order.length : i; };
+      return [...(element?.perspectives ?? [])].sort((a, b) => rank(a) - rank(b) || String(a.name).localeCompare(String(b.name)));
     };
+    /* A heading is a line that is not empty and does not start with the bullet marker — the same
+       rule checks/perspectives.mjs uses to decide which lines it measures. */
+    const lensHtml = (lenses) => lenses.map((p) => {
+      const body = String(p.description ?? '').split('\n')
+        .map((line) => { const t = line.trim(); const e = esc(line); return !t || t.startsWith('·') ? e : '<b>' + e + '</b>'; })
+        .join('<br />');
+      return '<p class="do-lens-name">' + esc(p.name) + '</p><p class="do-lens">' + body + '</p>';
+    }).join('');
+    function composeLenses() {
+      let w, t;
+      try { w = frame.contentWindow; t = w.eval('tooltip'); } catch { return; }
+      if (!t || typeof t.showTooltipForElement !== 'function' || t[LENS_MARK]) return;
+      const original = t.showTooltipForElement;
+      t.showTooltipForElement = function (element, style, x, y, header) {
+        original.call(this, element, style, x, y, header, undefined);
+        try {
+          const box = w.document.getElementById('tooltipAdditionalContent');
+          const lenses = lensesOf(element);
+          if (box && lenses.length) box.innerHTML = lensHtml(lenses);
+        } catch { /* the plain tooltip stands */ }
+      };
+      t[LENS_MARK] = true;
+    }
     const currentKey = () => { try { return (frame.contentWindow.location.hash || '').replace(/^#/, '') || null; } catch { return null; } };
     /* replaceState, not a hash assignment: writing location.hash would push a history entry for every
        descent and fire this page's own hashchange, and the two would then chase each other. */
@@ -686,10 +716,70 @@
         take(s);
         for (const c of s.containers ?? []) { take(c); for (const k of c.components ?? []) take(k); }
       }
+      const ex = EXAMPLE_ON.has(key) ? examplesOf(ws, key) : null;
       return [...(view.relationships ?? [])]
         .sort((a, b) => Number(a.order) - Number(b.order))
-        .map((s) => { const r = rel.get(String(s.id)); return r ? { from: name.get(r.from), to: name.get(r.to), description: s.description } : null; })
+        .map((s) => { const r = rel.get(String(s.id)); return r ? { from: name.get(r.from), to: name.get(r.to), description: (ex && ex.byHop.get(String(s.order))) || s.description } : null; })
         .filter(Boolean);
+    }
+
+    /* ── A TRACE TOLD TWICE: THE GENERAL STATEMENT AND ONE WORKED EXAMPLE ───────────────────────
+       The operator's ruling, 2026-09-07: an arrow labelled "a spec of four fields" says what kind
+       of thing crosses it, and a reader who has never seen one still cannot picture it. The first
+       answer was a second dynamic view carrying the real values, and the rail then showed two rows
+       that said the same nine things in two registers. So the example rides on the same view: the
+       model declares drawing-office.example.<hop> per arrow and drawing-office.example for the
+       instance's name, and E swaps every label on the plate between the two registers.
+
+       WHY THE RENDERER'S OWN WORKSPACE IS EDITED. The static site draws a dynamic view's arrow
+       labels from view.relationships[i].description in the object structurizr.workspace holds;
+       changeView() returns early for the view already on screen, and refresh() redraws the current
+       one. So the swap writes the other register into that object and asks for a redraw. The
+       general text is never lost, because the wrapper's own copy of the export (WS) is the source
+       of truth for it and every apply is computed from WS, never from the last apply.
+
+       THE HOP NUMBER IS THE JOIN, not the relationship id: one model relationship can appear on a
+       trace twice, and order is what the DSL keeps unique. checks/hop-examples.mjs refuses an
+       example whose hop no arrow has, and a view where only some hops carry one, so a plate never
+       shows the two registers mixed. */
+    const EXAMPLE_PROPERTY = 'drawing-office.example';
+    const EXAMPLE_PREFIX = 'drawing-office.example.';
+    const EXAMPLE_ON = new Set();      // trace keys the reader has switched to the example register
+    function examplesOf(ws, key) {
+      const view = (ws?.views?.dynamicViews ?? []).find((v) => v.key === key);
+      const props = view?.properties ?? {};
+      const byHop = new Map();
+      for (const [k, v] of Object.entries(props)) if (k.startsWith(EXAMPLE_PREFIX)) byHop.set(String(Number(k.slice(EXAMPLE_PREFIX.length))), String(v));
+      if (!byHop.size) return null;
+      return { name: String(props[EXAMPLE_PROPERTY] ?? 'the example'), byHop };
+    }
+    /* Write the register the reader asked for into the renderer's view, and redraw only if a label
+       actually changed: this runs on every tick, and a redraw per tick would fight the reader's own
+       zoom and scroll. A frame reload puts the renderer back to the general register; the next tick
+       puts the reader's choice back. */
+    function applyRegister(key) {
+      let live;
+      try { live = frame.contentWindow.structurizr.workspace.findViewByKey(key); } catch { return; }
+      const general = (WS?.views?.dynamicViews ?? []).find((v) => v.key === key);
+      if (!live || !general || !Array.isArray(live.relationships)) return;
+      const ex = examplesOf(WS, key);
+      const on = EXAMPLE_ON.has(key) && !!ex;
+      let changed = false;
+      for (const r of live.relationships) {
+        const g = (general.relationships ?? []).find((x) => String(x.order) === String(r.order));
+        const want = on ? (ex.byHop.get(String(r.order)) ?? g?.description ?? '') : (g?.description ?? '');
+        if (r.description !== want) { r.description = want; changed = true; }
+      }
+      if (!changed || currentKey() !== key) return;
+      try { frame.contentWindow.structurizr.diagram.refresh(); } catch { /* the next tick tries again */ }
+      /* A redraw replaces every group on the canvas, so a walk in progress re-frames its step. */
+      if (WALK && WALK.key === key) { WALK.steps = stepsOf(WS, key); showStep(); }
+    }
+    function toggleRegister(key) {
+      if (!examplesOf(WS, key)) return false;
+      if (EXAMPLE_ON.has(key)) EXAMPLE_ON.delete(key); else EXAMPLE_ON.add(key);
+      applyRegister(key);
+      return true;
     }
 
     /* Frame the current step: dim what has not been reached, then move onto its two elements. Two
@@ -778,10 +868,13 @@
     function onKey(e) {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const k = String(e.key).toLowerCase();
-      if (k !== 'n' && k !== 'b' && k !== 'escape') return;
+      if (k !== 'n' && k !== 'b' && k !== 'e' && k !== 'escape') return;
       const onTrace = !!here && ROOTS.some(function look(n) { return (n.kind === 'Feature trace' && n.view === here) || n.children.some(look); });
       if (!onTrace) return;
       if (k === 'escape') { endWalk(); sayOrder(here); e.preventDefault(); return; }
+      /* E is the register, and it is inert on a trace that declares no example — the strip says so
+         by not offering it, rather than the key doing nothing in silence. */
+      if (k === 'e') { if (toggleRegister(here)) { sayOrder(here); e.preventDefault(); } return; }
       if (!WALK || WALK.key !== here) startWalk(here);
       else walkTo(WALK.at + (k === 'n' ? 1 : -1));
       e.preventDefault();
@@ -836,6 +929,19 @@
           keys.innerHTML = '<kbd>N</kbd> starts it too';
           orderbar.append(keys);
         }
+        /* THE REGISTER IS ANNOUNCED ONCE, on the path both branches take, for the same reason the
+           layer notice was: a third branch added later must not be able to forget it. */
+        const ex = examplesOf(WS, key);
+        if (ex) {
+          const on = EXAMPLE_ON.has(key);
+          const reg = document.createElement('span');
+          reg.innerHTML = ' · <b>' + (on ? 'Told as the example' : 'Told in general') + '</b>' + (on ? ': ' + esc(ex.name) : '');
+          orderbar.append(reg);
+          mk(on ? 'Show the general statement' : 'Show the example', () => { toggleRegister(key); sayOrder(key); });
+          const kb = document.createElement('span');
+          kb.innerHTML = '<kbd>E</kbd> swaps';
+          orderbar.append(kb);
+        }
         return;
       }
       const t = TRACES(key);
@@ -879,8 +985,9 @@
         const text = document.createElement('span');
         text.className = 'rowtext';
         text.textContent = node.name;
-        /* THE RAIL IS 272px AND NAMES ARE NOT, so a truncated row must still be readable somewhere. */
-        text.title = node.name + (node.kind ? ' — ' + node.kind : '');
+        /* THE RAIL IS 272px AND NAMES ARE NOT, so a truncated row must still be readable somewhere.
+           A view's description rides here too: the row prints the title, the hover says the rest. */
+        text.title = node.name + (node.hint ? ' — ' + node.hint : '') + (node.kind ? ' — ' + node.kind : '');
 
         const isFlow = node.kind === 'Feature trace';
         const isEnv = node.kind === 'Environment';
@@ -1032,10 +1139,14 @@
       body.dataset.railState = 'ready';
       const tick = () => {
         soften(); tint();
-        /* ARMED ON EVERY TICK, not only on load. The renderer rebuilds its filter when the plate
-           changes, and a rationale that survives the first view and not the second would look
-           exactly like a tooltip that works sometimes — which is how this arrived here. */
-        armRationale();
+        /* COMPOSED ON EVERY TICK, not only on load: the site rebuilds its tooltip object when the
+           document reloads, and a hover that worked on the first view and not the second would look
+           exactly like a tooltip that works sometimes — which is how the layer arrived here. */
+        composeLenses();
+        /* THE REGISTER IS RE-APPLIED ON EVERY TICK for the same reason: the frame
+           reloads with the export's labels, and a choice that survived the first reload and not the
+           second would look like a key that works sometimes. */
+        if (here && EXAMPLE_ON.has(here)) applyRegister(here);
         const k = currentKey(); if (k !== here) { if (WALK && WALK.key !== k) endWalk(); here = k; mirror(k); draw(); sayOrder(k); } };
       frame.addEventListener('load', tick);
       tick(); draw();

@@ -172,8 +172,13 @@ perspectives {
 }
 ```
 
-**The rail lists them**, because a layer nobody can find is not one — a reader who does not know the
-key never learns it exists. Clicking the lit layer turns it off.
+**The hover carries every one of them, and the wrapper arms no layer.** A box's tooltip lists each
+perspective it has, in the order the workspace declares under `drawing-office.lenses` (then any
+others by name). This replaced an always-on layer, and the reason is a defect: a layer is a
+comparison, so the renderer shades every element and every relationship that lacks the value on the
+next render — measured 2026-09-07 as whole plates drawn grey. A hover is not a comparison; it is
+delivery, and the wrapper now delivers it by wrapping the renderer's tooltip method at load. `p`
+still opens the renderer's own picker for a reader who wants the layer and its dimming.
 
 ```bash
 npm run perspectives
@@ -432,6 +437,45 @@ npm run animate   # write animation frames into the export and the site bundle
 Then open the trace in the viewer and press **N**. The walk frames each step's two elements, dims
 everything not yet reached, and stops at both ends — a kill chain that wrapped would be a lie about
 the system. **B** goes back, **Escape** puts the whole picture back.
+
+### A trace told twice: the general statement, and one worked example
+
+An arrow labelled "a spec of four fields" says what *kind* of thing crosses it, and a reader who has
+never seen one still cannot picture it. Rather than a second view saying the same hops with real
+values — two rail rows, one story — the example rides on the same view and **E** swaps every label:
+
+```
+dynamic production "RatAttack" "How any RAT attack runs …" {
+    title "A RAT attack"
+    properties {
+        "drawing-office.example"   "PR-057 at k=3, 2026-09-07: one attack, 392 ms, FLIP to HELD"
+        "drawing-office.example.1" "assumption: … · criterion: … · command: … · mode: …"
+        "drawing-office.example.2" "approve-row-shape.mjs already existed; staged, not scaffolded"
+    }
+    agent -> probeDoorway "A spec of four fields: assumption, criterion, command, mode"
+    probeDoorway -> criteria "Scaffolds the criterion and its control if absent"
+}
+```
+
+The number is the **hop** (the arrow's order in the view), because the DSL keeps order unique and a
+model relationship can sit on a trace twice. The unnumbered property names the instance; the strip
+prints it so the reader knows which run they are looking at. The walk's step line follows the
+register too. `npm run examples` (`checks/hop-examples.mjs`) refuses an example for a hop no arrow
+has and a view where only some hops carry one — pressing E would otherwise show a plate that is half
+instance, half generality, with no way to tell which arrows are which. A workspace with no examples
+is reported ABSENT, and E is dark there rather than silent: the strip only offers it when the model
+declares one.
+
+The DSL refuses a block on a dynamic-view arrow (measured 2026-09-07), which is why this is a view
+property and not a second label beside the first.
+
+### The rail is the C4 ladder, every rung
+
+Top to bottom: the **system landscape** (one row, first), then each **software system** — whose row
+opens its context view, its neighbours, when the model draws one, and says so in its kind — then
+**Containers**, then components where a model has them. A trace hangs off whatever it is scoped to;
+one scoped to nothing (`dynamic *`) hangs off the landscape. Rows print a view's `title` and say its
+description on hover; a view without a title falls back to its key, never to the sentence.
 
 ## Sending a diagram to someone
 
