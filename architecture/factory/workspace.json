@@ -41,73 +41,73 @@
       "relationships" : [ {
         "description" : "Types asks into",
         "destinationId" : "17",
-        "id" : "37",
+        "id" : "38",
         "sourceId" : "1",
         "tags" : "Relationship"
       }, {
         "description" : "Types asks into",
         "destinationId" : "9",
-        "id" : "38",
-        "linkedRelationshipId" : "37",
+        "id" : "39",
+        "linkedRelationshipId" : "38",
         "sourceId" : "1"
       }, {
         "description" : "Types asks into",
         "destinationId" : "8",
-        "id" : "39",
-        "linkedRelationshipId" : "37",
+        "id" : "40",
+        "linkedRelationshipId" : "38",
         "sourceId" : "1"
       }, {
         "description" : "Closes a window through",
         "destinationId" : "12",
-        "id" : "43",
+        "id" : "44",
         "sourceId" : "1",
         "tags" : "Relationship"
       }, {
         "description" : "Types orient <owner> in a new window; the take runs by absolute path",
         "destinationId" : "11",
-        "id" : "44",
+        "id" : "45",
         "sourceId" : "1",
         "tags" : "Relationship"
       }, {
         "description" : "Reads the price, the change and the queue from",
         "destinationId" : "10",
-        "id" : "45",
+        "id" : "46",
         "sourceId" : "1",
         "tags" : "Relationship"
       }, {
         "description" : "Opens a worktree at trunk and inherits its baseline through",
         "destinationId" : "14",
-        "id" : "46",
-        "sourceId" : "1",
-        "tags" : "Relationship"
-      }, {
-        "description" : "Lands the closing tree by name through",
-        "destinationId" : "31",
         "id" : "47",
         "sourceId" : "1",
         "tags" : "Relationship"
       }, {
-        "description" : "Runs a checkpoint's criterion and rules on candidates in",
-        "destinationId" : "23",
+        "description" : "Lands the closing tree by name through",
+        "destinationId" : "32",
         "id" : "48",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Runs a checkpoint's criterion and rules on candidates in",
+        "destinationId" : "24",
+        "id" : "49",
         "sourceId" : "1",
         "tags" : "Relationship"
       }, {
         "description" : "Names the window with the plan's full session name in",
         "destinationId" : "7",
-        "id" : "49",
-        "sourceId" : "1",
-        "tags" : "Relationship"
-      }, {
-        "description" : "Sees only health from",
-        "destinationId" : "20",
         "id" : "50",
         "sourceId" : "1",
         "tags" : "Relationship"
       }, {
-        "description" : "Invokes a seat for a meeting in",
+        "description" : "Sees only health from",
         "destinationId" : "21",
         "id" : "51",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Invokes a seat for a meeting in",
+        "destinationId" : "22",
+        "id" : "52",
         "sourceId" : "1",
         "tags" : "Relationship"
       } ],
@@ -126,20 +126,20 @@
       "relationships" : [ {
         "description" : "Types asks into",
         "destinationId" : "17",
-        "id" : "40",
+        "id" : "41",
         "sourceId" : "2",
         "tags" : "Relationship"
       }, {
         "description" : "Types asks into",
         "destinationId" : "9",
-        "id" : "41",
-        "linkedRelationshipId" : "40",
+        "id" : "42",
+        "linkedRelationshipId" : "41",
         "sourceId" : "2"
       }, {
         "description" : "Types asks into",
         "destinationId" : "8",
-        "id" : "42",
-        "linkedRelationshipId" : "40",
+        "id" : "43",
+        "linkedRelationshipId" : "41",
         "sourceId" : "2"
       } ],
       "tags" : "Element,Person"
@@ -184,15 +184,15 @@
       },
       "relationships" : [ {
         "description" : "Answers quoted queries from the procurement doors of",
-        "destinationId" : "23",
-        "id" : "62",
+        "destinationId" : "24",
+        "id" : "63",
         "sourceId" : "5",
         "tags" : "Relationship"
       }, {
         "description" : "Answers quoted queries from the procurement doors of",
         "destinationId" : "8",
-        "id" : "63",
-        "linkedRelationshipId" : "62",
+        "id" : "64",
+        "linkedRelationshipId" : "63",
         "sourceId" : "5"
       } ],
       "tags" : "Element,Software System,Existing System"
@@ -210,20 +210,20 @@
       },
       "relationships" : [ {
         "description" : "Unsearched candidate for",
-        "destinationId" : "35",
-        "id" : "59",
+        "destinationId" : "36",
+        "id" : "60",
         "sourceId" : "6",
         "tags" : "Relationship"
       }, {
         "description" : "Unsearched candidate for",
         "destinationId" : "8",
-        "id" : "60",
-        "linkedRelationshipId" : "59",
+        "id" : "61",
+        "linkedRelationshipId" : "60",
         "sourceId" : "6"
       }, {
         "description" : "Unsearched candidate for",
-        "destinationId" : "36",
-        "id" : "61",
+        "destinationId" : "37",
+        "id" : "62",
         "sourceId" : "6",
         "tags" : "Relationship"
       } ],
@@ -242,26 +242,26 @@
       },
       "relationships" : [ {
         "description" : "Hands a four-field probe spec and a forecast to",
-        "destinationId" : "26",
-        "id" : "55",
+        "destinationId" : "27",
+        "id" : "56",
         "sourceId" : "7",
         "tags" : "Relationship"
       }, {
         "description" : "Hands a four-field probe spec and a forecast to",
-        "destinationId" : "23",
-        "id" : "56",
-        "linkedRelationshipId" : "55",
+        "destinationId" : "24",
+        "id" : "57",
+        "linkedRelationshipId" : "56",
         "sourceId" : "7"
       }, {
         "description" : "Hands a four-field probe spec and a forecast to",
         "destinationId" : "8",
-        "id" : "57",
-        "linkedRelationshipId" : "55",
+        "id" : "58",
+        "linkedRelationshipId" : "56",
         "sourceId" : "7"
       }, {
         "description" : "Is the model today, in the window",
-        "destinationId" : "36",
-        "id" : "58",
+        "destinationId" : "37",
+        "id" : "59",
         "sourceId" : "7",
         "tags" : "Relationship"
       } ],
@@ -283,25 +283,25 @@
           "relationships" : [ {
             "description" : "Reads the plan it opens on through",
             "destinationId" : "13",
-            "id" : "72",
+            "id" : "76",
             "sourceId" : "10",
             "tags" : "Relationship"
           }, {
             "description" : "Reads the probe ledger in the main checkout from",
-            "destinationId" : "33",
-            "id" : "73",
+            "destinationId" : "34",
+            "id" : "77",
             "sourceId" : "10",
             "tags" : "Relationship"
           }, {
             "description" : "Reads the DoD queue through",
             "destinationId" : "15",
-            "id" : "74",
+            "id" : "78",
             "sourceId" : "10",
             "tags" : "Relationship"
           }, {
             "description" : "Reads the session lifecycle through",
             "destinationId" : "16",
-            "id" : "75",
+            "id" : "79",
             "sourceId" : "10",
             "tags" : "Relationship"
           } ],
@@ -322,19 +322,19 @@
           "relationships" : [ {
             "description" : "Prints the packet to",
             "destinationId" : "1",
-            "id" : "52",
+            "id" : "53",
             "sourceId" : "11",
             "tags" : "Relationship"
           }, {
             "description" : "Reads every plan's frontmatter through",
             "destinationId" : "13",
-            "id" : "69",
+            "id" : "73",
             "sourceId" : "11",
             "tags" : "Relationship"
           }, {
             "description" : "Appends a claim row and a title row to (intent/fanouts.jsonl)",
-            "destinationId" : "33",
-            "id" : "70",
+            "destinationId" : "34",
+            "id" : "74",
             "sourceId" : "11",
             "tags" : "Relationship"
           } ],
@@ -354,20 +354,20 @@
           },
           "relationships" : [ {
             "description" : "Step 2 scans the ask ledger; step 6 puts every plan's assumptions into the risk store and through the falsifier",
-            "destinationId" : "33",
-            "id" : "76",
+            "destinationId" : "34",
+            "id" : "80",
             "sourceId" : "12",
             "tags" : "Relationship"
           }, {
             "description" : "Step 10 pastes the fan-out state; step 11 rehearses N windows against a copy",
             "destinationId" : "11",
-            "id" : "77",
+            "id" : "81",
             "sourceId" : "12",
             "tags" : "Relationship"
           }, {
             "description" : "Step 4 checks plans and handoffs were written last",
-            "destinationId" : "18",
-            "id" : "78",
+            "destinationId" : "19",
+            "id" : "82",
             "sourceId" : "12",
             "tags" : "Relationship"
           } ],
@@ -387,8 +387,8 @@
           },
           "relationships" : [ {
             "description" : "Parses",
-            "destinationId" : "18",
-            "id" : "71",
+            "destinationId" : "19",
+            "id" : "75",
             "sourceId" : "13",
             "tags" : "Relationship"
           } ],
@@ -408,8 +408,8 @@
           },
           "relationships" : [ {
             "description" : "Reads the newest recorded run per control from the gate ledger",
-            "destinationId" : "33",
-            "id" : "79",
+            "destinationId" : "34",
+            "id" : "83",
             "sourceId" : "14",
             "tags" : "Relationship"
           } ],
@@ -457,17 +457,38 @@
           },
           "relationships" : [ {
             "description" : "Appends one ask to",
-            "destinationId" : "33",
-            "id" : "67",
+            "destinationId" : "34",
+            "id" : "68",
             "sourceId" : "17",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component",
           "technology" : "Node, prongs/ask-log.mjs"
         }, {
-          "description" : "One file per plan, doored: written through door.mjs or receipted; frontmatter carries owner, session and rulings.",
+          "description" : "The operator's asks in time order, a later word on a subject superseding an earlier one as a row, on declared links only; the chief of staff's machine (PD-063).",
           "documentation" : { },
           "id" : "18",
+          "name" : "intent reader",
+          "perspectives" : [ {
+            "description" : "Built 2026-09-14 in the Fable-2 window (d8b47af): 272 lines, a 205-line control, registered in that tree's registry\n· PR-076 flipped to HELD there and reads k=7 in the store; from trunk the same lookup still reads ABSENT because the branch has not landed\n· it reads the ask store and writes no ledger of its own (plan-chief-of-staff, assumption 3)",
+            "name" : "Insight"
+          } ],
+          "properties" : {
+            "structurizr.dsl.identifier" : "intentReader"
+          },
+          "relationships" : [ {
+            "description" : "Reads the ask ledger in time order from",
+            "destinationId" : "34",
+            "id" : "70",
+            "sourceId" : "18",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Node, prongs/intent.mjs; on branch mon-14-9-fable-2, not yet on trunk"
+        }, {
+          "description" : "One file per plan, doored: written through door.mjs or receipted; frontmatter carries owner, session and rulings.",
+          "documentation" : { },
+          "id" : "19",
           "name" : "Plan files",
           "perspectives" : [ {
             "description" : "plan-hiring-line.md was edited three times tonight: by hand with a receipt, by patch.mjs twice\n· land refused the first commit until the receipt existed (PD-059)\n· its R2, RQ3 and RQ4 rows now read RULED, citing PD-075 and PD-076",
@@ -490,7 +511,7 @@
               "title" : "The reconciler is drawn as a Proposal beside the modules that exist"
             } ]
           },
-          "id" : "19",
+          "id" : "20",
           "name" : "reconciler",
           "perspectives" : [ {
             "description" : "Not built. What it would have caught tonight: three gap rows written by hand (R-013 to R-015), and a request ledger that refused every append until an older row gained a field\n· session-close step 6 reconciles assumptions, not asks",
@@ -501,15 +522,15 @@
           },
           "relationships" : [ {
             "description" : "ABSENT: holds the operator's asks against the plan set",
-            "destinationId" : "33",
-            "id" : "80",
-            "sourceId" : "19",
+            "destinationId" : "34",
+            "id" : "84",
+            "sourceId" : "20",
             "tags" : "Relationship"
           }, {
             "description" : "ABSENT: re-cuts a plan when a session surfaces new work",
-            "destinationId" : "18",
-            "id" : "81",
-            "sourceId" : "19",
+            "destinationId" : "19",
+            "id" : "85",
+            "sourceId" : "20",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component,Proposal",
@@ -530,31 +551,31 @@
         "relationships" : [ {
           "description" : "Prints the packet to",
           "destinationId" : "1",
-          "id" : "53",
-          "linkedRelationshipId" : "52",
+          "id" : "54",
+          "linkedRelationshipId" : "53",
           "sourceId" : "9"
         }, {
           "description" : "Appends one ask to",
-          "destinationId" : "33",
-          "id" : "68",
-          "linkedRelationshipId" : "67",
+          "destinationId" : "34",
+          "id" : "69",
+          "linkedRelationshipId" : "68",
           "sourceId" : "9"
         }, {
           "description" : "Asks what already exists, by name or by question",
-          "destinationId" : "34",
-          "id" : "105",
+          "destinationId" : "35",
+          "id" : "109",
           "sourceId" : "9",
           "tags" : "Relationship"
         }, {
           "description" : "Asks the model",
-          "destinationId" : "36",
-          "id" : "110",
+          "destinationId" : "37",
+          "id" : "114",
           "sourceId" : "9",
           "tags" : "Relationship"
         }, {
           "description" : "ABSENT: the packet, re-homed as what a session is handed at open",
-          "destinationId" : "35",
-          "id" : "114",
+          "destinationId" : "36",
+          "id" : "118",
           "sourceId" : "9",
           "tags" : "Relationship"
         } ],
@@ -573,7 +594,7 @@
           } ]
         },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "20",
+        "id" : "21",
         "name" : "Maintainer control",
         "perspectives" : [ {
           "description" : "Forty jobs in the maintenance_job store; the health line reads ABSENT (measured 2026-09-09)\n· no orient-equivalent runs them, so the operator sees nothing",
@@ -584,15 +605,15 @@
         },
         "relationships" : [ {
           "description" : "Runs forty jobs over",
-          "destinationId" : "33",
-          "id" : "104",
-          "sourceId" : "20",
+          "destinationId" : "34",
+          "id" : "108",
+          "sourceId" : "21",
           "tags" : "Relationship"
         }, {
           "description" : "Asks what already exists, by name or by question",
-          "destinationId" : "34",
-          "id" : "106",
-          "sourceId" : "20",
+          "destinationId" : "35",
+          "id" : "110",
+          "sourceId" : "21",
           "tags" : "Relationship"
         } ],
         "tags" : "Element,Container,Modified",
@@ -610,7 +631,7 @@
           } ]
         },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "21",
+        "id" : "22",
         "name" : "Exec control",
         "perspectives" : [ {
           "description" : "2026-09-14: the hire door refuses a ranked seat without a registered machine (PR-086 HELD k=3); seats-hired reads 0 of 13\n· ousterhout reinstated (PD-075), the one cartridge with both a skill in daily use and a registered machine\n· the bar's precedence rule ruled (PD-076): when B1 and B2 split, B2 wins",
@@ -620,28 +641,40 @@
           "structurizr.dsl.identifier" : "execControl"
         },
         "relationships" : [ {
+          "description" : "ABSENT: the chief of staff seat, once hired, runs this first (PD-058)",
+          "destinationId" : "18",
+          "id" : "71",
+          "sourceId" : "22",
+          "tags" : "Relationship"
+        }, {
+          "description" : "ABSENT: the chief of staff seat, once hired, runs this first (PD-058)",
+          "destinationId" : "9",
+          "id" : "72",
+          "linkedRelationshipId" : "71",
+          "sourceId" : "22"
+        }, {
           "description" : "A seat's machine reads its census from",
-          "destinationId" : "33",
-          "id" : "101",
-          "sourceId" : "21",
+          "destinationId" : "34",
+          "id" : "105",
+          "sourceId" : "22",
           "tags" : "Relationship"
         }, {
           "description" : "The hire door asks the seats-hired criterion in",
-          "destinationId" : "23",
-          "id" : "102",
-          "sourceId" : "21",
+          "destinationId" : "24",
+          "id" : "106",
+          "sourceId" : "22",
           "tags" : "Relationship"
         }, {
           "description" : "Asks what already exists, by name or by question",
-          "destinationId" : "34",
-          "id" : "107",
-          "sourceId" : "21",
+          "destinationId" : "35",
+          "id" : "111",
+          "sourceId" : "22",
           "tags" : "Relationship"
         }, {
           "description" : "Asks the model",
-          "destinationId" : "36",
-          "id" : "111",
-          "sourceId" : "21",
+          "destinationId" : "37",
+          "id" : "115",
+          "sourceId" : "22",
           "tags" : "Relationship"
         } ],
         "tags" : "Element,Container,Modified",
@@ -659,7 +692,7 @@
           } ]
         },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "22",
+        "id" : "23",
         "name" : "Feedback control",
         "perspectives" : [ {
           "description" : "Instruments unjoined: operator-moves, ask-yield, batch-rca, the failure ledger, three Brier surfaces\n· the figure called a Brier score is the average confidence on known-false claims, 0.6478 over nine (CAL1, unbuilt)\n· tonight's 26 reds were attributed by the baseline; nothing routed them to anyone",
@@ -670,27 +703,27 @@
         },
         "relationships" : [ {
           "description" : "A finding becomes a job row in",
-          "destinationId" : "23",
-          "id" : "95",
-          "sourceId" : "22",
+          "destinationId" : "24",
+          "id" : "99",
+          "sourceId" : "23",
           "tags" : "Relationship"
         }, {
           "description" : "Reads the failure and claim ledgers from",
-          "destinationId" : "33",
-          "id" : "103",
-          "sourceId" : "22",
+          "destinationId" : "34",
+          "id" : "107",
+          "sourceId" : "23",
           "tags" : "Relationship"
         }, {
           "description" : "Asks what already exists, by name or by question",
-          "destinationId" : "34",
-          "id" : "108",
-          "sourceId" : "22",
+          "destinationId" : "35",
+          "id" : "112",
+          "sourceId" : "23",
           "tags" : "Relationship"
         }, {
           "description" : "Asks the model",
-          "destinationId" : "36",
-          "id" : "113",
-          "sourceId" : "22",
+          "destinationId" : "37",
+          "id" : "117",
+          "sourceId" : "23",
           "tags" : "Relationship"
         } ],
         "tags" : "Element,Container,Modified",
@@ -699,7 +732,7 @@
         "components" : [ {
           "description" : "A durable state machine over the pipe model: one run row per piece of work, every hop's verdict on the row.",
           "documentation" : { },
-          "id" : "24",
+          "id" : "25",
           "name" : "Pipe driver",
           "perspectives" : [ {
             "description" : "Not on tonight's path: the window opened no run row; its checkpoints ran through orient and the falsifier",
@@ -710,15 +743,15 @@
           },
           "relationships" : [ {
             "description" : "Calls the current stage's door in",
-            "destinationId" : "25",
-            "id" : "82",
-            "sourceId" : "24",
+            "destinationId" : "26",
+            "id" : "86",
+            "sourceId" : "25",
             "tags" : "Relationship"
           }, {
             "description" : "Reads the ask it carries from",
-            "destinationId" : "33",
-            "id" : "83",
-            "sourceId" : "24",
+            "destinationId" : "34",
+            "id" : "87",
+            "sourceId" : "25",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component",
@@ -726,7 +759,7 @@
         }, {
           "description" : "jobs-gate, candidate-admission, job-admission, spec-freeze, registry-admission: each refuses a named thing.",
           "documentation" : { },
-          "id" : "25",
+          "id" : "26",
           "name" : "Admission doors",
           "perspectives" : [ {
             "description" : "Not on tonight's path: no candidate crossed an admission door; the door that changed was the hire door in advisor-builder\n· land refuses a staged module the registry does not know, which is why two rows were registered before the first land",
@@ -737,15 +770,15 @@
           },
           "relationships" : [ {
             "description" : "Writes candidates to and freezes requirements into",
-            "destinationId" : "33",
-            "id" : "85",
-            "sourceId" : "25",
+            "destinationId" : "34",
+            "id" : "89",
+            "sourceId" : "26",
             "tags" : "Relationship"
           }, {
             "description" : "Admits machines into",
-            "destinationId" : "34",
-            "id" : "86",
-            "sourceId" : "25",
+            "destinationId" : "35",
+            "id" : "90",
+            "sourceId" : "26",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component",
@@ -753,7 +786,7 @@
         }, {
           "description" : "Registers one probe: scaffolds the criterion and its control, builds the row from the contract, hands it to the ledger door.",
           "documentation" : { },
-          "id" : "26",
+          "id" : "27",
           "name" : "Probe doorway",
           "perspectives" : [ {
             "description" : "2026-09-14: from a plan worktree every registration read UNEVALUABLE — inside a linked worktree — until the doorway resolved the ledger through the store root (CF-120's shape)\n· the tracked-criterion rule still needs the file in the store's tree, so a criterion lands first and registers second",
@@ -764,15 +797,15 @@
           },
           "relationships" : [ {
             "description" : "Scaffolds a criterion and its control in",
-            "destinationId" : "29",
-            "id" : "88",
-            "sourceId" : "26",
+            "destinationId" : "30",
+            "id" : "92",
+            "sourceId" : "27",
             "tags" : "Relationship"
           }, {
             "description" : "Hands the built row to",
-            "destinationId" : "27",
-            "id" : "89",
-            "sourceId" : "26",
+            "destinationId" : "28",
+            "id" : "93",
+            "sourceId" : "27",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component",
@@ -780,7 +813,7 @@
         }, {
           "description" : "The one writer of the probe, decision and request ledgers; runs each ledger's validator before a row lands; a dry run writes nothing.",
           "documentation" : { },
-          "id" : "27",
+          "id" : "28",
           "name" : "Ledger door",
           "perspectives" : [ {
             "description" : "Wrote PR-086, PD-075, PD-076, PD-078 and R-013 to R-015 tonight; refused R-013 three times until DL-021 carried discovered_from\n· amend was used once, on DL-021, one field\n· every write ran from the main checkout: from a worktree the pen refuses (PD-027)",
@@ -791,9 +824,9 @@
           },
           "relationships" : [ {
             "description" : "Appends a validated row to",
-            "destinationId" : "33",
-            "id" : "90",
-            "sourceId" : "27",
+            "destinationId" : "34",
+            "id" : "94",
+            "sourceId" : "28",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component",
@@ -801,7 +834,7 @@
         }, {
           "description" : "Orders probes by exposure from the risk matrix; a probe with no mode runs after the ranked ones, never scored zero.",
           "documentation" : { },
-          "id" : "28",
+          "id" : "29",
           "name" : "Risk ranker",
           "perspectives" : [ {
             "description" : "56 of 85 probes ranked by exposure; PR-086 carries mode nothing_enforced and ran on request with --only\n· governance was refused as a mode: the ids are the matrix's ranks, and the refusal now lists them (CF-175)",
@@ -815,7 +848,7 @@
         }, {
           "description" : "One file per kill criterion: a pure judge() the control drives to every verdict; exit 0 HELD, 1 FALSIFIED, 3 UNEVALUABLE.",
           "documentation" : { },
-          "id" : "29",
+          "id" : "30",
           "name" : "Criteria",
           "perspectives" : [ {
             "description" : "hire-door.mjs: three fixture cartridges through the real door under a scratch HOME; its export surface trimmed to five so depth-bar's bar on an added module held\n· seats-hired.mjs gained --seat for the door and a reader for reinstatement rows; 27 controls pass",
@@ -826,9 +859,9 @@
           },
           "relationships" : [ {
             "description" : "May ask a door a question, in dry run",
-            "destinationId" : "27",
-            "id" : "93",
-            "sourceId" : "29",
+            "destinationId" : "28",
+            "id" : "97",
+            "sourceId" : "30",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component",
@@ -836,7 +869,7 @@
         }, {
           "description" : "Runs each probe's pre-registered criterion, risk-ordered; the baseline is stamped on the first run and a flip is printed.",
           "documentation" : { },
-          "id" : "30",
+          "id" : "31",
           "name" : "RAT falsifier",
           "perspectives" : [ {
             "description" : "PR-086: baseline FALSIFIED at k=1, FLIP to HELD at k=2, HELD at k=3, every run from the main checkout\n· the criterion was red because the door deployed F1 and F2; the flip followed the door change, never an edit to the row",
@@ -847,21 +880,21 @@
           },
           "relationships" : [ {
             "description" : "Asks for the risk order from",
-            "destinationId" : "28",
-            "id" : "91",
-            "sourceId" : "30",
+            "destinationId" : "29",
+            "id" : "95",
+            "sourceId" : "31",
             "tags" : "Relationship"
           }, {
             "description" : "Runs the named criterion in",
-            "destinationId" : "29",
-            "id" : "92",
-            "sourceId" : "30",
+            "destinationId" : "30",
+            "id" : "96",
+            "sourceId" : "31",
             "tags" : "Relationship"
           }, {
             "description" : "Amends the attack, the k and the lineage through",
-            "destinationId" : "27",
-            "id" : "94",
-            "sourceId" : "30",
+            "destinationId" : "28",
+            "id" : "98",
+            "sourceId" : "31",
             "tags" : "Relationship"
           } ],
           "tags" : "Element,Component",
@@ -870,7 +903,7 @@
         "description" : "an utterance, an incident, or a best practice becomes an admitted job (PD-059, R-008)",
         "documentation" : { },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "23",
+        "id" : "24",
         "name" : "Discovery",
         "perspectives" : [ {
           "description" : "Its RAT path ran end to end on PR-086 today: registered red, flipped by a door change, HELD k=3\n· this window opened no run row; its checkpoints ran through orient and the falsifier",
@@ -881,33 +914,33 @@
         },
         "relationships" : [ {
           "description" : "Reads the ask it carries from",
-          "destinationId" : "33",
-          "id" : "84",
-          "linkedRelationshipId" : "83",
-          "sourceId" : "23"
+          "destinationId" : "34",
+          "id" : "88",
+          "linkedRelationshipId" : "87",
+          "sourceId" : "24"
         }, {
           "description" : "Admits machines into",
-          "destinationId" : "34",
-          "id" : "87",
-          "linkedRelationshipId" : "86",
-          "sourceId" : "23"
+          "destinationId" : "35",
+          "id" : "91",
+          "linkedRelationshipId" : "90",
+          "sourceId" : "24"
         }, {
           "description" : "ABSENT: a frozen spec row crosses; nothing refuses it (CL-004)",
-          "destinationId" : "31",
-          "id" : "96",
-          "sourceId" : "23",
+          "destinationId" : "32",
+          "id" : "100",
+          "sourceId" : "24",
           "tags" : "Relationship"
         }, {
           "description" : "Asks what already exists, by name or by question",
-          "destinationId" : "34",
-          "id" : "109",
-          "sourceId" : "23",
+          "destinationId" : "35",
+          "id" : "113",
+          "sourceId" : "24",
           "tags" : "Relationship"
         }, {
           "description" : "Asks the model",
-          "destinationId" : "36",
-          "id" : "112",
-          "sourceId" : "23",
+          "destinationId" : "37",
+          "id" : "116",
+          "sourceId" : "24",
           "tags" : "Relationship"
         } ],
         "tags" : "Element,Container",
@@ -925,7 +958,7 @@
           } ]
         },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "31",
+        "id" : "32",
         "name" : "Delivery",
         "perspectives" : [ {
           "description" : "Four lands tonight by name, the last four commits on trunk; each ran the suite first so the push gate could attribute\n· the first push was refused on 26 reds that were trunk's, not the session's (CF-166's shape)\n· the leak scan refused a ledger snapshot carrying a home path; the store kept it, the tree did not",
@@ -936,21 +969,21 @@
         },
         "relationships" : [ {
           "description" : "ABSENT: a landed capability, a measured number",
-          "destinationId" : "32",
-          "id" : "97",
-          "sourceId" : "31",
+          "destinationId" : "33",
+          "id" : "101",
+          "sourceId" : "32",
           "tags" : "Relationship"
         }, {
           "description" : "Refuses a land that adds an unregistered module",
-          "destinationId" : "34",
-          "id" : "99",
-          "sourceId" : "31",
+          "destinationId" : "35",
+          "id" : "103",
+          "sourceId" : "32",
           "tags" : "Relationship"
         }, {
           "description" : "Snapshots the store's ledgers into the tree before a commit",
-          "destinationId" : "33",
-          "id" : "100",
-          "sourceId" : "31",
+          "destinationId" : "34",
+          "id" : "104",
+          "sourceId" : "32",
           "tags" : "Relationship"
         } ],
         "tags" : "Element,Container,Proposal",
@@ -968,7 +1001,7 @@
           } ]
         },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "32",
+        "id" : "33",
         "name" : "Distribution",
         "perspectives" : [ {
           "description" : "Nothing to cross: no stage names a funnel\n· the roster gained job 15, distribution, on 2026-09-10 (PD-042); no seat is hired for it",
@@ -980,14 +1013,14 @@
         "relationships" : [ {
           "description" : "ABSENT: reaches",
           "destinationId" : "4",
-          "id" : "65",
-          "sourceId" : "32",
+          "id" : "66",
+          "sourceId" : "33",
           "tags" : "Relationship"
         }, {
           "description" : "ABSENT: an audience response returns",
-          "destinationId" : "22",
-          "id" : "98",
-          "sourceId" : "32",
+          "destinationId" : "23",
+          "id" : "102",
+          "sourceId" : "33",
           "tags" : "Relationship"
         } ],
         "tags" : "Element,Container,Proposal",
@@ -996,7 +1029,7 @@
         "description" : "every ledger, one pen, one project: asks, requests, probes, decisions, fan-out claims, gate runs.",
         "documentation" : { },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "33",
+        "id" : "34",
         "name" : "Stores",
         "perspectives" : [ {
           "description" : "Every write tonight went through record.mjs or register(), from the main checkout, then a snapshot was copied into the tree\n· PR-086, PD-075, PD-076, PD-078 and R-013 to R-015 landed this way\n· a worktree's copy is a snapshot; the store is the truth (PD-027)",
@@ -1020,7 +1053,7 @@
           } ]
         },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "34",
+        "id" : "35",
         "name" : "Registry",
         "perspectives" : [ {
           "description" : "710 rows in machinery.json after crit-hire-door and test-hire-door registered tonight\n· registration from a worktree was refused: the registry is a store ledger and lives in the main checkout\n· its family field names the old pipe on 24 of 627 rows (measured 2026-09-09)",
@@ -1044,7 +1077,7 @@
           } ]
         },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "35",
+        "id" : "36",
         "name" : "Context plugin",
         "perspectives" : [ {
           "description" : "The packet is the context today: rename, claim, worktree line, doors recipe, CP table, bar, riskiest assumption\n· no package has been searched; the box is a Proposal by the plugin-layer ruling of 2026-09-09",
@@ -1068,7 +1101,7 @@
           } ]
         },
         "group" : "governance-rbac: who may act, and what every act leaves behind",
-        "id" : "36",
+        "id" : "37",
         "name" : "Inference plugin",
         "perspectives" : [ {
           "description" : "Every machine asked the model in the window today; none asked a package\n· the risk matrix declares its level; nothing measures it",
@@ -1094,20 +1127,20 @@
       "relationships" : [ {
         "description" : "Prints the packet to",
         "destinationId" : "1",
-        "id" : "54",
-        "linkedRelationshipId" : "52",
+        "id" : "55",
+        "linkedRelationshipId" : "53",
         "sourceId" : "8"
       }, {
         "description" : "Plugs into the workflows of; the boundary is what is carried in",
         "destinationId" : "3",
-        "id" : "64",
+        "id" : "65",
         "sourceId" : "8",
         "tags" : "Relationship"
       }, {
         "description" : "ABSENT: reaches",
         "destinationId" : "4",
-        "id" : "66",
-        "linkedRelationshipId" : "65",
+        "id" : "67",
+        "linkedRelationshipId" : "66",
         "sourceId" : "8"
       } ],
       "tags" : "Element,Software System,Modified"
@@ -1116,7 +1149,7 @@
   "name" : "The Factory",
   "properties" : {
     "drawing-office.lenses" : "Insight",
-    "structurizr.inspection.error" : "81",
+    "structurizr.inspection.error" : "84",
     "structurizr.inspection.info" : "0",
     "structurizr.inspection.ignore" : "0",
     "structurizr.inspection.warning" : "0"
@@ -1183,7 +1216,15 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "33",
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "22",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "34",
         "x" : 0,
         "y" : 0
       } ],
@@ -1195,11 +1236,11 @@
         "structurizr.tooltips" : "true"
       },
       "relationships" : [ {
-        "id" : "37"
+        "id" : "105"
       }, {
-        "id" : "40"
+        "id" : "38"
       }, {
-        "id" : "43"
+        "id" : "41"
       }, {
         "id" : "44"
       }, {
@@ -1207,17 +1248,17 @@
       }, {
         "id" : "46"
       }, {
+        "id" : "47"
+      }, {
         "id" : "52"
       }, {
-        "id" : "67"
+        "id" : "53"
       }, {
-        "id" : "69"
+        "id" : "68"
       }, {
         "id" : "70"
       }, {
         "id" : "71"
-      }, {
-        "id" : "72"
       }, {
         "id" : "73"
       }, {
@@ -1236,6 +1277,14 @@
         "id" : "80"
       }, {
         "id" : "81"
+      }, {
+        "id" : "82"
+      }, {
+        "id" : "83"
+      }, {
+        "id" : "84"
+      }, {
+        "id" : "85"
       } ],
       "title" : "Inside operator control"
     }, {
@@ -1248,14 +1297,10 @@
         "rankSeparation" : 500,
         "vertices" : false
       },
-      "containerId" : "23",
+      "containerId" : "24",
       "description" : "Inside discovery: the driver, the doors, the probe doorway, the ledger door, the ranker, the criteria and the falsifier.",
       "elements" : [ {
         "id" : "7",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "24",
         "x" : 0,
         "y" : 0
       }, {
@@ -1283,11 +1328,15 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "33",
+        "id" : "31",
         "x" : 0,
         "y" : 0
       }, {
         "id" : "34",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "35",
         "x" : 0,
         "y" : 0
       } ],
@@ -1299,29 +1348,29 @@
         "structurizr.tooltips" : "true"
       },
       "relationships" : [ {
-        "id" : "55"
-      }, {
-        "id" : "82"
-      }, {
-        "id" : "83"
-      }, {
-        "id" : "85"
+        "id" : "56"
       }, {
         "id" : "86"
       }, {
-        "id" : "88"
+        "id" : "87"
       }, {
         "id" : "89"
       }, {
         "id" : "90"
-      }, {
-        "id" : "91"
       }, {
         "id" : "92"
       }, {
         "id" : "93"
       }, {
         "id" : "94"
+      }, {
+        "id" : "95"
+      }, {
+        "id" : "96"
+      }, {
+        "id" : "97"
+      }, {
+        "id" : "98"
       } ],
       "title" : "Inside discovery"
     } ],
@@ -1441,10 +1490,6 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "20",
-        "x" : 0,
-        "y" : 0
-      }, {
         "id" : "21",
         "x" : 0,
         "y" : 0
@@ -1457,7 +1502,7 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "31",
+        "id" : "24",
         "x" : 0,
         "y" : 0
       }, {
@@ -1478,6 +1523,10 @@
         "y" : 0
       }, {
         "id" : "36",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
         "x" : 0,
         "y" : 0
       } ],
@@ -1519,11 +1568,17 @@
       }, {
         "id" : "114"
       }, {
-        "id" : "38"
+        "id" : "115"
       }, {
-        "id" : "41"
+        "id" : "116"
       }, {
-        "id" : "47"
+        "id" : "117"
+      }, {
+        "id" : "118"
+      }, {
+        "id" : "39"
+      }, {
+        "id" : "42"
       }, {
         "id" : "48"
       }, {
@@ -1533,33 +1588,29 @@
       }, {
         "id" : "51"
       }, {
-        "id" : "53"
+        "id" : "52"
       }, {
-        "id" : "56"
+        "id" : "54"
       }, {
-        "id" : "58"
+        "id" : "57"
       }, {
         "id" : "59"
       }, {
-        "id" : "61"
+        "id" : "60"
       }, {
         "id" : "62"
       }, {
-        "id" : "65"
+        "id" : "63"
       }, {
-        "id" : "68"
+        "id" : "66"
       }, {
-        "id" : "84"
+        "id" : "69"
       }, {
-        "id" : "87"
+        "id" : "72"
       }, {
-        "id" : "95"
+        "id" : "88"
       }, {
-        "id" : "96"
-      }, {
-        "id" : "97"
-      }, {
-        "id" : "98"
+        "id" : "91"
       }, {
         "id" : "99"
       } ],
@@ -1607,15 +1658,15 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "23",
+        "id" : "24",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "31",
+        "id" : "32",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "33",
+        "id" : "34",
         "x" : 0,
         "y" : 0
       } ],
@@ -1642,67 +1693,67 @@
       },
       "relationships" : [ {
         "description" : "Closes the last window: session id, last ask, and the two human steps declared, never detected",
-        "id" : "43",
+        "id" : "44",
         "order" : "1",
         "response" : false
       }, {
         "description" : "Step 2 scans coverage against the ask ledger; step 6 puts every plan's assumptions through the falsifier",
-        "id" : "76",
+        "id" : "80",
         "order" : "2",
         "response" : false
       }, {
         "description" : "Step 10 pastes the fan-out state; step 11 rehearses N windows per owner against a copy of the plan set",
-        "id" : "77",
+        "id" : "81",
         "order" : "3",
         "response" : false
       }, {
         "description" : "The closing tree lands by name; trunk fast-forwards onto it and is pushed",
-        "id" : "47",
+        "id" : "48",
         "order" : "4",
         "response" : false
       }, {
         "description" : "A new window types orient <owner>; the take reads the session id from the window's own environment",
-        "id" : "44",
+        "id" : "45",
         "order" : "5",
         "response" : false
       }, {
         "description" : "Reads every plan's frontmatter: owner, session_name, status, rulings; READY, held, or held back",
-        "id" : "69",
+        "id" : "73",
         "order" : "6",
         "response" : false
       }, {
         "description" : "Claims the first unheld plan of that owner as a row; first row wins; typing it again returns the same plan",
-        "id" : "70",
+        "id" : "74",
         "order" : "7",
         "response" : false
       }, {
         "description" : "Prints the packet: the rename, the claim, the worktree line, the doors recipe, the CP table, the bar, the riskiest assumption",
-        "id" : "52",
+        "id" : "53",
         "order" : "8",
         "response" : false
       }, {
         "description" : "Names the window with the plan's full session name and records the title as a ledger row",
-        "id" : "49",
+        "id" : "50",
         "order" : "9",
         "response" : false
       }, {
         "description" : "Adds a worktree at trunk and inherits trunk's red set as the tree's baseline, zero suite runs",
-        "id" : "46",
+        "id" : "47",
         "order" : "10",
         "response" : false
       }, {
         "description" : "orient --plan reads the plan's CP verdicts; a level-5 checkpoint with no ruling is refused, not run",
-        "id" : "45",
+        "id" : "46",
         "order" : "11",
         "response" : false
       }, {
         "description" : "Resolves the probe ledger through the store root, never the tree's copy",
-        "id" : "73",
+        "id" : "77",
         "order" : "12",
         "response" : false
       }, {
         "description" : "The first checkpoint's criterion runs; its verdict is the window's first fact",
-        "id" : "48",
+        "id" : "49",
         "order" : "13",
         "response" : false
       } ],
@@ -1718,13 +1769,9 @@
         "vertices" : false
       },
       "description" : "How any RAT attack runs: a spec becomes a probe row, the loop runs its criterion, the verdict is amended onto the row.",
-      "elementId" : "23",
+      "elementId" : "24",
       "elements" : [ {
         "id" : "7",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "26",
         "x" : 0,
         "y" : 0
       }, {
@@ -1744,7 +1791,11 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "33",
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "34",
         "x" : 0,
         "y" : 0
       } ],
@@ -1766,42 +1817,42 @@
       },
       "relationships" : [ {
         "description" : "A spec of four fields and a forecast: assumption, criterion, command, mode, p_hold",
-        "id" : "55",
+        "id" : "56",
         "order" : "1",
         "response" : false
       }, {
         "description" : "Scaffolds the criterion and its control if absent; the store door needs a tracked file",
-        "id" : "88",
+        "id" : "92",
         "order" : "2",
         "response" : false
       }, {
         "description" : "Builds the twenty-field row from the contract; the door assigns the id",
-        "id" : "89",
+        "id" : "93",
         "order" : "3",
         "response" : false
       }, {
         "description" : "Validates, appends, mirrors; the first run stamps the baseline",
-        "id" : "90",
+        "id" : "94",
         "order" : "4",
         "response" : false
       }, {
         "description" : "Asks the risk order: exposure from the matrix, unranked rows after",
-        "id" : "91",
+        "id" : "95",
         "order" : "5",
         "response" : false
       }, {
         "description" : "Runs the criterion as a process; exit 0, 1 or 3 is the verdict",
-        "id" : "92",
+        "id" : "96",
         "order" : "6",
         "response" : false
       }, {
         "description" : "A criterion may itself ask a door a question, in dry run",
-        "id" : "93",
+        "id" : "97",
         "order" : "7",
         "response" : false
       }, {
         "description" : "Amends the row: attack k, verdict, command sha; a FLIP is printed",
-        "id" : "94",
+        "id" : "98",
         "order" : "8",
         "response" : false
       } ],
@@ -1859,23 +1910,23 @@
         "structurizr.tooltips" : "true"
       },
       "relationships" : [ {
-        "id" : "39"
+        "id" : "40"
       }, {
-        "id" : "42"
+        "id" : "43"
       }, {
-        "id" : "49"
+        "id" : "50"
       }, {
-        "id" : "54"
+        "id" : "55"
       }, {
-        "id" : "57"
+        "id" : "58"
       }, {
-        "id" : "60"
-      }, {
-        "id" : "63"
+        "id" : "61"
       }, {
         "id" : "64"
       }, {
-        "id" : "66"
+        "id" : "65"
+      }, {
+        "id" : "67"
       } ],
       "softwareSystemId" : "8",
       "title" : "The factory and its neighbours"
@@ -1932,23 +1983,23 @@
         "structurizr.tooltips" : "true"
       },
       "relationships" : [ {
-        "id" : "39"
+        "id" : "40"
       }, {
-        "id" : "42"
+        "id" : "43"
       }, {
-        "id" : "49"
+        "id" : "50"
       }, {
-        "id" : "54"
+        "id" : "55"
       }, {
-        "id" : "57"
+        "id" : "58"
       }, {
-        "id" : "60"
-      }, {
-        "id" : "63"
+        "id" : "61"
       }, {
         "id" : "64"
       }, {
-        "id" : "66"
+        "id" : "65"
+      }, {
+        "id" : "67"
       } ],
       "title" : "The factory"
     } ]

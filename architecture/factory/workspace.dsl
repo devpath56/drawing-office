@@ -111,6 +111,11 @@ workspace "The Factory" "Eleven machines inside one governance boundary, modelle
                             "Insight" "The one-letter rulings of 2026-09-14 (A, A on both) are under the length floor and in no ask store; plan-chief-of-staff S2 names the hole\n· DL-021, the operator's commitment of 21:20Z, reached the request ledger by promotion and needed discovered_from before any later row could land"
                         }
                     }
+                    intentReader = component "intent reader" "The operator's asks in time order, a later word on a subject superseding an earlier one as a row, on declared links only; the chief of staff's machine (PD-063)." "Node, prongs/intent.mjs; on branch mon-14-9-fable-2, not yet on trunk" {
+                        perspectives {
+                            "Insight" "Built 2026-09-14 in the Fable-2 window (d8b47af): 272 lines, a 205-line control, registered in that tree's registry\n· PR-076 flipped to HELD there and reads k=7 in the store; from trunk the same lookup still reads ABSENT because the branch has not landed\n· it reads the ask store and writes no ledger of its own (plan-chief-of-staff, assumption 3)"
+                        }
+                    }
                     planFiles = component "Plan files" "One file per plan, doored: written through door.mjs or receipted; frontmatter carries owner, session and rulings." "Markdown, core/plans/*.md" {
                         perspectives {
                             "Insight" "plan-hiring-line.md was edited three times tonight: by hand with a receipt, by patch.mjs twice\n· land refused the first commit until the receipt existed (PD-059)\n· its R2, RQ3 and RQ4 rows now read RULED, citing PD-075 and PD-076"
@@ -245,6 +250,8 @@ workspace "The Factory" "Eleven machines inside one governance boundary, modelle
 
         /* INSIDE OPERATOR CONTROL */
         askHook -> stores "Appends one ask to"
+        intentReader -> stores "Reads the ask ledger in time order from"
+        execControl -> intentReader "ABSENT: the chief of staff seat, once hired, runs this first (PD-058)"
         fanout -> planReader "Reads every plan's frontmatter through"
         fanout -> stores "Appends a claim row and a title row to (intent/fanouts.jsonl)"
         planReader -> planFiles "Parses"
