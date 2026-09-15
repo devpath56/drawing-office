@@ -346,7 +346,7 @@
           "id" : "12",
           "name" : "session close",
           "perspectives" : [ {
-            "description" : "01:45Z on 2026-09-15, first run of the six-step close: 55 lines where the eleven-step close printed 120; OPEN on step 11 (every plan held, 0 windows handed) and OWED on step 1 (12 uncovered asks); 3, 6, 8, 10 ok\n· steps 4, 5, 7 were cut and 2, 9 moved on a cut table measured against 'the operator reads the reflection and the fan-out; the close refuses a leak' — 1064 of 1516 words went with them\n· step 8 was promoted from advisory to blocking the night the intent reader sat built on a branch trunk could not see",
+            "description" : "01:45Z on 2026-09-15, first run of the six-step close: 55 lines where the eleven-step close printed 120; OPEN on step 11 (every plan held, 0 windows handed) and OWED on step 1 (12 uncovered asks); 3, 6, 8, 10 ok\n· steps 4, 5, 7 cut and 2, 9 moved on a cut table against 'the reflection, the fan-out, a refused leak' — 1064 of 1516 words went with them\n· step 8 was promoted from advisory to blocking the night the intent reader sat built on a branch trunk could not see",
             "name" : "Insight"
           } ],
           "properties" : {
