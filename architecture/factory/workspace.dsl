@@ -1,271 +1,201 @@
 /*
- * THE FACTORY AS THREE DEPARTMENTS, drawn from three models rather than from memory.
+ * THE FACTORY AS ONE SYSTEM OF ELEVEN CONTAINERS, drawn from the operator's whiteboard of 2026-09-09
+ * as ruled in design-loop core/plans/plan-factory-architecture.md ("The C4 container view — ruled
+ * 2026-09-09") and re-framed here on 2026-09-15 at the operator's word: the three departments of
+ * ADR 1 become one system; each machine is a container; the four control systems stay four boxes so
+ * each one's missing interface stays visible; governance and RBAC wrap every container as a frame;
+ * context and inference are containers the machines call. ADR 3 records the ruling.
  *
- * Production is design-loop's main pipe (core/pipe.json, 12 stages, 1 guard, 11 stores). HR is
- * advisor-builder (pipe.json, 57 nodes, 16 guards). L&D is learn-verify-kit (spec/SPEC-LVK-v2.md,
- * 3 BUILT · 2 PARTIAL · 9 UNBUILT). The nine seams between them were read from the code that carries
- * each one on 2026-09-07 (core/docs/CONCEPT-three-departments.md §0b); a seam that does not exist
- * yet is drawn with its description starting ABSENT, so the picture cannot claim it.
+ * Delivery state is the plan's own table: Modified where the seat exists and the interface is
+ * missing, Proposal where nothing exists yet, and every marked box carries a decision beside it or
+ * sits under a parent whose marked child does. Operator control is drawn to component level — the
+ * modules as they run — because the operator asked to double-click orient and see inside it, and
+ * the handoff between one window's close and the next window's open is told once, as a trace, from
+ * the real run of 2026-09-14.
  *
- * One rule from the concept note: each department is a deep module. Production never sees a
- * competency, HR never sees a quiz score, L&D never sees a candidate row. The lines between systems
- * are the whole interface.
+ * Component boxes name their module in the technology field and carry no `implementation`
+ * property: checks/stage.mjs reads git in THIS repository and the modules live in design-loop, so a
+ * pointer would read untracked. Their stage is reported as not claimed, never as built.
  */
-workspace "The Factory" "Production, HR and L&D as three deep modules with nine seams, modelled 2026-09-07." {
+workspace "The Factory" "Eleven machines inside one governance boundary, modelled 2026-09-15 from the whiteboard of 2026-09-09." {
 
-    /* THE LENS ORDER IS THE MODEL'S. The viewer composes every perspective a box carries into one
-       hover, in this order, and arms no layer of its own: a layer dims what does not carry it, and
-       a hover is not a comparison. A perspective a box carries that is not named here still shows,
-       after these. */
     properties {
-        "drawing-office.lenses" "Insight, OSS equivalent"
+        "drawing-office.lenses" "Insight"
     }
 
     model {
-        operator = person "Operator" "Types asks, rules on candidates, learns, declares weights, rates advisors."
+        operator = person "Operator" "Admin (PD-034). Types asks, rules on tables, opens and closes windows, lands work."
+        second = person "Second operator" "Super user (PD-034). Rules on the store with the operator's roles."
 
-        todoist = softwareSystem "Todoist" "Two boards: Telegram ingest, Granola next steps." "Existing System"
-        telegram = softwareSystem "Telegram" "Links a routine turns into cards." "Existing System"
-        granola = softwareSystem "Granola" "Meetings that become cards." "Existing System"
-        web = softwareSystem "The web" "Where OSS candidates are searched, with a quoted query." "Existing System"
-        sourceLibrary = softwareSystem "Source library" "Gitignored books; local grounding only." "Existing System"
-        agent = softwareSystem "Agent in session" "Does the LLM work; no API key in any tree." "Existing System"
+        targetCompany = softwareSystem "A target company" "Its own workflows; the boundary is what gets carried in." "Existing System"
+        audience = softwareSystem "The audience" "Answers back to distributed material; nothing reaches it yet." "Existing System"
+        web = softwareSystem "The web" "Where OSS candidates are searched, with a quoted query and a receipt." "Existing System"
+        deepseek = softwareSystem "DeepSeek OSS packages" "Unsearched candidates for the two plugins." "Existing System"
+        agent = softwareSystem "Agent in session" "Does the LLM work in the window the operator opened; no API key in any tree." "Existing System"
 
-        production = softwareSystem "Production: the main pipe" "An utterance becomes a frozen requirement, or a recorded refusal, with a door at every hop." {
-            /* PERSPECTIVE "OSS equivalent": one layer across every container, on hover. Each entry is
-               VERDICT · why, product excellence first and incumbency last · basis. A basis of OSS-nnn
-               means the door ruled it; FROM-MEMORY means it has not been through the door and is a
-               candidate list, not a ruling. */
-            askStore = container "Ask store" "One ask, separately closable; the front door every message enters." "SQLite, core/store/factory.db" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP. Nearest: an issue-tracker inbox (Linear, Jira) or a queue topic. Neither keeps the utterance verbatim at the grain of one closable ask, which is the product; SQLite on the one store is right at this volume. Basis: FROM-MEMORY."
-                    "Insight" "Not on the PR-057 path; its own query exits 1 today: the store is lagging its source (PR-056)\n· an honest red is a read that ran; the lens counts it as answered, not broken\n· every ask of this session entered here through the hooks, none typed by hand"
+        factory = softwareSystem "The Factory" "Eleven machines inside one governance boundary: an utterance becomes landed, proven work. modified — hover for details" "Modified" {
+            group "governance-rbac: who may act, and what every act leaves behind" {
+
+                operatorControl = container "Operator control" "orient, the reconciler, the ask handler; one human operator. modified — hover for details" "Node, prongs/orient.mjs" "Modified" {
+                    orient = component "orient" "PRICE FIRST, WHAT CHANGED, DoD QUEUE; --plan reads a plan's CP verdicts from the probe ledger in the main checkout." "Node, prongs/orient.mjs" {
+                        perspectives {
+                            "Insight" "Run four times on 2026-09-14 in one window: R1 FALSIFIED k=2, R2 UNREGISTERED then HELD k=3, twelve S rows refused UNRULED until the row cited PD-063\n· it reads the store's ledger through ledgerRoot, never the tree's stale copy (CF-168)\n· its next line is a fact, not an instruction: next: CP R1"
+                        }
+                    }
+                    fanout = component "fan-out" "--take claims the first unheld plan of an owner, first row wins; --claim and --titled are ledger rows; prints the packet." "Node, prongs/fanout.mjs" {
+                        perspectives {
+                            "Insight" "22:50:20Z: --take fable returned Mon-14/9-Fable-1 on plan-hiring-line at HEAD fc8e87b; typed again at 23:55Z it returned the same plan\n· the packet gained the worktree doors recipe the same night (CF-175) after this window paid 28 refusals to land one criterion\n· the title row joins window, app session and plan (CF-174)"
+                        }
+                    }
+                    sessionClose = component "session close" "Eleven steps: two human, declared; step 6 assumptions into the risk store; step 10 pastes the fan-out; step 11 rehearses." "Node, prongs/session-close.mjs" {
+                        perspectives {
+                            "Insight" "23:20Z on 2026-09-14: all eleven steps read ok; step 10 showed Fable-2 and Fable-3 held by other windows; step 11 handed one window a plan and flagged none\n· the human steps are declared with --did-group and --did-reflect, never detected\n· a session can read CLOSED having run none of its checkpoints (CF-157, carried as C-U7)"
+                        }
+                    }
+                    planReader = component "plan-file reader" "Reads a plan's frontmatter and CP table: owner, session_name, status, rulings, each row's red proof and level." "Node, prongs/plan-file.mjs"
+                    baseline = component "session baseline" "--inherit takes trunk's red set as the tree's baseline; attribution is a lookup: mine, PRE-EXISTING, FOREIGN, UNEVALUABLE." "Node, checks/session-baseline.mjs" {
+                        perspectives {
+                            "Insight" "Inherited at worktree creation: 284 checks, 26 red, 0 suite runs\n· the push gate falls back to the full suite when no run is recorded since capture, and the full suite counts trunk's reds as the session's (CF-166)\n· after one recorded run: 0 red caused by this session, 26 pre-existing"
+                        }
+                    }
+                    queueRead = component "DoD reader" "prongs/queue-read.mjs: the DoD rows, actionable, ranked and unranked, never silently ordered by recency." "Node"
+                    runLifecycle = component "run lifecycle" "The session's lifecycle over the run rows: what is half-built, what is open." "Node, prongs/run-lifecycle.mjs"
+                    askHook = component "ask hook" "Every operator prompt lands as one ask in the store through the hook, never typed by hand; prompts under seven characters are dropped." "Node, prongs/ask-log.mjs" {
+                        perspectives {
+                            "Insight" "The one-letter rulings of 2026-09-14 (A, A on both) are under the length floor and in no ask store; plan-chief-of-staff S2 names the hole\n· DL-021, the operator's commitment of 21:20Z, reached the request ledger by promotion and needed discovered_from before any later row could land"
+                        }
+                    }
+                    planFiles = component "Plan files" "One file per plan, doored: written through door.mjs or receipted; frontmatter carries owner, session and rulings." "Markdown, core/plans/*.md"
+                    reconciler = component "reconciler" "Holds the operator's asks against the plan set, names what fell through, re-cuts a plan when a session surfaces new work. proposed — hover for details" "Not built; design-loop PD-078" "Proposal" {
+                        !adrs adrs/reconciler
+                    }
                 }
-            }
-            driver = container "Pipe driver" "A durable state machine over the pipe model: one run row per piece of work, every hop's verdict on the row." "Node, core/pipe/run.mjs" {
-                perspectives {
-                    "OSS equivalent" "KEEP, revisit at fan-out. Temporal, Restate, DBOS, XState v5 were scored; the in-tree run table led on dag-from-data, no server, node doors and human waits, and lost only durable resume, which was then built. Temporal wins when runs fan out and someone wants to watch. Basis: ADR 0018, ADAPT."
-                    "Insight" "Not on the PR-057 path: a falsifier attack is not a pipe run\n· two runs exist: RUN-001 done at registry-admission, RUN-002 refused at jobs-gate on a probe that read UNEVALUABLE\n· RUN-003 (the workflow-architect advisor) opens at plan step W3 with PR-049 alive at its gate"
+
+                maintainerControl = container "Maintainer control" "runs the forty maintenance jobs; the operator sees only health. modified — hover for details" "Node, core/maintenance-jobs" "Modified" {
+                    !adrs adrs/maintainer-control
                 }
-            }
-            gates = container "Admission doors" "jobs-gate, candidate-admission, job-admission, spec-freeze, registry-admission: each refuses a named thing." "Node, core/spec" {
-                perspectives {
-                    "OSS equivalent" "KEEP. Nearest: Danger.js rules on a PR, Backstage scaffolder gates. Neither carries admission-by-refusal with a closed vocabulary and a pre-registered probe as the price of entry; that vocabulary is the product. Basis: FROM-MEMORY."
-                    "Insight" "Not on the PR-057 path, but its consumer: jobs-gate admits only a candidate whose probe last read HELD\n· six named refusals: no probe row, NO-TEETH, k under 1, no baseline, verdict not HELD, no surface\n· RUN-002 fell on the fifth; PR-057's HELD is what a future candidate needs at this door"
+                execControl = container "Exec control" "eleven domain seats, each answering one question. modified — hover for details" "Python, advisor-builder" "Modified" {
+                    !adrs adrs/exec-control
+                    perspectives {
+                        "Insight" "2026-09-14: the hire door refuses a ranked seat without a registered machine (PR-086 HELD k=3); seats-hired reads 0 of 13\n· ousterhout reinstated (PD-075), the one cartridge with both a skill in daily use and a registered machine\n· the bar's precedence rule ruled (PD-076): when B1 and B2 split, B2 wins"
+                    }
                 }
-            }
-            falsifier = container "RAT falsifier" "Runs each candidate's pre-registered kill criterion, risk-ordered; HELD, FALSIFIED, UNEVALUABLE, NO-TEETH." "Node, prongs/falsifier.mjs" {
-                perspectives {
-                    "OSS equivalent" "KEEP the ledger semantics, ADAPT the runner later. Inspect AI (solvers, scorers, sandboxes) and promptfoo assertions run criteria at scale; neither pre-registers a kill criterion, pins its command sha, or distinguishes could-not-look from failed. Run criteria under Inspect when sandboxing matters. Basis: OSS-036 for Inspect; the rest FROM-MEMORY."
-                    "Insight" "Last run: PR-057 at k=3, one probe attacked, 55 left untouched\n· --only narrowed membership and said so on the line; 392 ms, not 128 s\n· verdict FLIP UNEVALUABLE to HELD, recorded as an attack, never an edit\n· lineage: command sha b07cff4e, criterion sha 93b7d931 pinned on the row"
+                feedbackControl = container "Feedback control" "routes a finding, and scores whether the agent knew. modified — hover for details" "Node, four instruments" "Modified" {
+                    !adrs adrs/feedback-control
                 }
-            }
-            probes = container "Probe ledger" "Pre-registered claims, their criteria, baselines and attacks." "JSONL, failures/probes.jsonl" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP. Nearest: MLflow or Weights and Biases runs, OSF pre-registration. None joins a claim, a runnable criterion, a baseline and every later attack in one row with lineage. JSONL is fine at tens of rows; SQLite when it is hundreds. Basis: FROM-MEMORY."
-                    "Insight" "56 rows, 712 loops, deepest row k=24; 15 rows registered today through the doorway\n· PR-057 carries baseline, two attacks, command sha and criterion sha: a verdict anyone can re-derive\n· mirrored to the one store on every write, so git and the db never disagree on a row"
+
+                discovery = container "Discovery" "an utterance, an incident, or a best practice becomes an admitted job (PD-059, R-008)" "Node, core/pipe.json" {
+                    driver = component "Pipe driver" "A durable state machine over the pipe model: one run row per piece of work, every hop's verdict on the row." "Node, core/pipe/run.mjs"
+                    gates = component "Admission doors" "jobs-gate, candidate-admission, job-admission, spec-freeze, registry-admission: each refuses a named thing." "Node, core/spec"
+                    probeDoorway = component "Probe doorway" "Registers one probe: scaffolds the criterion and its control, builds the row from the contract, hands it to the ledger door." "Node, prongs/probe-new.mjs" {
+                        perspectives {
+                            "Insight" "2026-09-14: from a plan worktree every registration read UNEVALUABLE — inside a linked worktree — until the doorway resolved the ledger through the store root (CF-120's shape)\n· the tracked-criterion rule still needs the file in the store's tree, so a criterion lands first and registers second"
+                        }
+                    }
+                    ledgerDoor = component "Ledger door" "The one writer of the probe, decision and request ledgers; runs each ledger's validator before a row lands; a dry run writes nothing." "Node, prongs/record.mjs"
+                    riskRanker = component "Risk ranker" "Orders probes by exposure from the risk matrix; a probe with no mode runs after the ranked ones, never scored zero." "Node, core/risk/probe-rank.mjs"
+                    criteria = component "Criteria" "One file per kill criterion: a pure judge() the control drives to every verdict; exit 0 HELD, 1 FALSIFIED, 3 UNEVALUABLE." "Node, checks/crit/*.mjs"
+                    falsifier = component "RAT falsifier" "Runs each probe's pre-registered criterion, risk-ordered; the baseline is stamped on the first run and a flip is printed." "Node, prongs/falsifier.mjs"
                 }
-            }
-            reviewStore = container "Jobs review store" "Candidates awaiting the operator's ruling." "JSONL, core/research-DP" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP the row contract, ADAPT the surface. A GitHub review queue or a Todoist board shows candidates better than a JSONL file; Todoist is already an external here. The contract row 0 enforces, subject-verb-object and FR/NFR, is the part no board has. Basis: FROM-MEMORY."
-                    "Insight" "Not on the PR-057 path; the guard in front of it is: a candidate whose probe is dead never becomes a row here\n· measured 2026-09-03: 81 rows in review, 57 never ruled; the bottleneck is a person's decision\n· dated reading, not live; the store's own query answers today's count"
+
+                delivery = container "Delivery" "an admitted job becomes landed, proven work; the land door exists, the pipe does not. proposed — hover for details" "Node, checks/land.mjs" "Proposal" {
+                    !adrs adrs/delivery
                 }
-            }
-            specStore = container "Spec store" "EARS requirements with verify and fails_when; the view is generated." "JSONL, core/spec/requirements.jsonl" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP and BUILD one piece. Doorstop, StrictDoc, OpenFastTrace, Sphinx-Needs were scored; this store led six of seven axes and lost traceability by one point to tools that fail zero-install. Build the verify runner that refuses BUILT on a red exit; nobody carries it above 2 of 4. Basis: OSS-035, UNRULED by the machine, ADAPT recommended."
-                    "Insight" "Not on the PR-057 path; PR-042 sits on it: 29 of 29 HR rows refused by this store's validator today\n· by field: scope 29, layer 29, module 27; the port's bill, measured before a row moves\n· EARS as schema, RETIRED as a status, module must be a tracked path: the three things HR lacks"
+                distribution = container "Distribution" "finished material reaches an audience that answers back. proposed — hover for details" "Not built; design-loop PD-033" "Proposal" {
+                    !adrs adrs/distribution
                 }
-            }
-            registry = container "Machinery registry" "Every machine the factory counts, with its stage." "JSON, core/registry" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP now, REPLACE at more than one team. Backstage's software catalog is the same idea with a UI and ownership; it costs a service and a schema you do not need for one operator. OpenFastTrace tags in code are the traceability half. Basis: FROM-MEMORY."
-                    "Insight" "Not on the PR-057 path; it is where the doorway and the criteria must be admitted next\n· 120 machines scoped, six layers each, the query cell executed: a declaration beside a dead query is prose\n· the corpora family (plan step 0) joins here, and PR-045 flips the day it does"
+                stores = container "Stores" "every ledger, one pen, one project: asks, requests, probes, decisions, fan-out claims, gate runs." "SQLite and JSONL: core/store, failures, intent" "Data Store"
+                registry = container "Registry" "every machine, class and tool the factory can call by name. modified — hover for details" "JSON and SQLite: machinery.json, factory.db" "Data Store,Modified" {
+                    !adrs adrs/registry
                 }
-            }
-            ossDoors = container "Procurement doors" "oss-search refuses a search with no receipt; oss-select refuses a composite score." "Node, prongs/oss-search.mjs, prongs/oss-select.mjs" {
-                perspectives {
-                    "OSS equivalent" "KEEP. adrkit and MADR are already adopted for the record; no OSS tool enforces a prior-art receipt or a Pareto ruling without totals before code is written, searched 2026-09-02. The six refusals are the product. Basis: ADR 0001, the crit-bench receipts."
-                    "Insight" "Not on the PR-057 path; six records written today through it, OSS-035 to OSS-040, five UNRULED\n· a plus sign in a candidate's name made it a bundle suspect and dropped it from the ruling until renamed\n· the ADR pages now carry an assertion per probe, so the engine judged its first real decision today"
+                contextPlugin = container "Context plugin" "what a session is handed at the moment it opens. proposed — hover for details" "DeepSeek OSS, unsearched" "Proposal" {
+                    !adrs adrs/context-plugin
                 }
-            }
-            verifier = container "Model verifier and renderer" "verify() and render() over any pipe model, by root; the one home for both departments' pictures." "Node, core/doc/pipe-views.mjs" {
-                perspectives {
-                    "OSS equivalent" "ADAPT, done today. Structurizr DSL, LikeC4 and this in-tree verifier were scored and tied; the ruling now is both: keep verify() as the model's gate, render through Structurizr in the drawing office, which is this picture. Basis: ADR 0011, UNRULED, resolved by use."
-                    "Insight" "Not on the PR-057 path; it drew this picture: HR's model verified at 0 problems after three refusals\n· the refusals were real: an edge restating a blurb, two captions telling two stories\n· one verifier for two departments' models, reached by root; no second copy"
-                }
-            }
-            /* THE FOUR MACHINES A RAT ATTACK TOUCHES THAT THE MODEL DID NOT NAME, added 2026-09-07 to
-               trace PR-057 end to end. Each was read from the code it names; none is new work. */
-            probeDoorway = container "Probe doorway" "Registers one probe: scaffolds the criterion and its control, builds the row from the contract, hands it to the ledger door, prints the contract on refusal." "Node, prongs/probe-new.mjs" {
-                perspectives {
-                    "OSS equivalent" "KEEP. Built today (ousterhout-guru: fix the doorway, not the loop); no OSS registers a pre-registered kill criterion. Basis: measured, one probe cost 15k tokens before it and 2k after."
-                    "Insight" "PR-057 entered here: spec of four fields, row of twenty built from the contract\n· two refusals learned by refusal are now printed: tracked criterion, contract table\n· cost per probe fell from ~15k tokens to ~2k, measured on thirteen registrations today"
-                }
-            }
-            ledgerDoor = container "Ledger door" "The one writer of the probe and decision ledgers; runs each ledger's validator before a row lands; a dry-run returns the verdict and writes nothing." "Node, prongs/record.mjs, checks/validate-probe.mjs" {
-                perspectives {
-                    "OSS equivalent" "KEEP. Nearest: a schema-validated append-only log (Kafka with a schema registry) at a scale this factory does not have. Basis: FROM-MEMORY."
-                    "Insight" "Two doors in one run: add probe (validated, mirrored) and add pd in dry-run (the criterion's own test)\n· the pd validator closes system to harness or product; that refusal was PR-057's first FALSIFIED\n· its dry-run word is written plus DRY RUN, not DRY_RUN; that mismatch was the second false alarm"
-                }
-            }
-            riskRanker = container "Risk ranker" "Orders probes by exposure from the risk matrix: weight times level times component over ten; a probe with no mode runs after the ranked ones, never scored zero." "Node, core/risk/probe-rank.mjs, risk-matrix.json" {
-                perspectives {
-                    "OSS equivalent" "KEEP. Khosla's matrix arithmetic, the same as advisor-builder's risk_matrix.py; no OSS ranks test cases by declared exposure. Basis: FROM-MEMORY."
-                    "Insight" "11 of 56 probes carry a mode and are ranked; 45 run after in ledger order\n· PR-057 carries reuse_missed at 420; with --only the order decided nothing this pass\n· ranking decides order, never membership: --only is the one narrowing, and it prints itself"
-                }
-            }
-            criteria = container "Criteria" "One file per kill criterion: a pure judge() the control can drive to every verdict, and a CLI that exits 0 HELD, 1 FALSIFIED, 3 UNEVALUABLE." "Node, checks/crit/*.mjs" {
-                perspectives {
-                    "OSS equivalent" "ADAPT later under Inspect AI for sandboxed runs; the three-exit contract and the pure judge stay. Basis: OSS-036."
-                    "Insight" "approve-row-shape.mjs: builds the approve row, asks the pd door in dry-run, maps the answer\n· 15 criteria written today, one shared control at 51 of 51; every one reaches all three verdicts on fixtures\n· its two defects were caught by the loop, not by the control: a closed enum and a door's own word"
-                }
-            }
-            decisionsLedger = container "Decisions ledger" "Product decisions: what was chosen, the rejected alternative, the reversal cost, the guard artefacts that exist if and only if it was built." "JSONL, failures/decisions.jsonl" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP; MADR and adrkit already adopted for the OSS records beside it. Basis: ADR 0001."
-                    "Insight" "24 rows; PR-057 asked it to accept a 25th in dry-run and it did\n· the approve act of the review surface will live here, as decided on OSS-039 and OSS-040\n· system must be harness or product: an approve of a factory checkpoint binds the harness"
+                inferencePlugin = container "Inference plugin" "the model every machine runs on. proposed — hover for details" "DeepSeek OSS, unsearched" "Proposal" {
+                    !adrs adrs/inference-plugin
                 }
             }
         }
 
-        hr = softwareSystem "HR: advisor-builder" "Turns a role and a corpus into a deployed advisor, and records what the operator thought of its answers." {
-            lifecycle = container "Lifecycle lane" "Birth, deployment, retirement: advisor_new, deploy_advisor, advisor_lifecycle. Operator-invoked." "Python, engine" {
-                perspectives {
-                    "OSS equivalent" "KEEP. Nearest: cookiecutter or Backstage templates for birth, a skills or MCP package for deployment. The value is the newborn gate, every gate RED on an empty cartridge, which no template tool enforces. Small enough that replacing it costs more than it is. Basis: FROM-MEMORY."
-                }
-            }
-            riskMatrix = container "Khosla risk matrix and recruiter" "Ranks what to build by risk removed per token; joins owners to the installed roster and refuses fiction." "Python, engine/risk_matrix.py, engine/recruiter.py" {
-                perspectives {
-                    "OSS equivalent" "KEEP. No OSS implements Khosla's risk matrix with M1 to M6 refusals and a recruiter that refuses a fictional owner; the nearest genre is portfolio-prioritisation spreadsheets. Its honest limit is that levels are declared, never measured, and it says so on every line. Basis: FROM-MEMORY, searched for none."
-                }
-            }
-            buildLane = container "Build lane P0 to P9" "Plan, competency map, sources, ingestion, graph, index, skill, measurement, outcome." "Python, engine" {
-                perspectives {
-                    "OSS equivalent" "ADAPT two stages, KEEP the rest. Graph construction (P4) has a mature OSS shape in Microsoft GraphRAG and LlamaIndex ingestion; skill optimisation (P6 to P7) in DSPy. Keep P0 to P2 and P8 to P9: risk-first planning, source authority and behaviour measurement are the product and exist nowhere else. Basis: FROM-MEMORY."
-                }
-            }
-            hrGuards = container "Sixteen guards" "Fire on a candidate cartridge; nothing flows through them: triplet, graph, slop, routing, behaviour, red-proof, provenance, authorship, the ship gate." "Python, engine" {
-                perspectives {
-                    "OSS equivalent" "KEEP the semantics, ADAPT the runner. promptfoo assertions, Guardrails AI and deepeval run deterministic checks in CI well; none carries refuses-on vocabulary, RED-on-newborn, or a different-model judge as a rule. Run the deterministic guards under promptfoo for CI, keep the verdict words here. Basis: OSS-036 for promptfoo; the rest FROM-MEMORY."
-                }
-            }
-            cartridges = container "Cartridges" "One advisor each: manifest, skill, corpus, graph; the graded case triplets live in its JTBD spec." "Directory, cartridges/" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP the directory, the format is already the OSS one. A cartridge deploys as a Claude skill; Hugging Face Hub is the nearest artefact store and adds nothing for a private roster of eleven. The graded triplet is the unit no format carries. Basis: FROM-MEMORY."
-                }
-            }
-            feedback = container "Feedback and proficiency" "The operator's verdict on one answer, who said it, per job; graded 101 and 201 on the L&D vocabulary." "Python, engine/feedback.py, engine/proficiency.py" {
-                perspectives {
-                    "OSS equivalent" "ADAPT the surface at volume, KEEP the fields. Langfuse and Arize Phoenix annotation queues and Argilla give a labelling UI; none records who said it, which job it calibrates, or the repair on file (AB-13, 15, 17). The ledger is empty today, so the surface is not the bottleneck yet. Basis: OSS-036 for Langfuse; the rest FROM-MEMORY."
-                }
-            }
-            feedbackLedger = container "Feedback ledger" "One verdict on one answer. Empty until an advisor is used." "JSONL, failures/advisor-feedback.jsonl" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP. Zero bytes today; the OSS question is premature. When it holds hundreds of rows, the same answer as the feedback surface: an annotation store with these fields added. Basis: measured empty 2026-09-07."
-                }
-            }
-        }
+        /* PEOPLE AND EXTERNALS */
+        operator -> askHook "Types asks into"
+        second -> askHook "Types asks into"
+        operator -> sessionClose "Closes a window through"
+        operator -> fanout "Types orient <owner> in a new window; the take runs by absolute path"
+        operator -> orient "Reads the price, the change and the queue from"
+        operator -> baseline "Opens a worktree at trunk and inherits its baseline through"
+        operator -> delivery "Lands the closing tree by name through"
+        operator -> discovery "Runs a checkpoint's criterion and rules on candidates in"
+        operator -> agent "Names the window with the plan's full session name in"
+        operator -> maintainerControl "Sees only health from"
+        operator -> execControl "Invokes a seat for a meeting in"
+        fanout -> operator "Prints the packet to"
+        agent -> probeDoorway "Hands a four-field probe spec and a forecast to"
+        agent -> inferencePlugin "Is the model today, in the window"
+        deepseek -> contextPlugin "Unsearched candidate for"
+        deepseek -> inferencePlugin "Unsearched candidate for"
+        web -> discovery "Answers quoted queries from the procurement doors of"
+        factory -> targetCompany "Plugs into the workflows of; the boundary is what is carried in"
+        distribution -> audience "ABSENT: reaches"
 
-        ld = softwareSystem "L&D: learn-verify-kit" "Teach, test, score, space: a gap becomes a declared competence, for the operator and for agents on the same cases." {
-            skills = container "Seven skills" "learn, clarify, understand, revise, start, concept-sketch, track: the teaching loop as skills, no hooks, no config." "Claude skills" {
-                perspectives {
-                    "OSS equivalent" "KEEP. Nearest: Anki for spacing, open tutoring agents for the loop. Neither carries the 201 five-slot vocabulary, killer simulation as the bar, or the regression suite grown only from real errors; that discipline is the product. Basis: FROM-MEMORY."
-                }
-            }
-            packets = container "Packets" "A frozen question bank per topic, with 101 and 201 cases and the five-slot vocabulary." "Markdown and JSONL, packets/" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP the bank, ADAPT one export. Anki's deck format is the OSS home for spaced retrieval on a phone; export each packet to it and keep the frozen bank here as the source. The case bank shared with HR (graded triplets by id) has no OSS equivalent. Basis: FROM-MEMORY."
-                }
-            }
-            progress = container "Progress store" "Per-learner attempts, slope and mechanism share; never pooled across learners." "JSON, progress.json, learner-record.json" "Data Store" {
-                perspectives {
-                    "OSS equivalent" "KEEP at one or two learners. xAPI with a learning record store (Learning Locker) is the standard at scale; it adds a server and a statement schema for a benefit that appears only with many learners. Slope and mechanism share, kept apart and never pooled, are already the right two numbers. Basis: FROM-MEMORY."
-                }
-            }
-            workTracking = container "Work tracking" "UNBUILT: reads real transcripts for concepts that reached a decision; the only outcome signal the spec lists." "Not built, spec O-5" {
-                perspectives {
-                    "OSS equivalent" "BUILD, small. No OSS reads a person's working transcripts for concepts that reached a decision; the nearest raw material is a trace store (Langfuse, Phoenix) and design-loop already keeps transcripts. The first version is a reader over the declared-weight rows, forty lines. Basis: spec O-5 UNBUILT; FROM-MEMORY on the genre."
-                }
-            }
-        }
+        /* INSIDE OPERATOR CONTROL */
+        askHook -> stores "Appends one ask to"
+        fanout -> planReader "Reads every plan's frontmatter through"
+        fanout -> stores "Appends a claim row and a title row to (intent/fanouts.jsonl)"
+        planReader -> planFiles "Parses"
+        orient -> planReader "Reads the plan it opens on through"
+        orient -> stores "Reads the probe ledger in the main checkout from"
+        orient -> queueRead "Reads the DoD queue through"
+        orient -> runLifecycle "Reads the session lifecycle through"
+        sessionClose -> stores "Step 2 scans the ask ledger; step 6 puts every plan's assumptions into the risk store and through the falsifier"
+        sessionClose -> fanout "Step 10 pastes the fan-out state; step 11 rehearses N windows against a copy"
+        sessionClose -> planFiles "Step 4 checks plans and handoffs were written last"
+        baseline -> stores "Reads the newest recorded run per control from the gate ledger"
+        reconciler -> stores "ABSENT: holds the operator's asks against the plan set"
+        reconciler -> planFiles "ABSENT: re-cuts a plan when a session surfaces new work"
 
-        /* PEOPLE AND EXTERNALS INTO PRODUCTION */
-        operator -> askStore "Types asks into"
-        operator -> reviewStore "Rules on candidates in"
-        telegram -> todoist "A routine writes each link as a card to"
-        granola -> todoist "Each meeting becomes a card in"
-        todoist -> askStore "Board cards enter as proposals into"
-        web -> ossDoors "Answers quoted queries from"
-        agent -> driver "Advances hops on behalf of the operator in"
-
-        /* INSIDE PRODUCTION */
+        /* INSIDE DISCOVERY: the RAT attack path, read from the run of PR-086 on 2026-09-14 */
         driver -> gates "Calls the current stage's door in"
-        driver -> askStore "Reads the ask it carries from"
-        falsifier -> probes "Reads criteria from and writes attacks to"
-        falsifier -> reviewStore "Kills a candidate before it enters"
-        gates -> reviewStore "Writes candidates to and admits jobs from"
-        gates -> specStore "Freezes requirements into"
+        driver -> stores "Reads the ask it carries from"
+        gates -> stores "Writes candidates to and freezes requirements into"
         gates -> registry "Admits machines into"
-        ossDoors -> registry "Records adopt, adapt or build rulings for machines in"
-        /* THE RAT ATTACK PATH, read from the run of PR-057 on 2026-09-07 */
-        agent -> probeDoorway "Hands a four-field spec to"
         probeDoorway -> criteria "Scaffolds a criterion and its control in"
         probeDoorway -> ledgerDoor "Hands the built row to"
-        ledgerDoor -> probes "Appends a validated row to"
+        ledgerDoor -> stores "Appends a validated row to"
         falsifier -> riskRanker "Asks for the risk order from"
         falsifier -> criteria "Runs the named criterion in"
-        criteria -> ledgerDoor "Asks a dry-run of a decision row from"
-        ledgerDoor -> decisionsLedger "Validates against and, on a real add, appends to"
+        criteria -> ledgerDoor "May ask a door a question, in dry run"
         falsifier -> ledgerDoor "Amends the attack, the k and the lineage through"
 
-        /* PEOPLE AND EXTERNALS INTO HR AND L&D */
-        operator -> lifecycle "Starts, deploys and retires advisors through"
-        operator -> feedback "Rates one advisor answer at a time in"
-        operator -> skills "Learns 101 and 201 through"
-        sourceLibrary -> buildLane "Supplies pages to"
-        agent -> buildLane "Does extraction and judgment for"
-        agent -> skills "Trains on the same cases through"
-
-        /* INSIDE HR */
-        lifecycle -> cartridges "Writes a newborn to and marks deployed in"
-        riskMatrix -> buildLane "Ranks what P0 builds first for"
-        buildLane -> cartridges "Writes graph and skill into"
-        hrGuards -> cartridges "Fire on a candidate in"
-        feedback -> feedbackLedger "Writes verdicts to"
-
-        /* INSIDE L&D */
-        skills -> packets "Reads questions and cases from"
-        skills -> progress "Records attempts through the kit's door into"
-        workTracking -> progress "ABSENT: would write decision signals to"
-
-        /* THE NINE SEAMS, each read from the code that carries it (concept note 0b). ABSENT means
-           the concept note proposes it and nothing on disk does it yet. */
-        buildLane -> specStore "Writes JTBD specs with graded triplets into (skill_from_triplets.py:137)"
-        gates -> riskMatrix "Shells risk_matrix --check from (matrix-gate.mjs:54)"
-        feedback -> packets "Reads the RPD slots, miss codes and slope from (proficiency.py, operators.py:29)"
-        falsifier -> cartridges "Runs PR-041 and PR-042 against HR's tree (checks/crit)"
-        verifier -> hr "Verifies and renders HR's pipe model by root (0 problems, 2026-09-07)"
-        ossDoors -> hr "Rules procurement for (OSS-035 to OSS-038)"
-        progress -> riskMatrix "ABSENT: declared weights and levels, timestamped, into the matrix skeleton"
-        reviewStore -> packets "ABSENT: an uncertain ruling becomes a gap row in"
-        lifecycle -> gates "ABSENT: an installed advisor a production stage can name; no stage asks yet"
-        cartridges -> packets "ABSENT on L&D's side: the case bank by triplet id, ordered by exposure, for both learners"
+        /* BETWEEN CONTAINERS, every edge measured in the plan's own table */
+        feedbackControl -> discovery "A finding becomes a job row in"
+        discovery -> delivery "ABSENT: a frozen spec row crosses; nothing refuses it (CL-004)"
+        delivery -> distribution "ABSENT: a landed capability, a measured number"
+        distribution -> feedbackControl "ABSENT: an audience response returns"
+        delivery -> registry "Refuses a land that adds an unregistered module"
+        delivery -> stores "Snapshots the store's ledgers into the tree before a commit"
+        execControl -> stores "A seat's machine reads its census from"
+        execControl -> discovery "The hire door asks the seats-hired criterion in"
+        feedbackControl -> stores "Reads the failure and claim ledgers from"
+        maintainerControl -> stores "Runs forty jobs over"
+        operatorControl -> registry "Asks what already exists, by name or by question"
+        maintainerControl -> registry "Asks what already exists, by name or by question"
+        execControl -> registry "Asks what already exists, by name or by question"
+        feedbackControl -> registry "Asks what already exists, by name or by question"
+        discovery -> registry "Asks what already exists, by name or by question"
+        operatorControl -> inferencePlugin "Asks the model"
+        execControl -> inferencePlugin "Asks the model"
+        discovery -> inferencePlugin "Asks the model"
+        feedbackControl -> inferencePlugin "Asks the model"
+        operatorControl -> contextPlugin "ABSENT: the packet, re-homed as what a session is handed at open"
     }
 
-    /* THE DIAGRAMS SHOW THE OUTCOME, NOT THE REASONING (chapter 12). The decision that shapes this
-       picture is recorded beside it and can be argued with. */
+    /* THE DIAGRAMS SHOW THE OUTCOME, NOT THE REASONING (chapter 12). Workspace-level records sit
+       here; each marked box carries its own under its element. */
     !adrs adrs
 
     views {
-        /* THE C4 LADDER, EVERY RUNG DRAWN. The first draft skipped level one: each system's row in the
-           rail opened straight onto its containers, so "what does production talk to" had no plate
-           of its own and the operator asked where the system view was. A context view per system
-           answers that with the neighbours and nothing inside; the landscape above it is the whole
-           factory at one glance; the container views below are the insides. Titles are what the
-           rail prints; descriptions are what the rail says on hover. */
-        systemLandscape "Factory" "The three departments, the operator, and what comes in from outside." {
+        systemLandscape "Factory" "The factory, the two operators, and what comes in from outside." {
             title "The factory"
             properties {
                 "structurizr.tooltips" "true"
@@ -274,8 +204,8 @@ workspace "The Factory" "Production, HR and L&D as three deep modules with nine 
             autoLayout lr 500 400
         }
 
-        systemContext production "ProductionContext" "What production talks to: the operator, the agent, the two other departments, and the repos and services outside." {
-            title "Production and its neighbours"
+        systemContext factory "FactoryContext" "What the factory talks to: the operators, the agent, the web, the packages, the company and the audience." {
+            title "The factory and its neighbours"
             properties {
                 "structurizr.tooltips" "true"
             }
@@ -283,8 +213,8 @@ workspace "The Factory" "Production, HR and L&D as three deep modules with nine 
             autoLayout lr 500 400
         }
 
-        systemContext hr "HRContext" "What HR talks to: the operator, production, L&D, and the corpus on disk." {
-            title "HR and its neighbours"
+        container factory "TheFactory" "The Factory's eleven containers inside one governance boundary." {
+            title "The eleven containers"
             properties {
                 "structurizr.tooltips" "true"
             }
@@ -292,8 +222,10 @@ workspace "The Factory" "Production, HR and L&D as three deep modules with nine 
             autoLayout lr 500 400
         }
 
-        systemContext ld "LDContext" "What L&D talks to: the learner, production, HR, and the books it teaches from." {
-            title "L&D and its neighbours"
+        /* DOUBLE-CLICK OPERATOR CONTROL ON THE PLATE ABOVE AND THIS IS WHAT OPENS: the modules as they
+           run, and the one Proposal beside them. */
+        component operatorControl "OperatorControl" "Inside operator control: orient, the fan-out, the session close, the readers, the ask hook, and the reconciler that is not built." {
+            title "Inside operator control"
             properties {
                 "structurizr.tooltips" "true"
             }
@@ -301,8 +233,8 @@ workspace "The Factory" "Production, HR and L&D as three deep modules with nine 
             autoLayout lr 500 400
         }
 
-        container production "Production" "The main pipe: stores, doors, the driver, the guard." {
-            title "Inside production"
+        component discovery "Discovery" "Inside discovery: the driver, the doors, the probe doorway, the ledger door, the ranker, the criteria and the falsifier." {
+            title "Inside discovery"
             properties {
                 "structurizr.tooltips" "true"
             }
@@ -310,72 +242,72 @@ workspace "The Factory" "Production, HR and L&D as three deep modules with nine 
             autoLayout lr 500 400
         }
 
-        container hr "HR" "advisor-builder: lifecycle, matrix, build lane, guards, ledgers." {
-            title "Inside HR"
+        /* THE HANDOFF, END TO END: one window closes, trunk moves, the next window opens on a plan and
+           runs its first checkpoint. Told twice on one plate, as the RAT trace is: each arrow is the
+           general statement, and the key swaps every label for the real run — session 02d08c62 on
+           plan-hiring-line, 2026-09-14. The close (23:20Z) and the open (22:50Z) are the SAME window's,
+           told in handoff order, because the previous window's close output was not in the record. */
+        dynamic operatorControl "Handoff" "How a table session hands off: the close reconciles and rehearses, the tree lands, a new window takes a plan, opens on its packet, and runs the first checkpoint." {
+            title "The handoff"
             properties {
                 "structurizr.tooltips" "true"
+                "drawing-office.example" "Mon-14/9-Fable-1 on plan-hiring-line, 2026-09-14: session 02d08c62's close at 23:20Z and its open at 22:50Z, told in handoff order"
+                "drawing-office.example.1" "node prongs/session-close.mjs --session 02d08c62 --last-ask 2026-09-14T22:50:00Z --did-group --did-reflect: all eleven steps read ok"
+                "drawing-office.example.2" "day 2026-09-14: 1 ask, 1 session scanned; AS-98 (one seat per session at 60k tokens) in the risk store, PR-076 FALSIFIED"
+                "drawing-office.example.3" "3 READY: Fable-2 held by 50df0a7d, Fable-3 by 30f29b98, Fable-1 taken; 2 HELD-BACK with no session_name; rehearsal: 1 window handed, 0 flagged"
+                "drawing-office.example.4" "node checks/land.mjs by name: e399937 landed; trunk fast-forwarded and pushed f31ad9e..e399937"
+                "drawing-office.example.5" "22:50:20Z: the operator types orient fable; node prongs/fanout.mjs --take fable reads session 02d08c62 from the environment"
+                "drawing-office.example.6" "plan-hiring-line.md: owner fable, status open, session_name Mon-14/9-Fable-1, rulings PD-042 to PD-074; READY"
+                "drawing-office.example.7" "intent/fanouts.jsonl gains name Mon-14/9-Fable-1, plan plan-hiring-line.md, session 02d08c62, head fc8e87b"
+                "drawing-office.example.8" "the packet: HEAD fc8e87b, 19 CPs in order, bar level 5, riskiest assumption FALSIFIED (PR-076), hand-back by land"
+                "drawing-office.example.9" "set_session_title Mon-14/9-Fable-1: first seat hired; --titled records app session local_698f8d8d as a ledger row"
+                "drawing-office.example.10" "git worktree add mon-14-9-fable-1-02d08c62 at fc8e87b; --inherit: 284 checks, 26 red, 0 suite runs"
+                "drawing-office.example.11" "orient --plan core/plans/plan-hiring-line.md: R1 FALSIFIED k=2, S1 FALSIFIED k=3, 17 UNREGISTERED; next: CP R1"
+                "drawing-office.example.12" "failures/probes.jsonl in ~/dev/design-loop: PR-084 FALSIFIED hired 0 of 13"
+                "drawing-office.example.13" "node checks/crit/seats-hired.mjs: FALSIFIED hired 0 of 13, cartridge-only 1 (qe-ic-advisor), none 12"
             }
-            include *
+            operator -> sessionClose "Closes the last window: session id, last ask, and the two human steps declared, never detected"
+            sessionClose -> stores "Step 2 scans coverage against the ask ledger; step 6 puts every plan's assumptions through the falsifier"
+            sessionClose -> fanout "Step 10 pastes the fan-out state; step 11 rehearses N windows per owner against a copy of the plan set"
+            operator -> delivery "The closing tree lands by name; trunk fast-forwards onto it and is pushed"
+            operator -> fanout "A new window types orient <owner>; the take reads the session id from the window's own environment"
+            fanout -> planReader "Reads every plan's frontmatter: owner, session_name, status, rulings; READY, held, or held back"
+            fanout -> stores "Claims the first unheld plan of that owner as a row; first row wins; typing it again returns the same plan"
+            fanout -> operator "Prints the packet: the rename, the claim, the worktree line, the doors recipe, the CP table, the bar, the riskiest assumption"
+            operator -> agent "Names the window with the plan's full session name and records the title as a ledger row"
+            operator -> baseline "Adds a worktree at trunk and inherits trunk's red set as the tree's baseline, zero suite runs"
+            operator -> orient "orient --plan reads the plan's CP verdicts; a level-5 checkpoint with no ruling is refused, not run"
+            orient -> stores "Resolves the probe ledger through the store root, never the tree's copy"
+            operator -> discovery "The first checkpoint's criterion runs; its verdict is the window's first fact"
             autoLayout lr 500 400
         }
 
-        container ld "LD" "learn-verify-kit: skills, packets, progress, and the unbuilt outcome signal." {
-            title "Inside L&D"
-            properties {
-                "structurizr.tooltips" "true"
-            }
-            include *
-            autoLayout lr 500 400
-        }
-
-        /* ONE RAT ATTACK, END TO END, scoped to production so containers may appear. TOLD TWICE ON
-           ONE PLATE, on the operator's ruling of 2026-09-07: each arrow's label is the general
-           statement, and the view carries the same hop as a worked example — the run of PR-057 at
-           k=3 on 2026-09-07, read from its row — under drawing-office.example.<hop>. The viewer swaps
-           every label on E; checks/hop-examples.mjs refuses a hop number no arrow has, and a view
-           where only some hops carry one. The first draft was two views, and the rail showed two rows
-           that said the same nine things. */
-        dynamic production "RatAttack" "How any RAT attack runs: a spec becomes a probe row, the loop runs its criterion, the verdict is amended onto the row." {
+        /* ONE RAT ATTACK, END TO END, re-scoped from the production system of ADR 1 to the discovery
+           container: the doorway, the criteria, the ledger door, the ranker and the falsifier are its
+           components, and the ledgers it reads and amends are the stores container. The worked
+           example is PR-086 on 2026-09-14: registered red, then flipped by a door change. */
+        dynamic discovery "RatAttack" "How any RAT attack runs: a spec becomes a probe row, the loop runs its criterion, the verdict is amended onto the row." {
             title "A RAT attack"
             properties {
                 "structurizr.tooltips" "true"
-                "drawing-office.example" "PR-057 at k=3, 2026-09-07: one attack with --only, 392 ms, FLIP from UNEVALUABLE to HELD"
-                "drawing-office.example.1" "assumption: the approve act fits the decisions ledger as it stands · criterion: HELD on dry-run accepted, FALSIFIED on refusal, UNEVALUABLE if the door cannot be imported · command: node checks/crit/approve-row-shape.mjs · mode: reuse_missed"
-                "drawing-office.example.2" "approve-row-shape.mjs already existed; staged, not scaffolded"
-                "drawing-office.example.3" "Row built; id assigned: PR-057"
-                "drawing-office.example.4" "Appended; baseline FALSIFIED: the door refused system: drawing-office"
-                "drawing-office.example.5" "11 of 56 ranked; --only PR-057 narrows to one, 55 untouched"
-                "drawing-office.example.6" "node checks/crit/approve-row-shape.mjs, 392 ms, exit 0"
-                "drawing-office.example.7" "add pd in dry-run with system: harness"
-                "drawing-office.example.8" "validators accepted; written plus DRY RUN; nothing written"
-                "drawing-office.example.9" "PR-057 amended: k=3 HELD, command sha b07cff4e, FLIP from UNEVALUABLE"
+                "drawing-office.example" "PR-086 on 2026-09-14: the hire door, registered FALSIFIED at k=1, then FLIP to HELD at k=2 and HELD at k=3 after the door changed"
+                "drawing-office.example.1" "assumption: the hire door refuses a ranked seat below the bar · criterion: three fixture cartridges, F1 refused naming the machine, F2 refused naming C1, F3 deployed · command: node checks/crit/hire-door.mjs · mode: nothing_enforced · p_hold 0.05"
+                "drawing-office.example.2" "hire-door.mjs and test-hire-door.mjs already written and staged; from a worktree the store's tracked-file rule refused until they landed"
+                "drawing-office.example.3" "row built from the contract; id PR-086"
+                "drawing-office.example.4" "appended after one validator accepted it; first run stamped the baseline FALSIFIED: F1 and F2 deployed"
+                "drawing-office.example.5" "56 of 85 probes ranked by exposure; --only PR-086 narrows to one, 84 untouched"
+                "drawing-office.example.6" "node checks/crit/hire-door.mjs: exit 1 at baseline, exit 0 after deploy_advisor.py gained the bar"
+                "drawing-office.example.7" "the criterion asks nothing of a door; F3's map is judged by authority_map in the builder"
+                "drawing-office.example.8" "PR-086 amended: k=2 FLIP FALSIFIED to HELD, then k=3 HELD; command sha pinned"
             }
-            agent -> probeDoorway "A spec of four fields: assumption (IS / IS NOT), criterion (what HELD, FALSIFIED, UNEVALUABLE mean), command, mode"
-            probeDoorway -> criteria "Scaffolds the criterion and its control if absent; stages them so the ledger door sees a tracked file"
+            agent -> probeDoorway "A spec of four fields and a forecast: assumption, criterion, command, mode, p_hold"
+            probeDoorway -> criteria "Scaffolds the criterion and its control if absent; the store door needs a tracked file"
             probeDoorway -> ledgerDoor "Builds the twenty-field row from the contract; the door assigns the id"
-            ledgerDoor -> probes "Validates, appends, mirrors; the first run stamps the baseline"
+            ledgerDoor -> stores "Validates, appends, mirrors; the first run stamps the baseline"
             falsifier -> riskRanker "Asks the risk order: exposure from the matrix, unranked rows after"
             falsifier -> criteria "Runs the criterion as a process; exit 0, 1 or 3 is the verdict"
-            criteria -> ledgerDoor "A criterion may itself ask a door a question, in dry-run"
-            ledgerDoor -> decisionsLedger "The door validates; a dry-run writes nothing"
-            falsifier -> ledgerDoor "Amends the row: attack k, verdict, command sha, judged sha; a FLIP is printed"
-            autoLayout lr 500 400
-        }
-
-        /* A DYNAMIC VIEW WITH NO SCOPE MAY ONLY SHOW PEOPLE AND SYSTEMS (the DSL refused the container
-           form at export). The loop crosses three systems, so it is told at system level; the
-           container-level seams it rides on are in the model above, and the ones marked ABSENT there
-           are the same three hops marked ABSENT here. */
-        dynamic * "TheLoop" "The loop the concept note says must close: an uncertain ruling becomes a gap, a declared weight ranks a hire, the hire is what production recruits." {
-            title "The loop between departments"
-            properties {
-                "structurizr.tooltips" "true"
-            }
-            operator -> production "Cannot rule confidently on a candidate"
-            production -> ld "ABSENT: the gap becomes a packet question"
-            operator -> ld "Learns 101 then 201 on the case, declares weight and level"
-            ld -> hr "ABSENT: the declaration lands in the risk matrix"
-            hr -> production "ABSENT: the advisor it builds is one a production stage can name"
+            criteria -> ledgerDoor "A criterion may itself ask a door a question, in dry run"
+            falsifier -> ledgerDoor "Amends the row: attack k, verdict, command sha; a FLIP is printed"
             autoLayout lr 500 400
         }
 

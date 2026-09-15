@@ -4,7 +4,8 @@ Date: 2026-09-07
 
 ## Status
 
-Proposed
+Superseded by 3. The factory is one system of eleven containers inside one governance boundary
+(2026-09-15): the three departments became one system whose machines are containers.
 
 ## Context
 
