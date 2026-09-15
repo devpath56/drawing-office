@@ -24,19 +24,53 @@ workspace "The Factory" "Eleven machines inside one governance boundary, modelle
     }
 
     model {
-        operator = person "Operator" "Admin (PD-034). Types asks, rules on tables, opens and closes windows, lands work."
-        second = person "Second operator" "Super user (PD-034). Rules on the store with the operator's roles."
+        operator = person "Operator" "Admin (PD-034). Types asks, rules on tables, opens and closes windows, lands work." {
+            perspectives {
+                "Insight" "Two one-letter rulings in one evening: A on RQ3, then A on both\n· each landed as a decision row through the ledger door within minutes (PD-075, PD-076)\n· neither letter reached the ask store: the hook drops prompts under seven characters"
+            }
+        }
+        second = person "Second operator" "Super user (PD-034). Rules on the store with the operator's roles." {
+            perspectives {
+                "Insight" "Named super user by PD-034; no pen row tonight carries a second operator id\n· plan-dmq-hire Q0 (PR-085) is FALSIFIED on exactly that: two operators declared, one seat\n· the roles are a boundary the frame draws and nothing yet enforces"
+            }
+        }
 
-        targetCompany = softwareSystem "A target company" "Its own workflows; the boundary is what gets carried in." "Existing System"
-        audience = softwareSystem "The audience" "Answers back to distributed material; nothing reaches it yet." "Existing System"
-        web = softwareSystem "The web" "Where OSS candidates are searched, with a quoted query and a receipt." "Existing System"
-        deepseek = softwareSystem "DeepSeek OSS packages" "Unsearched candidates for the two plugins." "Existing System"
-        agent = softwareSystem "Agent in session" "Does the LLM work in the window the operator opened; no API key in any tree." "Existing System"
+        targetCompany = softwareSystem "A target company" "Its own workflows; the boundary is what gets carried in." "Existing System" {
+            perspectives {
+                "Insight" "No company has received the boundary; the plugin layer that would carry it is two Proposal boxes\n· the operator's reading of 2026-09-09: the product is the harness-shaped factory, usable from Claude Code"
+            }
+        }
+        audience = softwareSystem "The audience" "Answers back to distributed material; nothing reaches it yet." "Existing System" {
+            perspectives {
+                "Insight" "Nothing reaches it: no stage names a funnel or an audience (measured 2026-09-09)\n· the blog line is Sales's first product (PD-033) and its distribution edge is drawn ABSENT"
+            }
+        }
+        web = softwareSystem "The web" "Where OSS candidates are searched, with a quoted query and a receipt." "Existing System" {
+            perspectives {
+                "Insight" "Every OSS candidate enters through a quoted query with a receipt; a search without one is refused\n· the roster's B1 signal is a live forum count, and bare surnames are refused as substring artefacts"
+            }
+        }
+        deepseek = softwareSystem "DeepSeek OSS packages" "Unsearched candidates for the two plugins." "Existing System" {
+            perspectives {
+                "Insight" "Unsearched: neither plugin has been through the procurement doors\n· the two boxes are Proposals by the plugin-layer ruling of 2026-09-09, and their risk levels are declared, not measured"
+            }
+        }
+        agent = softwareSystem "Agent in session" "Does the LLM work in the window the operator opened; no API key in any tree." "Existing System" {
+            perspectives {
+                "Insight" "The model today: every LLM turn ran in this window with no API key in any tree\n· 2026-09-14, one window: registered a probe, changed a door in a sibling repo, landed four commits through the gates\n· it named itself with the plan's full session name and recorded the title as a row (CF-173)"
+            }
+        }
 
         factory = softwareSystem "The Factory" "Eleven machines inside one governance boundary: an utterance becomes landed, proven work. modified — hover for details" "Modified" {
+            perspectives {
+                "Insight" "Eleven containers drawn 2026-09-15: four Modified, four Proposal, three ship as-is\n· the count of hired exec seats reads 0 of 13 (seats-hired, PR-084)\n· 26 checks are red on trunk and the session baseline attributes every one PRE-EXISTING"
+            }
             group "governance-rbac: who may act, and what every act leaves behind" {
 
                 operatorControl = container "Operator control" "orient, the reconciler, the ask handler; one human operator. modified — hover for details" "Node, prongs/orient.mjs" "Modified" {
+                    perspectives {
+                        "Insight" "Four of its pieces exist as modules and carry an Insight each; the reconciler is the fifth and is not built (PD-078)\n· the fan-out packet gained the worktree doors recipe tonight, after one window paid 28 refusals to land one criterion (CF-175)"
+                    }
                     orient = component "orient" "PRICE FIRST, WHAT CHANGED, DoD QUEUE; --plan reads a plan's CP verdicts from the probe ledger in the main checkout." "Node, prongs/orient.mjs" {
                         perspectives {
                             "Insight" "Run four times on 2026-09-14 in one window: R1 FALSIFIED k=2, R2 UNREGISTERED then HELD k=3, twelve S rows refused UNRULED until the row cited PD-063\n· it reads the store's ledger through ledgerRoot, never the tree's stale copy (CF-168)\n· its next line is a fact, not an instruction: next: CP R1"
@@ -52,27 +86,49 @@ workspace "The Factory" "Eleven machines inside one governance boundary, modelle
                             "Insight" "23:20Z on 2026-09-14: all eleven steps read ok; step 10 showed Fable-2 and Fable-3 held by other windows; step 11 handed one window a plan and flagged none\n· the human steps are declared with --did-group and --did-reflect, never detected\n· a session can read CLOSED having run none of its checkpoints (CF-157, carried as C-U7)"
                         }
                     }
-                    planReader = component "plan-file reader" "Reads a plan's frontmatter and CP table: owner, session_name, status, rulings, each row's red proof and level." "Node, prongs/plan-file.mjs"
+                    planReader = component "plan-file reader" "Reads a plan's frontmatter and CP table: owner, session_name, status, rulings, each row's red proof and level." "Node, prongs/plan-file.mjs" {
+                        perspectives {
+                            "Insight" "Read plan-hiring-line for the take and for orient; the plan's session field was another window's until patched\n· twelve S rows read UNRULED until each row itself cited PD-063: the reader reads the row, never the prose beside it"
+                        }
+                    }
                     baseline = component "session baseline" "--inherit takes trunk's red set as the tree's baseline; attribution is a lookup: mine, PRE-EXISTING, FOREIGN, UNEVALUABLE." "Node, checks/session-baseline.mjs" {
                         perspectives {
                             "Insight" "Inherited at worktree creation: 284 checks, 26 red, 0 suite runs\n· the push gate falls back to the full suite when no run is recorded since capture, and the full suite counts trunk's reds as the session's (CF-166)\n· after one recorded run: 0 red caused by this session, 26 pre-existing"
                         }
                     }
-                    queueRead = component "DoD reader" "prongs/queue-read.mjs: the DoD rows, actionable, ranked and unranked, never silently ordered by recency." "Node"
-                    runLifecycle = component "run lifecycle" "The session's lifecycle over the run rows: what is half-built, what is open." "Node, prongs/run-lifecycle.mjs"
+                    queueRead = component "DoD reader" "prongs/queue-read.mjs: the DoD rows, actionable, ranked and unranked, never silently ordered by recency." "Node" {
+                        perspectives {
+                            "Insight" "24 open asks at session start, DL-008, DL-009 and DL-011 at the top\n· few rows carry a declared priority; the rest print as unranked rather than ordered by recency"
+                        }
+                    }
+                    runLifecycle = component "run lifecycle" "The session's lifecycle over the run rows: what is half-built, what is open." "Node, prongs/run-lifecycle.mjs" {
+                        perspectives {
+                            "Insight" "One window, one close: all eleven steps read ok at 23:20Z\n· the same window re-took its plan at 23:55Z and the take returned the same packet, as designed"
+                        }
+                    }
                     askHook = component "ask hook" "Every operator prompt lands as one ask in the store through the hook, never typed by hand; prompts under seven characters are dropped." "Node, prongs/ask-log.mjs" {
                         perspectives {
                             "Insight" "The one-letter rulings of 2026-09-14 (A, A on both) are under the length floor and in no ask store; plan-chief-of-staff S2 names the hole\n· DL-021, the operator's commitment of 21:20Z, reached the request ledger by promotion and needed discovered_from before any later row could land"
                         }
                     }
-                    planFiles = component "Plan files" "One file per plan, doored: written through door.mjs or receipted; frontmatter carries owner, session and rulings." "Markdown, core/plans/*.md"
+                    planFiles = component "Plan files" "One file per plan, doored: written through door.mjs or receipted; frontmatter carries owner, session and rulings." "Markdown, core/plans/*.md" {
+                        perspectives {
+                            "Insight" "plan-hiring-line.md was edited three times tonight: by hand with a receipt, by patch.mjs twice\n· land refused the first commit until the receipt existed (PD-059)\n· its R2, RQ3 and RQ4 rows now read RULED, citing PD-075 and PD-076"
+                        }
+                    }
                     reconciler = component "reconciler" "Holds the operator's asks against the plan set, names what fell through, re-cuts a plan when a session surfaces new work. proposed — hover for details" "Not built; design-loop PD-078" "Proposal" {
                         !adrs adrs/reconciler
+                        perspectives {
+                            "Insight" "Not built. What it would have caught tonight: three gap rows written by hand (R-013 to R-015), and a request ledger that refused every append until an older row gained a field\n· session-close step 6 reconciles assumptions, not asks"
+                        }
                     }
                 }
 
                 maintainerControl = container "Maintainer control" "runs the forty maintenance jobs; the operator sees only health. modified — hover for details" "Node, core/maintenance-jobs" "Modified" {
                     !adrs adrs/maintainer-control
+                    perspectives {
+                        "Insight" "Forty jobs in the maintenance_job store; the health line reads ABSENT (measured 2026-09-09)\n· no orient-equivalent runs them, so the operator sees nothing"
+                    }
                 }
                 execControl = container "Exec control" "eleven domain seats, each answering one question. modified — hover for details" "Python, advisor-builder" "Modified" {
                     !adrs adrs/exec-control
@@ -82,37 +138,86 @@ workspace "The Factory" "Eleven machines inside one governance boundary, modelle
                 }
                 feedbackControl = container "Feedback control" "routes a finding, and scores whether the agent knew. modified — hover for details" "Node, four instruments" "Modified" {
                     !adrs adrs/feedback-control
+                    perspectives {
+                        "Insight" "Instruments unjoined: operator-moves, ask-yield, batch-rca, the failure ledger, three Brier surfaces\n· the figure called a Brier score is the average confidence on known-false claims, 0.6478 over nine (CAL1, unbuilt)\n· tonight's 26 reds were attributed by the baseline; nothing routed them to anyone"
+                    }
                 }
 
                 discovery = container "Discovery" "an utterance, an incident, or a best practice becomes an admitted job (PD-059, R-008)" "Node, core/pipe.json" {
-                    driver = component "Pipe driver" "A durable state machine over the pipe model: one run row per piece of work, every hop's verdict on the row." "Node, core/pipe/run.mjs"
-                    gates = component "Admission doors" "jobs-gate, candidate-admission, job-admission, spec-freeze, registry-admission: each refuses a named thing." "Node, core/spec"
+                    perspectives {
+                        "Insight" "Its RAT path ran end to end on PR-086 today: registered red, flipped by a door change, HELD k=3\n· this window opened no run row; its checkpoints ran through orient and the falsifier"
+                    }
+                    driver = component "Pipe driver" "A durable state machine over the pipe model: one run row per piece of work, every hop's verdict on the row." "Node, core/pipe/run.mjs" {
+                        perspectives {
+                            "Insight" "Not on tonight's path: the window opened no run row; its checkpoints ran through orient and the falsifier"
+                        }
+                    }
+                    gates = component "Admission doors" "jobs-gate, candidate-admission, job-admission, spec-freeze, registry-admission: each refuses a named thing." "Node, core/spec" {
+                        perspectives {
+                            "Insight" "Not on tonight's path: no candidate crossed an admission door; the door that changed was the hire door in advisor-builder\n· land refuses a staged module the registry does not know, which is why two rows were registered before the first land"
+                        }
+                    }
                     probeDoorway = component "Probe doorway" "Registers one probe: scaffolds the criterion and its control, builds the row from the contract, hands it to the ledger door." "Node, prongs/probe-new.mjs" {
                         perspectives {
                             "Insight" "2026-09-14: from a plan worktree every registration read UNEVALUABLE — inside a linked worktree — until the doorway resolved the ledger through the store root (CF-120's shape)\n· the tracked-criterion rule still needs the file in the store's tree, so a criterion lands first and registers second"
                         }
                     }
-                    ledgerDoor = component "Ledger door" "The one writer of the probe, decision and request ledgers; runs each ledger's validator before a row lands; a dry run writes nothing." "Node, prongs/record.mjs"
-                    riskRanker = component "Risk ranker" "Orders probes by exposure from the risk matrix; a probe with no mode runs after the ranked ones, never scored zero." "Node, core/risk/probe-rank.mjs"
-                    criteria = component "Criteria" "One file per kill criterion: a pure judge() the control drives to every verdict; exit 0 HELD, 1 FALSIFIED, 3 UNEVALUABLE." "Node, checks/crit/*.mjs"
-                    falsifier = component "RAT falsifier" "Runs each probe's pre-registered criterion, risk-ordered; the baseline is stamped on the first run and a flip is printed." "Node, prongs/falsifier.mjs"
+                    ledgerDoor = component "Ledger door" "The one writer of the probe, decision and request ledgers; runs each ledger's validator before a row lands; a dry run writes nothing." "Node, prongs/record.mjs" {
+                        perspectives {
+                            "Insight" "Wrote PR-086, PD-075, PD-076, PD-078 and R-013 to R-015 tonight; refused R-013 three times until DL-021 carried discovered_from\n· amend was used once, on DL-021, one field\n· every write ran from the main checkout: from a worktree the pen refuses (PD-027)"
+                        }
+                    }
+                    riskRanker = component "Risk ranker" "Orders probes by exposure from the risk matrix; a probe with no mode runs after the ranked ones, never scored zero." "Node, core/risk/probe-rank.mjs" {
+                        perspectives {
+                            "Insight" "56 of 85 probes ranked by exposure; PR-086 carries mode nothing_enforced and ran on request with --only\n· governance was refused as a mode: the ids are the matrix's ranks, and the refusal now lists them (CF-175)"
+                        }
+                    }
+                    criteria = component "Criteria" "One file per kill criterion: a pure judge() the control drives to every verdict; exit 0 HELD, 1 FALSIFIED, 3 UNEVALUABLE." "Node, checks/crit/*.mjs" {
+                        perspectives {
+                            "Insight" "hire-door.mjs: three fixture cartridges through the real door under a scratch HOME; its export surface trimmed to five so depth-bar's bar on an added module held\n· seats-hired.mjs gained --seat for the door and a reader for reinstatement rows; 27 controls pass"
+                        }
+                    }
+                    falsifier = component "RAT falsifier" "Runs each probe's pre-registered criterion, risk-ordered; the baseline is stamped on the first run and a flip is printed." "Node, prongs/falsifier.mjs" {
+                        perspectives {
+                            "Insight" "PR-086: baseline FALSIFIED at k=1, FLIP to HELD at k=2, HELD at k=3, every run from the main checkout\n· the criterion was red because the door deployed F1 and F2; the flip followed the door change, never an edit to the row"
+                        }
+                    }
                 }
 
                 delivery = container "Delivery" "an admitted job becomes landed, proven work; the land door exists, the pipe does not. proposed — hover for details" "Node, checks/land.mjs" "Proposal" {
                     !adrs adrs/delivery
+                    perspectives {
+                        "Insight" "Four lands tonight by name, the last four commits on trunk; each ran the suite first so the push gate could attribute\n· the first push was refused on 26 reds that were trunk's, not the session's (CF-166's shape)\n· the leak scan refused a ledger snapshot carrying a home path; the store kept it, the tree did not"
+                    }
                 }
                 distribution = container "Distribution" "finished material reaches an audience that answers back. proposed — hover for details" "Not built; design-loop PD-033" "Proposal" {
                     !adrs adrs/distribution
+                    perspectives {
+                        "Insight" "Nothing to cross: no stage names a funnel\n· the roster gained job 15, distribution, on 2026-09-10 (PD-042); no seat is hired for it"
+                    }
                 }
-                stores = container "Stores" "every ledger, one pen, one project: asks, requests, probes, decisions, fan-out claims, gate runs." "SQLite and JSONL: core/store, failures, intent" "Data Store"
+                stores = container "Stores" "every ledger, one pen, one project: asks, requests, probes, decisions, fan-out claims, gate runs." "SQLite and JSONL: core/store, failures, intent" "Data Store" {
+                    perspectives {
+                        "Insight" "Every write tonight went through record.mjs or register(), from the main checkout, then a snapshot was copied into the tree\n· PR-086, PD-075, PD-076, PD-078 and R-013 to R-015 landed this way\n· a worktree's copy is a snapshot; the store is the truth (PD-027)"
+                    }
+                }
                 registry = container "Registry" "every machine, class and tool the factory can call by name. modified — hover for details" "JSON and SQLite: machinery.json, factory.db" "Data Store,Modified" {
                     !adrs adrs/registry
+                    perspectives {
+                        "Insight" "710 rows in machinery.json after crit-hire-door and test-hire-door registered tonight\n· registration from a worktree was refused: the registry is a store ledger and lives in the main checkout\n· its family field names the old pipe on 24 of 627 rows (measured 2026-09-09)"
+                    }
                 }
                 contextPlugin = container "Context plugin" "what a session is handed at the moment it opens. proposed — hover for details" "DeepSeek OSS, unsearched" "Proposal" {
                     !adrs adrs/context-plugin
+                    perspectives {
+                        "Insight" "The packet is the context today: rename, claim, worktree line, doors recipe, CP table, bar, riskiest assumption\n· no package has been searched; the box is a Proposal by the plugin-layer ruling of 2026-09-09"
+                    }
                 }
                 inferencePlugin = container "Inference plugin" "the model every machine runs on. proposed — hover for details" "DeepSeek OSS, unsearched" "Proposal" {
                     !adrs adrs/inference-plugin
+                    perspectives {
+                        "Insight" "Every machine asked the model in the window today; none asked a package\n· the risk matrix declares its level; nothing measures it"
+                    }
                 }
             }
         }

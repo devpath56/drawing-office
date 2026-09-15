@@ -31,6 +31,10 @@
       "description" : "Admin (PD-034). Types asks, rules on tables, opens and closes windows, lands work.",
       "id" : "1",
       "name" : "Operator",
+      "perspectives" : [ {
+        "description" : "Two one-letter rulings in one evening: A on RQ3, then A on both\n· each landed as a decision row through the ledger door within minutes (PD-075, PD-076)\n· neither letter reached the ask store: the hook drops prompts under seven characters",
+        "name" : "Insight"
+      } ],
       "properties" : {
         "structurizr.dsl.identifier" : "operator"
       },
@@ -112,6 +116,10 @@
       "description" : "Super user (PD-034). Rules on the store with the operator's roles.",
       "id" : "2",
       "name" : "Second operator",
+      "perspectives" : [ {
+        "description" : "Named super user by PD-034; no pen row tonight carries a second operator id\n· plan-dmq-hire Q0 (PR-085) is FALSIFIED on exactly that: two operators declared, one seat\n· the roles are a boundary the frame draws and nothing yet enforces",
+        "name" : "Insight"
+      } ],
       "properties" : {
         "structurizr.dsl.identifier" : "second"
       },
@@ -141,6 +149,10 @@
       "documentation" : { },
       "id" : "3",
       "name" : "A target company",
+      "perspectives" : [ {
+        "description" : "No company has received the boundary; the plugin layer that would carry it is two Proposal boxes\n· the operator's reading of 2026-09-09: the product is the harness-shaped factory, usable from Claude Code",
+        "name" : "Insight"
+      } ],
       "properties" : {
         "structurizr.dsl.identifier" : "targetCompany"
       },
@@ -150,6 +162,10 @@
       "documentation" : { },
       "id" : "4",
       "name" : "The audience",
+      "perspectives" : [ {
+        "description" : "Nothing reaches it: no stage names a funnel or an audience (measured 2026-09-09)\n· the blog line is Sales's first product (PD-033) and its distribution edge is drawn ABSENT",
+        "name" : "Insight"
+      } ],
       "properties" : {
         "structurizr.dsl.identifier" : "audience"
       },
@@ -159,6 +175,10 @@
       "documentation" : { },
       "id" : "5",
       "name" : "The web",
+      "perspectives" : [ {
+        "description" : "Every OSS candidate enters through a quoted query with a receipt; a search without one is refused\n· the roster's B1 signal is a live forum count, and bare surnames are refused as substring artefacts",
+        "name" : "Insight"
+      } ],
       "properties" : {
         "structurizr.dsl.identifier" : "web"
       },
@@ -181,6 +201,10 @@
       "documentation" : { },
       "id" : "6",
       "name" : "DeepSeek OSS packages",
+      "perspectives" : [ {
+        "description" : "Unsearched: neither plugin has been through the procurement doors\n· the two boxes are Proposals by the plugin-layer ruling of 2026-09-09, and their risk levels are declared, not measured",
+        "name" : "Insight"
+      } ],
       "properties" : {
         "structurizr.dsl.identifier" : "deepseek"
       },
@@ -209,6 +233,10 @@
       "documentation" : { },
       "id" : "7",
       "name" : "Agent in session",
+      "perspectives" : [ {
+        "description" : "The model today: every LLM turn ran in this window with no API key in any tree\n· 2026-09-14, one window: registered a probe, changed a door in a sibling repo, landed four commits through the gates\n· it named itself with the plan's full session name and recorded the title as a row (CF-173)",
+        "name" : "Insight"
+      } ],
       "properties" : {
         "structurizr.dsl.identifier" : "agent"
       },
@@ -350,6 +378,10 @@
           "documentation" : { },
           "id" : "13",
           "name" : "plan-file reader",
+          "perspectives" : [ {
+            "description" : "Read plan-hiring-line for the take and for orient; the plan's session field was another window's until patched\n· twelve S rows read UNRULED until each row itself cited PD-063: the reader reads the row, never the prose beside it",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "planReader"
           },
@@ -388,6 +420,10 @@
           "documentation" : { },
           "id" : "15",
           "name" : "DoD reader",
+          "perspectives" : [ {
+            "description" : "24 open asks at session start, DL-008, DL-009 and DL-011 at the top\n· few rows carry a declared priority; the rest print as unranked rather than ordered by recency",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "queueRead"
           },
@@ -398,6 +434,10 @@
           "documentation" : { },
           "id" : "16",
           "name" : "run lifecycle",
+          "perspectives" : [ {
+            "description" : "One window, one close: all eleven steps read ok at 23:20Z\n· the same window re-took its plan at 23:55Z and the take returned the same packet, as designed",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "runLifecycle"
           },
@@ -429,6 +469,10 @@
           "documentation" : { },
           "id" : "18",
           "name" : "Plan files",
+          "perspectives" : [ {
+            "description" : "plan-hiring-line.md was edited three times tonight: by hand with a receipt, by patch.mjs twice\n· land refused the first commit until the receipt existed (PD-059)\n· its R2, RQ3 and RQ4 rows now read RULED, citing PD-075 and PD-076",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "planFiles"
           },
@@ -448,6 +492,10 @@
           },
           "id" : "19",
           "name" : "reconciler",
+          "perspectives" : [ {
+            "description" : "Not built. What it would have caught tonight: three gap rows written by hand (R-013 to R-015), and a request ledger that refused every append until an older row gained a field\n· session-close step 6 reconciles assumptions, not asks",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "reconciler"
           },
@@ -472,6 +520,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "9",
         "name" : "Operator control",
+        "perspectives" : [ {
+          "description" : "Four of its pieces exist as modules and carry an Insight each; the reconciler is the fifth and is not built (PD-078)\n· the fan-out packet gained the worktree doors recipe tonight, after one window paid 28 refusals to land one criterion (CF-175)",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "operatorControl"
         },
@@ -523,6 +575,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "20",
         "name" : "Maintainer control",
+        "perspectives" : [ {
+          "description" : "Forty jobs in the maintenance_job store; the health line reads ABSENT (measured 2026-09-09)\n· no orient-equivalent runs them, so the operator sees nothing",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "maintainerControl"
         },
@@ -605,6 +661,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "22",
         "name" : "Feedback control",
+        "perspectives" : [ {
+          "description" : "Instruments unjoined: operator-moves, ask-yield, batch-rca, the failure ledger, three Brier surfaces\n· the figure called a Brier score is the average confidence on known-false claims, 0.6478 over nine (CAL1, unbuilt)\n· tonight's 26 reds were attributed by the baseline; nothing routed them to anyone",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "feedbackControl"
         },
@@ -641,6 +701,10 @@
           "documentation" : { },
           "id" : "24",
           "name" : "Pipe driver",
+          "perspectives" : [ {
+            "description" : "Not on tonight's path: the window opened no run row; its checkpoints ran through orient and the falsifier",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "driver"
           },
@@ -664,6 +728,10 @@
           "documentation" : { },
           "id" : "25",
           "name" : "Admission doors",
+          "perspectives" : [ {
+            "description" : "Not on tonight's path: no candidate crossed an admission door; the door that changed was the hire door in advisor-builder\n· land refuses a staged module the registry does not know, which is why two rows were registered before the first land",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "gates"
           },
@@ -714,6 +782,10 @@
           "documentation" : { },
           "id" : "27",
           "name" : "Ledger door",
+          "perspectives" : [ {
+            "description" : "Wrote PR-086, PD-075, PD-076, PD-078 and R-013 to R-015 tonight; refused R-013 three times until DL-021 carried discovered_from\n· amend was used once, on DL-021, one field\n· every write ran from the main checkout: from a worktree the pen refuses (PD-027)",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "ledgerDoor"
           },
@@ -731,6 +803,10 @@
           "documentation" : { },
           "id" : "28",
           "name" : "Risk ranker",
+          "perspectives" : [ {
+            "description" : "56 of 85 probes ranked by exposure; PR-086 carries mode nothing_enforced and ran on request with --only\n· governance was refused as a mode: the ids are the matrix's ranks, and the refusal now lists them (CF-175)",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "riskRanker"
           },
@@ -741,6 +817,10 @@
           "documentation" : { },
           "id" : "29",
           "name" : "Criteria",
+          "perspectives" : [ {
+            "description" : "hire-door.mjs: three fixture cartridges through the real door under a scratch HOME; its export surface trimmed to five so depth-bar's bar on an added module held\n· seats-hired.mjs gained --seat for the door and a reader for reinstatement rows; 27 controls pass",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "criteria"
           },
@@ -758,6 +838,10 @@
           "documentation" : { },
           "id" : "30",
           "name" : "RAT falsifier",
+          "perspectives" : [ {
+            "description" : "PR-086: baseline FALSIFIED at k=1, FLIP to HELD at k=2, HELD at k=3, every run from the main checkout\n· the criterion was red because the door deployed F1 and F2; the flip followed the door change, never an edit to the row",
+            "name" : "Insight"
+          } ],
           "properties" : {
             "structurizr.dsl.identifier" : "falsifier"
           },
@@ -788,6 +872,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "23",
         "name" : "Discovery",
+        "perspectives" : [ {
+          "description" : "Its RAT path ran end to end on PR-086 today: registered red, flipped by a door change, HELD k=3\n· this window opened no run row; its checkpoints ran through orient and the falsifier",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "discovery"
         },
@@ -839,6 +927,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "31",
         "name" : "Delivery",
+        "perspectives" : [ {
+          "description" : "Four lands tonight by name, the last four commits on trunk; each ran the suite first so the push gate could attribute\n· the first push was refused on 26 reds that were trunk's, not the session's (CF-166's shape)\n· the leak scan refused a ledger snapshot carrying a home path; the store kept it, the tree did not",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "delivery"
         },
@@ -878,6 +970,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "32",
         "name" : "Distribution",
+        "perspectives" : [ {
+          "description" : "Nothing to cross: no stage names a funnel\n· the roster gained job 15, distribution, on 2026-09-10 (PD-042); no seat is hired for it",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "distribution"
         },
@@ -902,6 +998,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "33",
         "name" : "Stores",
+        "perspectives" : [ {
+          "description" : "Every write tonight went through record.mjs or register(), from the main checkout, then a snapshot was copied into the tree\n· PR-086, PD-075, PD-076, PD-078 and R-013 to R-015 landed this way\n· a worktree's copy is a snapshot; the store is the truth (PD-027)",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "stores"
         },
@@ -922,6 +1022,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "34",
         "name" : "Registry",
+        "perspectives" : [ {
+          "description" : "710 rows in machinery.json after crit-hire-door and test-hire-door registered tonight\n· registration from a worktree was refused: the registry is a store ledger and lives in the main checkout\n· its family field names the old pipe on 24 of 627 rows (measured 2026-09-09)",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "registry"
         },
@@ -942,6 +1046,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "35",
         "name" : "Context plugin",
+        "perspectives" : [ {
+          "description" : "The packet is the context today: rename, claim, worktree line, doors recipe, CP table, bar, riskiest assumption\n· no package has been searched; the box is a Proposal by the plugin-layer ruling of 2026-09-09",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "contextPlugin"
         },
@@ -962,6 +1070,10 @@
         "group" : "governance-rbac: who may act, and what every act leaves behind",
         "id" : "36",
         "name" : "Inference plugin",
+        "perspectives" : [ {
+          "description" : "Every machine asked the model in the window today; none asked a package\n· the risk matrix declares its level; nothing measures it",
+          "name" : "Insight"
+        } ],
         "properties" : {
           "structurizr.dsl.identifier" : "inferencePlugin"
         },
@@ -972,6 +1084,10 @@
       "documentation" : { },
       "id" : "8",
       "name" : "The Factory",
+      "perspectives" : [ {
+        "description" : "Eleven containers drawn 2026-09-15: four Modified, four Proposal, three ship as-is\n· the count of hired exec seats reads 0 of 13 (seats-hired, PR-084)\n· 26 checks are red on trunk and the session baseline attributes every one PRE-EXISTING",
+        "name" : "Insight"
+      } ],
       "properties" : {
         "structurizr.dsl.identifier" : "factory"
       },
