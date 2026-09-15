@@ -81,9 +81,9 @@ workspace "The Factory" "Eleven machines inside one governance boundary, modelle
                             "Insight" "22:50:20Z: --take fable returned Mon-14/9-Fable-1 on plan-hiring-line at HEAD fc8e87b; typed again at 23:55Z it returned the same plan\n· the packet gained the worktree doors recipe the same night (CF-175) after this window paid 28 refusals to land one criterion\n· the title row joins window, app session and plan (CF-174)"
                         }
                     }
-                    sessionClose = component "session close" "Eleven steps: two human, declared; step 6 assumptions into the risk store; step 10 pastes the fan-out; step 11 rehearses." "Node, prongs/session-close.mjs" {
+                    sessionClose = component "session close" "Six machine steps (PD-080): 1 uncovered asks, 3 the reflection read and pasted, 6 assumptions through the falsifier, 8 unlanded work blocks, 10 fan-out state, 11 fan-out rehearsed. Nothing is declared by a flag." "Node, prongs/session-close.mjs" {
                         perspectives {
-                            "Insight" "23:20Z on 2026-09-14: all eleven steps read ok; step 10 showed Fable-2 and Fable-3 held by other windows; step 11 handed one window a plan and flagged none\n· the human steps are declared with --did-group and --did-reflect, never detected\n· a session can read CLOSED having run none of its checkpoints (CF-157, carried as C-U7)"
+                            "Insight" "01:45Z on 2026-09-15, first run of the six-step close: 55 lines where the eleven-step close printed 120; OPEN on step 11 (every plan held, 0 windows handed) and OWED on step 1 (12 uncovered asks); 3, 6, 8, 10 ok\n· steps 4, 5, 7 were cut and 2, 9 moved on a cut table measured against 'the operator reads the reflection and the fan-out; the close refuses a leak' — 1064 of 1516 words went with them\n· step 8 was promoted from advisory to blocking the night the intent reader sat built on a branch trunk could not see"
                         }
                     }
                     planReader = component "plan-file reader" "Reads a plan's frontmatter and CP table: owner, session_name, status, rulings, each row's red proof and level." "Node, prongs/plan-file.mjs" {
@@ -259,9 +259,11 @@ workspace "The Factory" "Eleven machines inside one governance boundary, modelle
         orient -> stores "Reads the probe ledger in the main checkout from"
         orient -> queueRead "Reads the DoD queue through"
         orient -> runLifecycle "Reads the session lifecycle through"
-        sessionClose -> stores "Step 2 scans the ask ledger; step 6 puts every plan's assumptions into the risk store and through the falsifier"
+        sessionClose -> stores "Step 1 scans the ask ledger for uncovered asks; step 6 puts every plan's assumptions into the risk store and through the falsifier"
+        sessionClose -> agent "Step 3 reads the session's newest assistant turn carrying the three reflection headings from"
+        sessionClose -> delivery "Step 8 asks whether every commit is on the store's branch and pushed; a no blocks"
         sessionClose -> fanout "Step 10 pastes the fan-out state; step 11 rehearses N windows against a copy"
-        sessionClose -> planFiles "Step 4 checks plans and handoffs were written last"
+        sessionClose -> operator "Prints CLOSED, OPEN or OWED with the reflection and the fan-out pasted to"
         baseline -> stores "Reads the newest recorded run per control from the gate ledger"
         reconciler -> stores "ABSENT: holds the operator's asks against the plan set"
         reconciler -> planFiles "ABSENT: re-cuts a plan when a session surfaces new work"
@@ -354,43 +356,40 @@ workspace "The Factory" "Eleven machines inside one governance boundary, modelle
             autoLayout lr 500 400
         }
 
-        /* THE HANDOFF, END TO END: one window closes, trunk moves, the next window opens on a plan and
-           runs its first checkpoint. Told twice on one plate, as the RAT trace is: each arrow is the
-           general statement, and the key swaps every label for the real run — session 02d08c62 on
-           plan-hiring-line, 2026-09-14. The close (23:20Z) and the open (22:50Z) are the SAME window's,
-           told in handoff order, because the previous window's close output was not in the record. */
-        dynamic operatorControl "Handoff" "How a table session hands off: the close reconciles and rehearses, the tree lands, a new window takes a plan, opens on its packet, and runs the first checkpoint." {
-            title "The handoff"
+        /* FROM THE CLOSE TO THE NEXT WINDOW'S TAKE (operator, 2026-09-15: "a trace view of session close
+           protocol all the way to spawn of next orient fable"). The six steps of the close are six hops,
+           then the spawn: a new window types orient <owner> and the take hands it a plan. Told twice on
+           one plate, as the RAT trace is: each arrow is the general statement, and the key swaps every
+           label for the real run — the six-step close of session 02d08c62 at 01:45Z on 2026-09-15, then
+           the take that opened the same session at 22:50Z the evening before, in trace order. */
+        dynamic operatorControl "CloseToSpawn" "From the close to the spawn: six machine steps run, the operator reads the reflection and the fan-out, and the next window's take hands it a plan." {
+            title "From the close to the next take"
             properties {
                 "structurizr.tooltips" "true"
-                "drawing-office.example" "Mon-14/9-Fable-1 on plan-hiring-line, 2026-09-14: session 02d08c62's close at 23:20Z and its open at 22:50Z, told in handoff order"
-                "drawing-office.example.1" "node prongs/session-close.mjs --session 02d08c62 --last-ask 2026-09-14T22:50:00Z --did-group --did-reflect: all eleven steps read ok"
-                "drawing-office.example.2" "day 2026-09-14: 1 ask, 1 session scanned; AS-98 (one seat per session at 60k tokens) in the risk store, PR-076 FALSIFIED"
-                "drawing-office.example.3" "3 READY: Fable-2 held by 50df0a7d, Fable-3 by 30f29b98, Fable-1 taken; 2 HELD-BACK with no session_name; rehearsal: 1 window handed, 0 flagged"
-                "drawing-office.example.4" "node checks/land.mjs by name: e399937 landed; trunk fast-forwarded and pushed f31ad9e..e399937"
-                "drawing-office.example.5" "22:50:20Z: the operator types orient fable; node prongs/fanout.mjs --take fable reads session 02d08c62 from the environment"
-                "drawing-office.example.6" "plan-hiring-line.md: owner fable, status open, session_name Mon-14/9-Fable-1, rulings PD-042 to PD-074; READY"
-                "drawing-office.example.7" "intent/fanouts.jsonl gains name Mon-14/9-Fable-1, plan plan-hiring-line.md, session 02d08c62, head fc8e87b"
-                "drawing-office.example.8" "the packet: HEAD fc8e87b, 19 CPs in order, bar level 5, riskiest assumption FALSIFIED (PR-076), hand-back by land"
-                "drawing-office.example.9" "set_session_title Mon-14/9-Fable-1: first seat hired; --titled records app session local_698f8d8d as a ledger row"
-                "drawing-office.example.10" "git worktree add mon-14-9-fable-1-02d08c62 at fc8e87b; --inherit: 284 checks, 26 red, 0 suite runs"
-                "drawing-office.example.11" "orient --plan core/plans/plan-hiring-line.md: R1 FALSIFIED k=2, S1 FALSIFIED k=3, 17 UNREGISTERED; next: CP R1"
-                "drawing-office.example.12" "failures/probes.jsonl in ~/dev/design-loop: PR-084 FALSIFIED hired 0 of 13"
-                "drawing-office.example.13" "node checks/crit/seats-hired.mjs: FALSIFIED hired 0 of 13, cartridge-only 1 (qe-ic-advisor), none 12"
+                "drawing-office.example" "session 02d08c62 on plan-hiring-line: the six-step close at 01:45Z on 2026-09-15 (55 lines), then the take of 22:50Z on 2026-09-14 that had opened the same window"
+                "drawing-office.example.1" "node prongs/session-close.mjs --session 02d08c62: six steps run; no flag typed; verdict OPEN"
+                "drawing-office.example.2" "coverage FALSIFIED: 12 UNCOVERED, 30 WEAK — step 1 OWED, the 12 uncovered rows pasted, each owed a gap row through record.mjs add r"
+                "drawing-office.example.3" "the reflection of 01:20Z found in the newest hand-back — what I asked / what it revealed / what it resolves — step 3 ok, pasted"
+                "drawing-office.example.4" "1 plan, 1 assumption row reconciled; AS-98 would be KILLED at intake — the step working, not failing; step 6 ok"
+                "drawing-office.example.5" "every commit on the store's branch and pushed; 5 uncommitted paths (the suite's ledgers) reported, not blocked; step 8 ok"
+                "drawing-office.example.6" "2 READY · 3 HELD-BACK · 16 claims (step 10 ok); rehearsal: every plan held, 0 windows handed — step 11 OWED"
+                "drawing-office.example.7" "OPEN — 1 machine step failed (step 11); the reflection and the fan-out pasted; last line: Settle step 11 first"
+                "drawing-office.example.8" "22:50:20Z: orient fable in a fresh window; node prongs/fanout.mjs --take fable reads session 02d08c62 from the environment"
+                "drawing-office.example.9" "plan-hiring-line.md: owner fable, status open, session_name Mon-14/9-Fable-1; READY"
+                "drawing-office.example.10" "intent/fanouts.jsonl gains name Mon-14/9-Fable-1, plan plan-hiring-line.md, session 02d08c62, head fc8e87b"
+                "drawing-office.example.11" "the packet: rename first, the claim, the worktree line, the doors recipe, 19 CPs in order, bar level 5, riskiest assumption FALSIFIED (PR-076)"
             }
-            operator -> sessionClose "Closes the last window: session id, last ask, and the two human steps declared, never detected"
-            sessionClose -> stores "Step 2 scans coverage against the ask ledger; step 6 puts every plan's assumptions through the falsifier"
-            sessionClose -> fanout "Step 10 pastes the fan-out state; step 11 rehearses N windows per owner against a copy of the plan set"
-            operator -> delivery "The closing tree lands by name; trunk fast-forwards onto it and is pushed"
-            operator -> fanout "A new window types orient <owner>; the take reads the session id from the window's own environment"
+            operator -> sessionClose "Closes the window: session id; six machine steps run and nothing is declared by a flag"
+            sessionClose -> stores "Step 1: the coverage scan over the ask ledger; 0 UNCOVERED passes, else each uncovered ask owes a gap row, and only those rows are pasted"
+            sessionClose -> agent "Step 3: the newest assistant turn carrying the three reflection headings on their own lines is read and pasted"
+            sessionClose -> stores "Step 6: every plan's assumptions into the risk store and through the falsifier; a kill is the step working"
+            sessionClose -> delivery "Step 8: a commit not on the store's branch, or not pushed, BLOCKS; uncommitted paths are reported"
+            sessionClose -> fanout "Step 10: the fan-out state; step 11: N windows rehearsed against a copy, last, after every plan edit"
+            sessionClose -> operator "Prints CLOSED, OPEN or OWED with the reflection and the fan-out pasted — the two things the operator reads"
+            operator -> fanout "A new window types orient <owner>; the take runs by absolute path and reads the session id from the window"
             fanout -> planReader "Reads every plan's frontmatter: owner, session_name, status, rulings; READY, held, or held back"
             fanout -> stores "Claims the first unheld plan of that owner as a row; first row wins; typing it again returns the same plan"
             fanout -> operator "Prints the packet: the rename, the claim, the worktree line, the doors recipe, the CP table, the bar, the riskiest assumption"
-            operator -> agent "Names the window with the plan's full session name and records the title as a ledger row"
-            operator -> baseline "Adds a worktree at trunk and inherits trunk's red set as the tree's baseline, zero suite runs"
-            operator -> orient "orient --plan reads the plan's CP verdicts; a level-5 checkpoint with no ruling is refused, not run"
-            orient -> stores "Resolves the probe ledger through the store root, never the tree's copy"
-            operator -> discovery "The first checkpoint's criterion runs; its verdict is the window's first fact"
             autoLayout lr 500 400
         }
 
