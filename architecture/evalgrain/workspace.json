@@ -1,0 +1,1203 @@
+{
+  "configuration" : { },
+  "description" : "Verifies that the traces an eval scored belong to the target run; contamination closes as UNEVALUABLE.",
+  "documentation" : {
+    "decisions" : [ {
+      "content" : "# 1. A contaminated eval closes through TrueForge's own approval gate, not a refusal UI of ours\n\nDate: 2026-09-19\n\n## Status\n\nAccepted\n\n## Context\n\nThe auditor's whole value is in the path where it says no. CF-262 is the bug it exists for: an eval\ngrouped replayed spans by a repeated label — \"LLM call 9\" — and scored another session's spans as\nthis run's, so one run's artifacts were credited to another. The Membership Checker catches that by\ntesting every claimed span against the Trace-Ownership Registry, and the question this record\nanswers is what happens next.\n\nA refusal has to reach a person, and it has to stop the scoring rather than annotate it. The obvious\nbuild is ours: a refusal screen, a queue of blocked claims, a button. That is a second gate beside\none that already exists, and a hackathon v0 that builds its own approval flow has spent its time on\nthe half that was already solved.\n\nTrueForge is not ours. It is the local single-process platform the harness already runs on, and it\nships a native approval gate: scoring pauses, a human decides, nothing proceeds without the\ndecision. The auditor already talks to TrueForge to fingerprint live events, so the edge exists.\n\n## Decision\n\nA contaminated eval closes as UNEVALUABLE through TrueForge's native approval gate.\n\nThe Receipt Writer logs UNEVALUABLE durably — every foreign span, each with its true owner IDs —\nand then pauses scoring at the gate. The Eval Operator approves or rejects there. Nothing scores\nwithout that decision.\n\nUNEVALUABLE is a verdict about the claim and not a score of it. It is deliberately not a failing\nscore: a run whose membership cannot be established has not been judged badly, it has not been\njudged at all, and recording a number for it would be the same error CF-262 made one level up.\n\n## Consequences\n\nThe error path is demonstrable without a line of gate code. The demo is TrueForge pausing, a human\nrejecting, and no score being written — \"I didn't build a gate, I borrowed theirs.\"\n\nThe refusal is durable and stays out of model history. The receipt is the artifact; the paused claim\nis TrueForge's own record.\n\nThe cost is a dependency. The graceful error path now requires that TrueForge's gate is configured\nand reachable, and an auditor deployed against a platform with no approval mechanism would have\nnothing to pause on — it would still write the UNEVALUABLE receipt, and the stopping would be\nmissing. That trade is taken knowingly for v0, where the platform is a fixed local process.\n\nThis record governs `evalgrain`, the Eval-Grain Auditor (I).\n",
+      "date" : "2026-09-19T07:00:00Z",
+      "format" : "Markdown",
+      "id" : "1",
+      "status" : "Accepted",
+      "title" : "A contaminated eval closes through TrueForge's own approval gate, not a refusal UI of ours"
+    } ]
+  },
+  "id" : 0,
+  "model" : {
+    "deploymentNodes" : [ {
+      "children" : [ {
+        "containerInstances" : [ {
+          "containerId" : "12",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "52",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "tfSessionApi"
+          },
+          "relationships" : [ {
+            "description" : "Streams session events",
+            "destinationId" : "64",
+            "id" : "65",
+            "linkedRelationshipId" : "26",
+            "sourceId" : "52",
+            "technology" : "SSE"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "13",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "53",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "tfReplay"
+          },
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "14",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "54",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "tfJudge"
+          },
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "15",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "55",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "tfGate"
+          },
+          "tags" : "Container Instance"
+        } ],
+        "description" : "npx @truefoundry/trueforge, one process, SQLite.",
+        "environment" : "Local",
+        "id" : "51",
+        "instances" : "1",
+        "name" : "TrueForge single-process (npx)",
+        "properties" : {
+          "structurizr.dsl.identifier" : "tfbox"
+        },
+        "tags" : "Element,Deployment Node",
+        "technology" : "Node.js"
+      }, {
+        "containerInstances" : [ {
+          "containerId" : "3",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "57",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "demoProvisioner"
+          },
+          "relationships" : [ {
+            "description" : "Provisions sessions",
+            "destinationId" : "52",
+            "id" : "58",
+            "linkedRelationshipId" : "23",
+            "sourceId" : "57"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "4",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "59",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "demoGrouper"
+          },
+          "relationships" : [ {
+            "description" : "Replays session events",
+            "destinationId" : "53",
+            "id" : "60",
+            "linkedRelationshipId" : "31",
+            "sourceId" : "59"
+          }, {
+            "description" : "Submits spans for scoring",
+            "destinationId" : "54",
+            "id" : "61",
+            "linkedRelationshipId" : "34",
+            "sourceId" : "59"
+          }, {
+            "description" : "Hands grouped spans",
+            "destinationId" : "62",
+            "id" : "63",
+            "linkedRelationshipId" : "36",
+            "sourceId" : "59"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "5",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "62",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "demoClaimBuilder"
+          },
+          "relationships" : [ {
+            "description" : "Presents span claim",
+            "destinationId" : "66",
+            "id" : "67",
+            "linkedRelationshipId" : "37",
+            "sourceId" : "62"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "7",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "64",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "demoRegistry"
+          },
+          "relationships" : [ {
+            "description" : "Appends fingerprinted events",
+            "destinationId" : "72",
+            "id" : "73",
+            "linkedRelationshipId" : "30",
+            "sourceId" : "64"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "8",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "66",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "demoChecker"
+          },
+          "relationships" : [ {
+            "description" : "Looks up true owners",
+            "destinationId" : "64",
+            "id" : "68",
+            "linkedRelationshipId" : "40",
+            "sourceId" : "66"
+          }, {
+            "description" : "Reports verdict",
+            "destinationId" : "69",
+            "id" : "71",
+            "linkedRelationshipId" : "41",
+            "sourceId" : "66"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "9",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "69",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "demoReceipts"
+          },
+          "relationships" : [ {
+            "description" : "Pauses scoring for human review",
+            "destinationId" : "55",
+            "id" : "70",
+            "linkedRelationshipId" : "43",
+            "sourceId" : "69"
+          }, {
+            "description" : "Logs receipt durably",
+            "destinationId" : "72",
+            "id" : "74",
+            "linkedRelationshipId" : "42",
+            "sourceId" : "69"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "10",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "72",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "demoEventLog"
+          },
+          "tags" : "Container Instance"
+        } ],
+        "description" : "The harness and the auditor run together in the demo process.",
+        "environment" : "Local",
+        "id" : "56",
+        "instances" : "1",
+        "name" : "Eval demo process",
+        "properties" : {
+          "structurizr.dsl.identifier" : "demobox"
+        },
+        "tags" : "Element,Deployment Node",
+        "technology" : "Node.js"
+      } ],
+      "description" : "Everything in this v0 runs on one machine.",
+      "environment" : "Local",
+      "id" : "50",
+      "instances" : "1",
+      "name" : "Demo laptop",
+      "properties" : {
+        "structurizr.dsl.identifier" : "laptop"
+      },
+      "tags" : "Element,Deployment Node",
+      "technology" : "macOS"
+    } ],
+    "people" : [ {
+      "description" : "Runs the eval demo; approves or rejects scoring paused at the approval gate.",
+      "id" : "1",
+      "name" : "Eval Operator",
+      "properties" : {
+        "structurizr.dsl.identifier" : "operator"
+      },
+      "relationships" : [ {
+        "description" : "Runs the eval demo",
+        "destinationId" : "2",
+        "id" : "16",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Reviews SCORED / UNEVALUABLE receipts",
+        "destinationId" : "6",
+        "id" : "17",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Stubs up the harness",
+        "destinationId" : "3",
+        "id" : "22",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Approves or rejects paused scoring",
+        "destinationId" : "15",
+        "id" : "48",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Approves or rejects paused scoring",
+        "destinationId" : "11",
+        "id" : "49",
+        "linkedRelationshipId" : "48",
+        "sourceId" : "1"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "containers" : [ {
+        "description" : "Stubs up the harness and provisions eval sessions on TrueForge.",
+        "documentation" : { },
+        "id" : "3",
+        "name" : "Session Provisioner",
+        "properties" : {
+          "structurizr.dsl.identifier" : "provisioner"
+        },
+        "relationships" : [ {
+          "description" : "Provisions sessions",
+          "destinationId" : "12",
+          "id" : "23",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Provisions sessions",
+          "destinationId" : "11",
+          "id" : "24",
+          "linkedRelationshipId" : "23",
+          "sourceId" : "3"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Replays session events and groups spans by repeated label (e.g. 'LLM call 9') — the grouping that caused CF-262.",
+        "documentation" : { },
+        "id" : "4",
+        "name" : "Span Grouper",
+        "properties" : {
+          "structurizr.dsl.identifier" : "grouper"
+        },
+        "relationships" : [ {
+          "description" : "Replays session events",
+          "destinationId" : "13",
+          "id" : "31",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Replays session events",
+          "destinationId" : "11",
+          "id" : "32",
+          "linkedRelationshipId" : "31",
+          "sourceId" : "4"
+        }, {
+          "description" : "Submits spans for scoring",
+          "destinationId" : "14",
+          "id" : "34",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Hands grouped spans",
+          "destinationId" : "5",
+          "id" : "36",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Builds the span claim the eval presents for scoring.",
+        "documentation" : { },
+        "id" : "5",
+        "name" : "Claim Builder",
+        "properties" : {
+          "structurizr.dsl.identifier" : "claimbuilder"
+        },
+        "relationships" : [ {
+          "description" : "Presents span claim",
+          "destinationId" : "8",
+          "id" : "37",
+          "sourceId" : "5",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Presents span claim",
+          "destinationId" : "6",
+          "id" : "38",
+          "linkedRelationshipId" : "37",
+          "sourceId" : "5"
+        } ],
+        "tags" : "Element,Container"
+      } ],
+      "description" : "Runs eval sessions, scores spans with the LLM judge, groups spans by label, and builds the span claim. The system the auditor audits.",
+      "documentation" : { },
+      "id" : "2",
+      "name" : "Eval Harness",
+      "properties" : {
+        "structurizr.dsl.identifier" : "evalharness"
+      },
+      "relationships" : [ {
+        "description" : "Presents span claims for audit",
+        "destinationId" : "6",
+        "id" : "18",
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Provisions sessions, replays events, scores spans",
+        "destinationId" : "11",
+        "id" : "20",
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Provisions sessions",
+        "destinationId" : "12",
+        "id" : "25",
+        "linkedRelationshipId" : "23",
+        "sourceId" : "2"
+      }, {
+        "description" : "Replays session events",
+        "destinationId" : "13",
+        "id" : "33",
+        "linkedRelationshipId" : "31",
+        "sourceId" : "2"
+      }, {
+        "description" : "Submits spans for scoring",
+        "destinationId" : "14",
+        "id" : "35",
+        "linkedRelationshipId" : "34",
+        "sourceId" : "2"
+      }, {
+        "description" : "Presents span claim",
+        "destinationId" : "8",
+        "id" : "39",
+        "linkedRelationshipId" : "37",
+        "sourceId" : "2"
+      } ],
+      "tags" : "Element,Software System"
+    }, {
+      "containers" : [ {
+        "description" : "Fingerprints every live SSE event to (session, turn, event). The source of truth for span ownership.",
+        "documentation" : { },
+        "id" : "7",
+        "name" : "Trace-Ownership Registry",
+        "properties" : {
+          "structurizr.dsl.identifier" : "registry"
+        },
+        "relationships" : [ {
+          "description" : "Appends fingerprinted events",
+          "destinationId" : "10",
+          "id" : "30",
+          "sourceId" : "7",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Pre-step check: tests every claimed span against the registry. Intruder found → refuse to score.",
+        "documentation" : { },
+        "id" : "8",
+        "name" : "Membership Checker",
+        "properties" : {
+          "structurizr.dsl.identifier" : "checker"
+        },
+        "relationships" : [ {
+          "description" : "Looks up true owners",
+          "destinationId" : "7",
+          "id" : "40",
+          "sourceId" : "8",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Reports verdict",
+          "destinationId" : "9",
+          "id" : "41",
+          "sourceId" : "8",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Writes the SCORED receipt, or UNEVALUABLE listing every foreign span with its true owner IDs. Logged durably.",
+        "documentation" : { },
+        "id" : "9",
+        "name" : "Receipt Writer",
+        "properties" : {
+          "structurizr.dsl.identifier" : "receipts"
+        },
+        "relationships" : [ {
+          "description" : "Logs receipt durably",
+          "destinationId" : "10",
+          "id" : "42",
+          "sourceId" : "9",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Pauses scoring for human review",
+          "destinationId" : "15",
+          "id" : "43",
+          "sourceId" : "9",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Pauses scoring for human review",
+          "destinationId" : "11",
+          "id" : "44",
+          "linkedRelationshipId" : "43",
+          "sourceId" : "9"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Append-only SessionEvent log (SQLite).",
+        "documentation" : { },
+        "id" : "10",
+        "name" : "SessionEvent Log",
+        "properties" : {
+          "structurizr.dsl.identifier" : "eventlog"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "SQLite"
+      } ],
+      "description" : "Hackathon v0. Verifies the traces an eval scored actually belong to the target run. Contamination closes as UNEVALUABLE — never a score.",
+      "documentation" : { },
+      "id" : "6",
+      "name" : "Eval-Grain Auditor (I)",
+      "properties" : {
+        "structurizr.dsl.identifier" : "evalgrain"
+      },
+      "relationships" : [ {
+        "description" : "Refuses contaminated scoring",
+        "destinationId" : "2",
+        "id" : "19",
+        "sourceId" : "6",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Fingerprints live events; raises approval pauses",
+        "destinationId" : "11",
+        "id" : "21",
+        "sourceId" : "6",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Pauses scoring for human review",
+        "destinationId" : "15",
+        "id" : "45",
+        "linkedRelationshipId" : "43",
+        "sourceId" : "6"
+      } ],
+      "tags" : "Element,Software System"
+    }, {
+      "containers" : [ {
+        "description" : "Session lifecycle over REST; live session events over SSE (id + thread_id + sequence).",
+        "documentation" : { },
+        "id" : "12",
+        "name" : "Session API",
+        "properties" : {
+          "structurizr.dsl.identifier" : "sessionapi"
+        },
+        "relationships" : [ {
+          "description" : "Streams session events",
+          "destinationId" : "7",
+          "id" : "26",
+          "sourceId" : "12",
+          "tags" : "Relationship,Asynchronous",
+          "technology" : "SSE"
+        }, {
+          "description" : "Streams session events",
+          "destinationId" : "6",
+          "id" : "27",
+          "linkedRelationshipId" : "26",
+          "sourceId" : "12",
+          "technology" : "SSE"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "GET events endpoint; replays a session's event history.",
+        "documentation" : { },
+        "id" : "13",
+        "name" : "Events Replay",
+        "properties" : {
+          "structurizr.dsl.identifier" : "replay"
+        },
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Judge model on the provided OpenAI API via TrueForge model config. The judge is what gets audited.",
+        "documentation" : { },
+        "id" : "14",
+        "name" : "LLM-as-Judge",
+        "properties" : {
+          "structurizr.dsl.identifier" : "judge"
+        },
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Native approval gate; pauses scoring when the auditor reports contamination.",
+        "documentation" : { },
+        "id" : "15",
+        "name" : "Approval Gate",
+        "properties" : {
+          "structurizr.dsl.identifier" : "gate"
+        },
+        "relationships" : [ {
+          "description" : "Requests approval decision",
+          "destinationId" : "1",
+          "id" : "46",
+          "sourceId" : "15",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container"
+      } ],
+      "description" : "Local single-process platform (npx, SQLite): REST + SSE sessions, events replay, LLM-as-judge model config, native approval gates.",
+      "documentation" : { },
+      "id" : "11",
+      "name" : "TrueForge",
+      "properties" : {
+        "structurizr.dsl.identifier" : "trueforge"
+      },
+      "relationships" : [ {
+        "description" : "Streams session events",
+        "destinationId" : "7",
+        "id" : "28",
+        "linkedRelationshipId" : "26",
+        "sourceId" : "11",
+        "technology" : "SSE"
+      }, {
+        "description" : "Streams session events",
+        "destinationId" : "6",
+        "id" : "29",
+        "linkedRelationshipId" : "26",
+        "sourceId" : "11",
+        "technology" : "SSE"
+      }, {
+        "description" : "Requests approval decision",
+        "destinationId" : "1",
+        "id" : "47",
+        "linkedRelationshipId" : "46",
+        "sourceId" : "11"
+      } ],
+      "tags" : "Element,Software System,Existing System"
+    } ]
+  },
+  "name" : "Eval-Grain Auditor",
+  "properties" : {
+    "structurizr.inspection.error" : "73",
+    "structurizr.inspection.info" : "0",
+    "structurizr.inspection.ignore" : "0",
+    "structurizr.inspection.warning" : "0"
+  },
+  "views" : {
+    "configuration" : {
+      "branding" : { },
+      "styles" : {
+        "elements" : [ {
+          "background" : "#5f64af",
+          "shape" : "Pipe",
+          "stroke" : "#b9bdf5",
+          "tag" : "Channel"
+        }, {
+          "background" : "#8b92ce",
+          "color" : "#14162b",
+          "stroke" : "#d2d5fa",
+          "tag" : "Component"
+        }, {
+          "background" : "#5f64af",
+          "stroke" : "#b9bdf5",
+          "tag" : "Container"
+        }, {
+          "tag" : "Container Instance"
+        }, {
+          "background" : "#5f64af",
+          "shape" : "Cylinder",
+          "stroke" : "#b9bdf5",
+          "tag" : "Data Store"
+        }, {
+          "background" : "#1f2226",
+          "color" : "#ffffff",
+          "stroke" : "#9aa4b2",
+          "tag" : "Deployment Node"
+        }, {
+          "color" : "#ffffff",
+          "fontSize" : 26,
+          "strokeWidth" : 2,
+          "tag" : "Element"
+        }, {
+          "background" : "#32433b",
+          "stroke" : "#6fa588",
+          "tag" : "Existing System"
+        }, {
+          "background" : "#5f64af",
+          "color" : "#ffffff",
+          "stroke" : "#b9bdf5",
+          "tag" : "Infrastructure Node"
+        }, {
+          "stroke" : "#ffb454",
+          "strokeWidth" : 4,
+          "tag" : "Modified"
+        }, {
+          "background" : "#32433b",
+          "shape" : "Person",
+          "stroke" : "#6fa588",
+          "tag" : "Person"
+        }, {
+          "stroke" : "#ff2fd0",
+          "strokeWidth" : 6,
+          "tag" : "Proposal"
+        }, {
+          "background" : "#494d97",
+          "stroke" : "#a5a9f0",
+          "tag" : "Software System"
+        }, {
+          "tag" : "Software System Instance"
+        } ],
+        "relationships" : [ {
+          "color" : "#d7dbe3",
+          "dashed" : true,
+          "fontSize" : 24,
+          "tag" : "Asynchronous"
+        }, {
+          "color" : "#d7dbe3",
+          "fontSize" : 24,
+          "tag" : "Relationship"
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The system under audit: provision, replay, group, claim.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "harness",
+      "name" : "Container View: Eval Harness",
+      "order" : 2,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "17"
+      }, {
+        "id" : "21"
+      }, {
+        "id" : "22"
+      }, {
+        "id" : "24"
+      }, {
+        "id" : "29"
+      }, {
+        "id" : "32"
+      }, {
+        "id" : "36"
+      }, {
+        "id" : "38"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "49"
+      } ],
+      "softwareSystemId" : "2",
+      "title" : "Inside the eval harness"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "Registry, checker, receipts, and the append-only log behind them.",
+      "elements" : [ {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "auditor",
+      "name" : "Container View: Eval-Grain Auditor (I)",
+      "order" : 3,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "20"
+      }, {
+        "id" : "28"
+      }, {
+        "id" : "30"
+      }, {
+        "id" : "39"
+      }, {
+        "id" : "40"
+      }, {
+        "id" : "41"
+      }, {
+        "id" : "42"
+      }, {
+        "id" : "44"
+      } ],
+      "softwareSystemId" : "6",
+      "title" : "Inside the auditor"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The existing platform: sessions, replay, judge, and the gate we borrowed.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "trueforge",
+      "name" : "Container View: TrueForge",
+      "order" : 4,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "16"
+      }, {
+        "id" : "17"
+      }, {
+        "id" : "18"
+      }, {
+        "id" : "19"
+      }, {
+        "id" : "25"
+      }, {
+        "id" : "27"
+      }, {
+        "id" : "33"
+      }, {
+        "id" : "35"
+      }, {
+        "id" : "45"
+      }, {
+        "id" : "46"
+      }, {
+        "id" : "48"
+      } ],
+      "softwareSystemId" : "11",
+      "title" : "Inside TrueForge"
+    } ],
+    "dynamicViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "One clean run: every claimed span is owned, so it scores.",
+      "elementId" : "6",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "happy-path",
+      "name" : "Dynamic View: Eval-Grain Auditor (I)",
+      "order" : 5,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "description" : "Stubs up the harness",
+        "id" : "22",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Provisions session",
+        "id" : "23",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Streams session events",
+        "id" : "26",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "Appends fingerprinted (session, turn, event)",
+        "id" : "30",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "Replays session events",
+        "id" : "31",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "Submits spans for scoring",
+        "id" : "34",
+        "order" : "6",
+        "response" : false
+      }, {
+        "description" : "Hands grouped spans",
+        "id" : "36",
+        "order" : "7",
+        "response" : false
+      }, {
+        "description" : "Presents span claim",
+        "id" : "37",
+        "order" : "8",
+        "response" : false
+      }, {
+        "description" : "Looks up true owners",
+        "id" : "40",
+        "order" : "9",
+        "response" : false
+      }, {
+        "description" : "Reports clean verdict — all spans owned",
+        "id" : "41",
+        "order" : "10",
+        "response" : false
+      }, {
+        "description" : "Logs SCORED receipt durably",
+        "id" : "42",
+        "order" : "11",
+        "response" : false
+      } ],
+      "title" : "A clean run → SCORED"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "CF-262, caught: spans grouped by repeated label bring in another session's, and nothing scores.",
+      "elementId" : "6",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "error-path",
+      "name" : "Dynamic View: Eval-Grain Auditor (I)",
+      "order" : 6,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "description" : "Stubs up the harness",
+        "id" : "22",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Provisions 2–3 sessions",
+        "id" : "23",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Streams session events",
+        "id" : "26",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "Appends fingerprinted (session, turn, event)",
+        "id" : "30",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "Replays session events",
+        "id" : "31",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "Submits spans for scoring",
+        "id" : "34",
+        "order" : "6",
+        "response" : false
+      }, {
+        "description" : "Hands spans grouped by repeated label ('LLM call 9')",
+        "id" : "36",
+        "order" : "7",
+        "response" : false
+      }, {
+        "description" : "Presents span claim — includes foreign spans",
+        "id" : "37",
+        "order" : "8",
+        "response" : false
+      }, {
+        "description" : "Looks up true owners",
+        "id" : "40",
+        "order" : "9",
+        "response" : false
+      }, {
+        "description" : "Reports contamination — intruder found",
+        "id" : "41",
+        "order" : "10",
+        "response" : false
+      }, {
+        "description" : "Logs UNEVALUABLE with every foreign span and its true owner IDs",
+        "id" : "42",
+        "order" : "11",
+        "response" : false
+      }, {
+        "description" : "Pauses scoring for human review",
+        "id" : "43",
+        "order" : "12",
+        "response" : false
+      }, {
+        "description" : "Requests approval decision — scoring paused",
+        "id" : "46",
+        "order" : "13",
+        "response" : false
+      }, {
+        "description" : "Rejects — nothing scores without approval",
+        "id" : "48",
+        "order" : "14",
+        "response" : false
+      } ],
+      "title" : "A contaminated run → UNEVALUABLE"
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "Who runs the eval, what audits it, and whose platform it all sits on.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "context",
+      "name" : "System Context View: Eval-Grain Auditor (I)",
+      "order" : 1,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "16"
+      }, {
+        "id" : "17"
+      }, {
+        "id" : "18"
+      }, {
+        "id" : "19"
+      }, {
+        "id" : "20"
+      }, {
+        "id" : "21"
+      }, {
+        "id" : "29"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "49"
+      } ],
+      "softwareSystemId" : "6",
+      "title" : "The auditor and its neighbours"
+    } ]
+  }
+}

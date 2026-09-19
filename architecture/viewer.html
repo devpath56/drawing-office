@@ -657,7 +657,20 @@
       if (!t || typeof t.showTooltipForElement !== 'function' || t[LENS_MARK]) return;
       const original = t.showTooltipForElement;
       t.showTooltipForElement = function (element, style, x, y, header) {
-        original.call(this, element, style, x, y, header, undefined);
+        /* THE HEADER IS FORCED ON, and the renderer's own source is why. structurizr-tooltip.js
+           makes `header` total: truthy fills the name, the type, the parent and the description and
+           un-hides #tooltipHeader; falsy calls tooltipHeader.addClass('hidden') and fills nothing
+           but the tags. On hover the renderer passes FALSE — measured 2026-09-19, the live call is
+           (element, style, 403, 261, false, undefined) — so a hover produced a large empty plate
+           carrying two tag chips and nothing that named the box it came from. A reader called that
+           broken and was right.
+
+           IT IS WORSE ON A MODEL THAT HAS PERSPECTIVES, not better: this wrapper appends the lens
+           rows underneath, so the reader got lens text with no element name above it. The wrapper
+           owns this call and the header is what a hover is FOR, so it says true. `header` stays in
+           the signature because the renderer still passes it and swallowing an argument silently is
+           how the next person loses one. */
+        original.call(this, element, style, x, y, true, undefined);
         try {
           const box = w.document.getElementById('tooltipAdditionalContent');
           const lenses = lensesOf(element);
