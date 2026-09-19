@@ -231,6 +231,51 @@ function stylesBlock(theme, indent = '        ') {
   return lines.join('\n');
 }
 
+/* THE BANNER stylesBlock EMITS, so the region written and the region replaced are described once.
+   They were not: stylesBlock put the banner ABOVE `styles {` and the replacement began AT
+   `styles {`, so every run PREPENDED a fresh banner and left the old one where it was. Nothing
+   refused it — the styles themselves matched the theme, which is all the drift check reads.
+   MEASURED 2026-09-19: architecture/payments/workspace.dsl carried TWELVE copies of it, the bank
+   three, the factory two, and `npm run write` added two more lines to each every time it ran. */
+const BANNERS = /(?:[ \t]*\/\* GENERATED FROM architecture\/theme\.json[\s\S]*?\*\/\n)+$/;
+
+/**
+ * A DSL with its styles block replaced by the theme's, or the reason it cannot be.
+ * PURE, AND THAT IS THE POINT — this lived inline in the CLI, where the one property that matters
+ * could not be asserted. Writing twice must give what writing once gave.
+ */
+export function writeStyles(src, theme) {
+  /* THE FILE'S OWN INDENTATION, not this repo's. The writer matched the literal eight spaces that
+     happen to be in our DSL, so it refused every workspace formatted any other way — a machine that
+     only works on files written by the machine. */
+  /* BOTH SPELLINGS OF AN EMPTY BLOCK, because the README asks for the one this refused. Its
+     "Adding your own system" says to write `styles { }` — on ONE line — and the writer looked for a
+     `styles {` that ended its line and then a `}` at the same indentation, so the documented way to
+     start a new model was the single way that could not be built. Found 2026-09-19 by writing a new
+     model and following the README literally; `npm run build` answered "no styles block to replace"
+     about a file whose styles block was right there. */
+  const open = src.match(/^([ \t]*)styles[ \t]*\{[ \t]*(\}[ \t]*)?$/m);
+  if (!open) return { why: 'no styles block to replace — add "styles { }" inside views first' };
+  const indent = open[1];
+  const at = open.index;
+
+  let after;
+  if (open[2]) after = at + open[0].length;           // styles { } — the whole block is this line
+  else {
+    const close = '\n' + indent + '}';
+    const end = src.indexOf(close, at);
+    if (end < 0) return { why: 'the styles block does not close at its own indentation; refusing to guess' };
+    after = end + close.length;
+  }
+
+  /* Reach BACK over any banner this writer left last time. One or twelve, they all go. */
+  const before = src.slice(0, at);
+  const stale = before.match(BANNERS);
+  const start = stale ? at - stale[0].length : at;
+
+  return { text: src.slice(0, start) + stylesBlock(theme, indent) + src.slice(after) };
+}
+
 /** The whole verdict: palette floors, per-workspace drift, per-workspace navigation promise. */
 export function run({ root = HERE, themeFile = themeIn(root) } = {}) {
   const t = readTheme(themeFile);
@@ -311,18 +356,9 @@ if (IS_MAIN) {
     const t = readTheme(THEME);
     if (t.state !== 'measured') { console.error(t.why); process.exit(3); }
     if (!target || !fs.existsSync(target)) { console.error('usage: --write <workspace.dsl>'); process.exit(2); }
-    /* THE FILE'S OWN INDENTATION, not this repo's. The writer matched the literal eight spaces
-       that happen to be in our DSL, so it refused every workspace formatted any other way — a
-       machine that only works on files written by the machine. */
-    const src = fs.readFileSync(target, 'utf8');
-    const open = src.match(/^([ \t]*)styles[ \t]*\{[ \t]*$/m);
-    if (!open) { console.error(`${target} has no styles block to replace — add "styles { }" inside views first`); process.exit(2); }
-    const indent = open[1];
-    const at = open.index;
-    const close = '\n' + indent + '}';
-    const end = src.indexOf(close, at);
-    if (end < 0) { console.error('the styles block does not close at its own indentation; refusing to guess'); process.exit(2); }
-    fs.writeFileSync(target, src.slice(0, at) + stylesBlock(t.theme, indent) + src.slice(end + close.length));
+    const out = writeStyles(fs.readFileSync(target, 'utf8'), t.theme);
+    if (out.why) { console.error(`${target}: ${out.why}`); process.exit(2); }
+    fs.writeFileSync(target, out.text);
     console.log(`wrote the palette into ${target} — re-export before checking`);
     process.exit(0);
   }
@@ -374,9 +410,34 @@ if (IS_MAIN) {
     gappy.views.dynamicViews = [{ key: 'Flow', elementId: '2', relationships: [{ order: '1' }, { order: '2' }, { order: '4' }] }];
     say('a feature trace whose steps are 1, 2, 4', run({ root: plant(t0, gappy) }));
 
+    /* ── AND ONE PROPERTY, NOT A REFUSAL ────────────────────────────────────────────────────
+       The four faults above are all read from a workspace. The WRITER had none, because --write
+       lived inline in the CLI where nothing here could reach it — and it was broken for as long as
+       it had existed: it emitted a banner above `styles {` and replaced only from `styles {` down,
+       so each run stacked another copy. Twelve in payments, three in the bank, two in the factory,
+       and every check stayed green because the STYLES matched the theme, which is all they read. */
+    let held = 0;
+    const holds = (n, pass, saw) => { console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${n}${pass ? '' : `\n       saw: ${JSON.stringify(saw)?.slice(0, 160)}`}`); if (pass) held++; };
+    const DSL = 'workspace "W" {\n    model {\n    }\n    views {\n        styles {\n        }\n    }\n}\n';
+    const banners = (text) => (text.match(/GENERATED FROM architecture\/theme\.json/g) ?? []).length;
+    const once = writeStyles(DSL, t0).text;
+    const twice = writeStyles(once, t0).text;
+    holds('writing the palette twice gives what writing it once gave', once === twice, { once: banners(once), twice: banners(twice) });
+    holds('the generated banner is written once, never stacked', banners(twice) === 1, banners(twice));
+    holds('a file already carrying a stack of banners is collapsed to one', banners(writeStyles(once.replace('styles {', '/* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.\n   Edit the theme, not this block: the check refuses any drift between them. */\n        styles {'), t0).text) === 1, 'not collapsed');
+    holds('a DSL with no styles block is told what to add, not silently rewritten', /styles \{ \}/.test(writeStyles('workspace "W" {\n}\n', t0).why ?? ''), writeStyles('workspace "W" {\n}\n', t0).why);
+
+    /* THE README'S OWN STARTER, verbatim. This is the shape a new model is told to write, and it
+       was the one shape --write could not read; a control that only ever fed it the repo's own
+       already-built files could not see that. */
+    const STARTER = 'workspace "W" {\n    views {\n        styles { }\n    }\n}\n';
+    const started = writeStyles(STARTER, t0);
+    holds('the empty block the README tells a new model to write is accepted', !started.why && /element "/.test(started.text ?? ''), started.why ?? 'no styles written');
+    holds('a one-line empty block is replaced, not duplicated', banners(writeStyles(started.text, t0).text) === 1 && !/styles \{ \}/.test(started.text), started.text?.slice(0, 120));
+
     for (const d of roots) fs.rmSync(d, { recursive: true, force: true });
-    console.log(`\n${refused} of 5 refused`);
-    process.exit(refused === 5 ? 0 : 1);
+    console.log(`\n${refused} of 5 refused · ${held} of 6 held`);
+    process.exit(refused === 5 && held === 6 ? 0 : 1);
   }
 
   if (argv.includes('--index')) {

@@ -61,12 +61,19 @@ macOS: `brew install structurizr-cli graphviz && npm install && npx playwright i
 ## The flow
 
 ```
-npm run write     # regenerate the DSL's styles block from architecture/theme.json
-npm run export    # DSL -> workspace.json, and -> the interactive site
-npm run index     # write the project list the viewer reads
+npm run build     # EVERY model in architecture/: palette, workspace.json, the site, and the index
 npm run check     # palette, ladder, step order, and the controls over tools/
 npm run serve     # then open http://localhost:8015/architecture/viewer.html
 ```
+
+`npm run build <name>` narrows it to one model.
+
+**It was three commands and every one of them named the bank.** `write`, `export` and `index` each
+carried `architecture/internet-banking/` in `package.json` — the one file a newcomer reads — while
+nineteen modules under `checks/` and `tools/` discovered every model by walking `architecture/`. So
+the flow regenerated the bank whatever you had just written, and a new model, never exported and
+therefore without the `workspace.json` every check discovers by, was not refused by any of them. It
+was absent, which reads as green. The list is computed now, from `architecture/*/workspace.dsl`.
 
 `npm run check:overlap` measures the served page for label collisions. It is separate because it
 is the one thing that needs a browser.
@@ -83,9 +90,11 @@ reading showing.
 ## Adding your own system
 
 1. `mkdir architecture/<name>` and write `workspace.dsl` with an empty `styles { }` inside `views`.
-2. `node checks/diagram-contrast.mjs --write architecture/<name>/workspace.dsl` — the palette is
-   written for you, at whatever indentation your file already uses.
-3. Export both formats, `--index`, then `check`.
+2. `npm run build && npm run check`.
+
+`build` writes the palette into your file from `architecture/theme.json`, at whatever indentation
+your file already uses, then exports both formats and rewrites the index — for your model and every
+other one, because which models exist is a question the directory already answers.
 
 **Do not edit the styles block.** Edit `architecture/theme.json`; the check refuses any drift
 between the two. The colours are yours to change — the floors are what stop you shipping a palette
@@ -325,8 +334,8 @@ it, it is pretty-printed, and its diff is legible. The criterion is not "derived
 unreadable and large — and that judgement lives in one list in `checks/derived.mjs` rather than in a
 rule anyone could infer.
 
-**After cloning, export before you serve:** the site is no longer in the repo, and the README's flow
-above already builds it.
+**After cloning, build before you serve:** the site is no longer in the repo, and `npm run build`
+puts it back.
 
 ## Which boxes are the proposal
 

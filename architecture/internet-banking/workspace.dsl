@@ -166,20 +166,25 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
            container engine inside it — because the preregistered redproof for this checkpoint says
            "nesting past two levels collapses or overlaps", and a topology that never nests could not
            put that to the test. */
+        /* EVERY DEPLOYMENT NODE IS NAMED, and it is not decoration. An element with no identifier
+           is given a generated UUID by the exporter, and a FRESH one on every run — so a re-export
+           with no model change rewrote 15 identifier lines in workspace.json. That file is tracked
+           on purpose, and the reason README gives is that its diff is legible; a 30-line diff for a
+           zero-line change is the churn that section exists to argue against. Measured 2026-09-19. */
         deploymentEnvironment "Development" {
-            deploymentNode "Bank WAN" "All development happens inside the bank's own network." "Corporate network" {
-                deploymentNode "Developer laptop" "Windows or macOS, chosen when an engineer joins." "Microsoft Windows or Apple macOS" {
-                    deploymentNode "Web browser" "The UI is run locally so it can be debugged." "Chrome, Firefox, Safari or Edge" {
+            devWan = deploymentNode "Bank WAN" "All development happens inside the bank's own network." "Corporate network" {
+                devLaptop = deploymentNode "Developer laptop" "Windows or macOS, chosen when an engineer joins." "Microsoft Windows or Apple macOS" {
+                    devBrowser = deploymentNode "Web browser" "The UI is run locally so it can be debugged." "Chrome, Firefox, Safari or Edge" {
                         devSpa = containerInstance singlePageApp
                     }
-                    deploymentNode "Java Virtual Machine" "The backend runs straight on a JVM here, not in a container." "OpenJDK" {
+                    devJvm = deploymentNode "Java Virtual Machine" "The backend runs straight on a JVM here, not in a container." "OpenJDK" {
                         devBackend = containerInstance backend
                     }
-                    deploymentNode "Docker" "Rather than install these on the laptop itself." "Docker Desktop" {
-                        deploymentNode "nginx" "Serves the static content over a local address." "nginx 1.27" {
+                    devDocker = deploymentNode "Docker" "Rather than install these on the laptop itself." "Docker Desktop" {
+                        devNginx = deploymentNode "nginx" "Serves the static content over a local address." "nginx 1.27" {
                             devStatic = containerInstance staticContent
                         }
-                        deploymentNode "MySQL" "The same schema as live, one container away." "MySQL 8" {
+                        devMysql = deploymentNode "MySQL" "The same schema as live, one container away." "MySQL 8" {
                             devDatabase = containerInstance database
                         }
                     }
@@ -188,24 +193,24 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
         }
 
         deploymentEnvironment "Live" {
-            deploymentNode "Customer's computer" "Outside our infrastructure entirely." "Microsoft Windows or Apple macOS" {
-                deploymentNode "Web browser" "Where the UI actually runs." "Chrome, Firefox, Safari or Edge" {
+            liveComputer = deploymentNode "Customer's computer" "Outside our infrastructure entirely." "Microsoft Windows or Apple macOS" {
+                liveBrowser = deploymentNode "Web browser" "Where the UI actually runs." "Chrome, Firefox, Safari or Edge" {
                     liveSpa = containerInstance singlePageApp
                 }
             }
-            deploymentNode "Cloudflare" "DNS, and a proxy in front of the static content." "Cloudflare" {
+            liveCloudflare = deploymentNode "Cloudflare" "DNS, and a proxy in front of the static content." "Cloudflare" {
                 cdn = infrastructureNode "ib.bigbank.com" "A CNAME aliasing the S3 bucket, proxied so static content is cached." "DNS CNAME"
                 apiDns = infrastructureNode "ib-api.bigbank.com" "A CNAME aliasing the load balancer. Not proxied — API calls cannot be cached." "DNS CNAME"
             }
-            deploymentNode "Amazon Web Services" "Where the majority of the software runs." "AWS" {
+            liveAws = deploymentNode "Amazon Web Services" "Where the majority of the software runs." "AWS" {
                 lb = infrastructureNode "Application load balancer" "Forwards API traffic to the backend." "AWS ALB"
-                deploymentNode "Fargate" "Runs the Docker image without provisioning servers." "AWS Fargate" {
+                liveFargate = deploymentNode "Fargate" "Runs the Docker image without provisioning servers." "AWS Fargate" {
                     liveBackend = containerInstance backend
                 }
-                deploymentNode "RDS" "AWS provisions the underlying infrastructure." "Amazon RDS" {
+                liveRds = deploymentNode "RDS" "AWS provisions the underlying infrastructure." "Amazon RDS" {
                     liveDatabase = containerInstance database
                 }
-                deploymentNode "S3" "Two buckets: the static content, and the generated statements." "Amazon S3" {
+                liveS3 = deploymentNode "S3" "Two buckets: the static content, and the generated statements." "Amazon S3" {
                     liveStatic = containerInstance staticContent
                     liveStore = containerInstance statementStore
                 }
@@ -328,30 +333,6 @@ workspace "Internet Banking System" "The fictional bank from The C4 Model, ch03:
              lighter #4A5361  7.77 · stroke #8A94A6  5.22
              green   #3A4E42  8.94 · stroke #6FA588  5.64
              relationship line and label #A5A9F0 / #D7DBE3 on canvas: 7.25 and 11.51 */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
-        /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
-           Edit the theme, not this block: the check refuses any drift between them. */
         /* GENERATED FROM architecture/theme.json by checks/diagram-contrast.mjs --write.
            Edit the theme, not this block: the check refuses any drift between them. */
         styles {

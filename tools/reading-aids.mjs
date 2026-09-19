@@ -32,6 +32,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { open } from './browser.mjs';
 
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -94,19 +95,13 @@ if (IS_MAIN) {
     process.exit(ok === 6 ? 0 : 1);
   }
 
-  let chromium;
-  try { ({ chromium } = await import('playwright')); }
-  catch {
-    console.log('UNEVALUABLE — this measures a rendered page and playwright is not installed.');
-    console.log('  npm i -D playwright && npx playwright install chromium');
-    process.exit(3);
-  }
-
   const target = argv.find((a) => !a.startsWith('--'));
   if (!target) { console.error('usage: node tools/reading-aids.mjs <http url to the site> [--view <key>]'); process.exit(2); }
   const view = flag('--view', null);
 
-  const browser = await chromium.launch();
+  /* ONE HOME FOR THE DEPENDENCY ANSWER — tools/browser.mjs, whose header carries the measurement. */
+  const { browser, why } = await open();
+  if (!browser) { console.log(`UNEVALUABLE — this measures a rendered page, and ${why}`); process.exit(3); }
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   await page.goto(view ? `${target}#${view}` : target, { waitUntil: 'load' });
   await page.waitForTimeout(2500);

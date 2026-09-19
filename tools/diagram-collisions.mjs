@@ -28,15 +28,25 @@
    "Cannot find package 'playwright'" and a stack trace — which reads as the check being broken
    rather than as a missing install. A dynamic import turns that into an answer.
 
+   THE ANSWER HAS ONE HOME NOW — tools/browser.mjs — because this file guarded the IMPORT and left
+   BOTH launches bare, so a checkout holding the package and no browser binary got the stack trace
+   this very paragraph promises it will not. Measured 2026-09-19; that module's header carries it.
+
    IT ALSO DOES NOT NEED TO BE COPIED AT ALL: it takes a url, so one install can measure any repo's
    served site from wherever it already lives. */
-let chromium;
-try { ({ chromium } = await import('playwright')); }
-catch {
-  console.log('UNEVALUABLE — this check renders the page, so it needs playwright: npm i -D playwright && npx playwright install chromium');
-  console.log('             or run it from a checkout that already has it — it accepts a url, so it does not have to live in this repo');
-  process.exit(3);
-}
+import { open } from './browser.mjs';
+/* EXIT 3 IS THIS FILE'S CONTRACT, not browser.mjs's. That module returns a reason and never throws;
+   what a CLI does with one — print it, call it UNEVALUABLE, exit 3 — belongs here, and both launch
+   sites below share it. */
+const launch = async (opts) => {
+  const { browser, why } = await open(opts);
+  if (!browser) {
+    console.log(`UNEVALUABLE — this check renders the page, and ${why}`);
+    console.log('             or run it from a checkout that already has it — it accepts a url, so it does not have to live in this repo');
+    process.exit(3);
+  }
+  return browser;
+};
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -100,7 +110,7 @@ const FIXTURES = {
 };
 
 async function negative() {
-  const page = await (await chromium.launch()).newPage({ viewport: { width: flags.width, height: flags.height } });
+  const page = await (await launch()).newPage({ viewport: { width: flags.width, height: flags.height } });
   let ok = 0;
   const say = (n, pass, saw) => { console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${n}${pass ? '' : `\n       saw: ${JSON.stringify(saw)}`}`); if (pass) ok++; };
   const read = async (svg) => {
@@ -215,7 +225,7 @@ const MEASURE = () => {
    argument parsing, and a call placed above it threw before a single fixture was read. */
 if (flags.negative) await negative();
 
-const browser = await chromium.launch();
+const browser = await launch();
 const page = await browser.newPage({ viewport: { width: flags.width, height: flags.height } });
 await page.goto(isUrl ? target : pathToFileURL(path.resolve(target)).href, { waitUntil: 'networkidle' });
 /* The sheets render after a script loads mermaid from a CDN. Wait for a rendered state or give up

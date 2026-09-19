@@ -37,6 +37,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { open } from './browser.mjs';
 
 const HERE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -73,13 +74,12 @@ export function ground(svg, canvas) {
 }
 
 export async function exportSite(url, { out, key = true, only = null, canvas = canvasOf().canvas } = {}) {
-  let chromium;
-  try { ({ chromium } = await import('playwright')); }
-  catch {
-    return { state: 'UNEVALUABLE', why: 'this reads the rendered diagram, so it needs playwright: npm i -D playwright && npx playwright install chromium' };
-  }
+  /* ONE HOME FOR THE DEPENDENCY ANSWER — tools/browser.mjs. This guarded the import and left the
+     launch bare, which threw out of a function whose entire contract is to RETURN a state: every
+     caller reading `state` got an exception instead. */
+  const { browser, why } = await open();
+  if (!browser) return { state: 'UNEVALUABLE', why: `this reads the rendered diagram, and ${why}` };
 
-  const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1600, height: 1200 }, colorScheme: 'dark' });
   const rows = [];
   try {

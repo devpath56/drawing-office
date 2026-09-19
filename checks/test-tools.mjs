@@ -1,5 +1,5 @@
 /**
- * CONTROL for the four modules in tools/.
+ * CONTROL for the modules in tools/ that have no control of their own.
  *
  * WHY ONE FILE FOR FOUR MODULES. prongs/deep-check.mjs recognises a control by IMPORT or by a quoted
  * path, deliberately not by a `test-<basename>` convention, precisely so one control may guard
@@ -45,7 +45,7 @@ const negative = (rel) => {
    this control called that FAIL, which would have taught its reader that a working check was broken.
    NOT-CHECKED is printed, counted separately, and never mistaken for a pass. */
 let notChecked = 0;
-for (const rel of ['tools/trace-suggest.mjs', 'tools/trace-animate.mjs', 'tools/diagram-collisions.mjs', 'tools/reading-aids.mjs', 'checks/pubsub.mjs', 'checks/perspectives.mjs', 'checks/diagram-key.mjs', 'checks/decisions.mjs', 'checks/derived.mjs', 'checks/delivery.mjs', 'checks/test-viewer.mjs']) {
+for (const rel of ['tools/build.mjs', 'tools/trace-suggest.mjs', 'tools/trace-animate.mjs', 'tools/diagram-collisions.mjs', 'tools/reading-aids.mjs', 'checks/pubsub.mjs', 'checks/perspectives.mjs', 'checks/diagram-key.mjs', 'checks/decisions.mjs', 'checks/derived.mjs', 'checks/delivery.mjs', 'checks/test-viewer.mjs']) {
   const r = negative(rel);
   if (r.code === 3 && /playwright/i.test(r.out)) {
     notChecked++;
@@ -90,17 +90,46 @@ ok('the exported file name has one home, and a leading separator survives the ro
 
 /* ── the browser modules refuse legibly ──────────────────────────────────────────────────────── */
 
-/* A REPO WITHOUT PLAYWRIGHT IS THE COMMON CASE, and the answer must be an instruction rather than a
-   stack trace. Run from a directory where the package cannot resolve, each must exit 3 and say so. */
+/* TWO ABSENCES, AND UNTIL 2026-09-19 THIS PLANTED ONLY ONE OF THEM.
+   A renderer fails for the PACKAGE being missing, or for the BROWSER BINARY being missing. Different
+   states, different fixes, and only the first was planted here — copy the module somewhere the
+   package cannot resolve. This row was GREEN while `npm run check` on the very machine running it
+   died mid-suite with "browserType.launch: Executable doesn't exist at …/chrome-headless-shell"
+   over a Node stack trace, because tools/ guarded the import and left every launch bare.
+
+   THE SECOND IS THE COMMON ONE. `npm install` brings the package; `npx playwright install chromium`
+   is a separate step, so package-present-browser-absent is the state of every fresh clone — and the
+   NOT-CHECKED branch above, written for exactly that machine, could never be reached because the
+   module threw before it could exit 3. A declared state nothing can reach is not a state.
+
+   IT IS PLANTED WITH PLAYWRIGHT'S OWN SWITCH. PLAYWRIGHT_BROWSERS_PATH is where it looks for
+   binaries, so an empty directory is a machine with the package and no browser. Nothing is deleted
+   and the outcome does not depend on what this machine happens to have installed. */
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'do-control-'));
+const noBrowsers = fs.mkdtempSync(path.join(os.tmpdir(), 'do-no-browsers-'));
+const render = (file, env) => {
+  try { return { code: 0, out: execFileSync('node', [file, 'http://127.0.0.1:1/x.html'], { encoding: 'utf8', env: { ...process.env, ...env } }) }; }
+  catch (e) { return { code: e.status ?? 1, out: (e.stdout ?? '') + (e.stderr ?? '') }; }
+};
+/* LEGIBLE IS ONE DEFINITION FOR BOTH ROWS: exit 3, the word playwright, and no stack trace. The
+   third clause is the one that matters — a module can exit 3 AFTER printing a trace, and a reader
+   who sees the trace has already concluded the check is broken. */
+const legible = (r) => r.code === 3 && /playwright/i.test(r.out) && !/at Object\.|ERR_MODULE_NOT_FOUND|Node\.js v/.test(r.out);
+
 for (const rel of ['tools/diagram-collisions.mjs', 'tools/diagram-export.mjs']) {
-  fs.copyFileSync(path.join(ROOT, rel), path.join(tmp, path.basename(rel)));
-  let code = 0, out = '';
-  try { out = execFileSync('node', [path.join(tmp, path.basename(rel)), 'http://127.0.0.1:1/x.html'], { encoding: 'utf8' }); }
-  catch (e) { code = e.status ?? 1; out = (e.stdout ?? '') + (e.stderr ?? ''); }
-  ok(`${rel} names the missing dependency instead of throwing`, code === 3 && /playwright/i.test(out) && !/at Object\.|ERR_MODULE_NOT_FOUND/.test(out), out.trim().split('\n')[0]);
+  /* tools/browser.mjs travels with it. It is where the answer lives, and a copy without it would
+     fail for a missing relative import — a third thing, wearing the first one's clothes. */
+  for (const f of [rel, 'tools/browser.mjs']) fs.copyFileSync(path.join(ROOT, f), path.join(tmp, path.basename(f)));
+  const noPackage = render(path.join(tmp, path.basename(rel)));
+  ok(`${rel} names the missing PACKAGE instead of throwing`,
+     legible(noPackage) && /npm i -D playwright/.test(noPackage.out), noPackage.out.trim().split('\n')[0]);
+
+  const noBinary = render(path.join(ROOT, rel), { PLAYWRIGHT_BROWSERS_PATH: noBrowsers });
+  ok(`${rel} names the missing BROWSER instead of throwing`,
+     legible(noBinary) && /installed but its browser is not/.test(noBinary.out), noBinary.out.trim().split('\n')[0]);
 }
 fs.rmSync(tmp, { recursive: true, force: true });
+fs.rmSync(noBrowsers, { recursive: true, force: true });
 
 console.log(`\n${bad ? `${bad} FAIL` : 'all ok'}${notChecked ? ` · ${notChecked} NOT-CHECKED` : ''}`);
 process.exit(bad ? 1 : 0);
