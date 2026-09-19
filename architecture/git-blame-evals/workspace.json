@@ -1,0 +1,1306 @@
+{
+  "configuration" : { },
+  "description" : "Verifies that every span an eval scored actually belongs to the run being scored.",
+  "documentation" : {
+    "decisions" : [ {
+      "content" : "# 1. Scoring is an MCP tool, so the platform's own gate can pause it\n\nDate: 2026-09-19\n\n## Status\n\nAccepted\n\n## Context\n\nThe auditor's value is in the path where it says no. When a claim carries spans the target run does\nnot own, the verdict is UNEVALUABLE and the scoring must not happen.\n\nThe obvious build is a refusal of our own: a screen, a queue of blocked claims, a button. That is a\nsecond gate beside one that already exists, and it has a worse property than mere duplication — a\ngate we invent is a gate we can be talked past, because the thing it guards still runs through a\ncode path we also own.\n\nTrueForge already has a native tool-approval flow: it pauses a turn on a tool call, surfaces the\ncall to a human, and resumes on a decision.\n\n## Decision\n\nScoring is implemented as an MCP tool, `score_eval`, served by `tools/score_mcp.py` and registered\nas a remote MCP server that TrueForge discovers through its own MCP client. The agent attaches it\nwith `require_approval_for_tools: [\"score_eval\"]`, so a call emits `tool.approval_required` and the\nturn pauses. The resume is a `user.tool_approval` input carrying allow or deny.\n\n**Enforcement lives in the tool, not in the gate.** `score_eval` scores `owned_event_ids` only. An\napproval therefore permits scoring of the owned subset and cannot widen it to a foreign span.\n\n## Consequences\n\nThe refusal cannot be routed around by anything the UI does, because the UI is not where the rule\nis. A human who approves a contaminated run gets the owned subset scored and no more.\n\n`src/gate.py` never decides on its own — it prompts and blocks, and with no TTY and no explicit flag\nit refuses to proceed rather than choosing. `AUDITOR_AUTO_DECISION` exists for unattended runs and\nis recorded as `decision_source: \"auto\"`, against `\"human\"` for a typed answer, so a receipt never\nclaims a human decided when nobody did.\n\nExactly one decision is recorded per run, written to the receipt and the ledger from the same value\nthat was displayed, so the two cannot diverge. Deciding twice on one receipt is refused.\n\nThe cost is a dependency: the graceful path needs TrueForge's gate configured and reachable. An\nauditor deployed against a platform with no approval mechanism would still write the UNEVALUABLE\nreceipt, and the stopping would be missing.\n\nThis record governs `gitBlameEvals`.\n",
+      "date" : "2026-09-19T07:00:00Z",
+      "format" : "Markdown",
+      "id" : "1",
+      "status" : "Accepted",
+      "title" : "Scoring is an MCP tool, so the platform's own gate can pause it"
+    } ]
+  },
+  "id" : 0,
+  "model" : {
+    "deploymentNodes" : [ {
+      "children" : [ {
+        "containerInstances" : [ {
+          "containerId" : "15",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "56",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "tfSessions"
+          },
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "16",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "57",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "tfReplay"
+          },
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "17",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "58",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "tfMcp"
+          },
+          "relationships" : [ {
+            "description" : "Calls score_eval",
+            "destinationId" : "88",
+            "id" : "89",
+            "linkedRelationshipId" : "50",
+            "sourceId" : "58"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "18",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "59",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "tfGate"
+          },
+          "relationships" : [ {
+            "description" : "Releases the paused call on allow",
+            "destinationId" : "58",
+            "id" : "60",
+            "linkedRelationshipId" : "49",
+            "sourceId" : "59"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "19",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "61",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "tfProvider"
+          },
+          "relationships" : [ {
+            "description" : "Calls the stubbed completion endpoint",
+            "destinationId" : "86",
+            "id" : "87",
+            "linkedRelationshipId" : "39",
+            "sourceId" : "61"
+          } ],
+          "tags" : "Container Instance"
+        } ],
+        "description" : "Sessions, SSE, replay, the MCP client and the gate.",
+        "environment" : "Local",
+        "id" : "55",
+        "instances" : "1",
+        "name" : "TrueForge (npx, single process)",
+        "properties" : {
+          "structurizr.dsl.identifier" : "tfProcess"
+        },
+        "tags" : "Element,Deployment Node",
+        "technology" : "Node.js · SQLite"
+      }, {
+        "containerInstances" : [ {
+          "containerId" : "3",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "63",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dAudit"
+          },
+          "relationships" : [ {
+            "description" : "Fingerprints each live event to (session, turn, event)",
+            "destinationId" : "64",
+            "id" : "65",
+            "linkedRelationshipId" : "33",
+            "sourceId" : "63"
+          }, {
+            "description" : "Ingests the live turn, then the replay",
+            "destinationId" : "66",
+            "id" : "69",
+            "linkedRelationshipId" : "32",
+            "sourceId" : "63"
+          }, {
+            "description" : "Groups replay rows into the eval's claim",
+            "destinationId" : "70",
+            "id" : "71",
+            "linkedRelationshipId" : "34",
+            "sourceId" : "63"
+          }, {
+            "description" : "Hands the registry and the claim over for one verdict",
+            "destinationId" : "72",
+            "id" : "73",
+            "linkedRelationshipId" : "36",
+            "sourceId" : "63"
+          }, {
+            "description" : "Builds the colliding-label fixture",
+            "destinationId" : "80",
+            "id" : "81",
+            "linkedRelationshipId" : "35",
+            "sourceId" : "63"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "4",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "64",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dRegistry"
+          },
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "5",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "66",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dTransport"
+          },
+          "relationships" : [ {
+            "description" : "Opens the live turn and reads its events",
+            "destinationId" : "56",
+            "id" : "67",
+            "linkedRelationshipId" : "28",
+            "sourceId" : "66",
+            "technology" : "SSE"
+          }, {
+            "description" : "Replays the session's events",
+            "destinationId" : "57",
+            "id" : "68",
+            "linkedRelationshipId" : "30",
+            "sourceId" : "66"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "6",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "70",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dGrain"
+          },
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "7",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "72",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dContract"
+          },
+          "relationships" : [ {
+            "description" : "Tests every claimed span for membership",
+            "destinationId" : "64",
+            "id" : "74",
+            "linkedRelationshipId" : "37",
+            "sourceId" : "72"
+          }, {
+            "description" : "Writes the receipt and appends the ledger",
+            "destinationId" : "82",
+            "id" : "83",
+            "linkedRelationshipId" : "38",
+            "sourceId" : "72"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "8",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "75",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dRouter"
+          },
+          "relationships" : [ {
+            "description" : "Calls score_eval and blocks on the pause",
+            "destinationId" : "59",
+            "id" : "76",
+            "linkedRelationshipId" : "43",
+            "sourceId" : "75"
+          }, {
+            "description" : "Reads the UNEVALUABLE receipt, and records exactly one decision",
+            "destinationId" : "82",
+            "id" : "84",
+            "linkedRelationshipId" : "42",
+            "sourceId" : "75"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "10",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "77",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dProvisioner"
+          },
+          "relationships" : [ {
+            "description" : "Registers the provider, an agent and a session",
+            "destinationId" : "56",
+            "id" : "78",
+            "linkedRelationshipId" : "23",
+            "sourceId" : "77"
+          }, {
+            "description" : "Registers the remote MCP server",
+            "destinationId" : "58",
+            "id" : "79",
+            "linkedRelationshipId" : "26",
+            "sourceId" : "77"
+          } ],
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "11",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "80",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dFixture"
+          },
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "13",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "82",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dReceipts"
+          },
+          "tags" : "Container Instance"
+        } ],
+        "description" : "The auditor's own modules, run in order.",
+        "environment" : "Local",
+        "id" : "62",
+        "instances" : "1",
+        "name" : "run-demo.sh",
+        "properties" : {
+          "structurizr.dsl.identifier" : "demoProcess"
+        },
+        "tags" : "Element,Deployment Node",
+        "technology" : "Python 3"
+      }, {
+        "containerInstances" : [ {
+          "containerId" : "12",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "86",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dStub"
+          },
+          "tags" : "Container Instance"
+        }, {
+          "containerId" : "9",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Local",
+          "id" : "88",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "dScoreTool"
+          },
+          "relationships" : [ {
+            "description" : "Scores the owned subset only, read from the receipt",
+            "destinationId" : "82",
+            "id" : "90",
+            "linkedRelationshipId" : "53",
+            "sourceId" : "88"
+          } ],
+          "tags" : "Container Instance"
+        } ],
+        "description" : "Started by run-demo.sh if not already running.",
+        "environment" : "Local",
+        "id" : "85",
+        "instances" : "1",
+        "name" : "Backgrounded helpers",
+        "properties" : {
+          "structurizr.dsl.identifier" : "stubProcess"
+        },
+        "tags" : "Element,Deployment Node",
+        "technology" : "Python 3"
+      } ],
+      "description" : "One command, both verdicts, and the pause.",
+      "environment" : "Local",
+      "id" : "54",
+      "instances" : "1",
+      "name" : "Demo laptop",
+      "properties" : {
+        "structurizr.dsl.identifier" : "laptop"
+      },
+      "tags" : "Element,Deployment Node",
+      "technology" : "macOS"
+    } ],
+    "people" : [ {
+      "description" : "Types approve or reject at the pause. The gate never decides without one.",
+      "id" : "1",
+      "name" : "Eval Operator",
+      "properties" : {
+        "structurizr.dsl.identifier" : "operator"
+      },
+      "relationships" : [ {
+        "description" : "Types approve or reject at the pause",
+        "destinationId" : "2",
+        "id" : "20",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Types the decision",
+        "destinationId" : "8",
+        "id" : "48",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "containers" : [ {
+        "description" : "Compares the live stream against the replay and emits exactly one terminal verdict.",
+        "documentation" : { },
+        "id" : "3",
+        "name" : "Audit",
+        "properties" : {
+          "structurizr.dsl.identifier" : "audit"
+        },
+        "relationships" : [ {
+          "description" : "Ingests the live turn, then the replay",
+          "destinationId" : "5",
+          "id" : "32",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Fingerprints each live event to (session, turn, event)",
+          "destinationId" : "4",
+          "id" : "33",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Groups replay rows into the eval's claim",
+          "destinationId" : "6",
+          "id" : "34",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Builds the colliding-label fixture",
+          "destinationId" : "11",
+          "id" : "35",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Hands the registry and the claim over for one verdict",
+          "destinationId" : "7",
+          "id" : "36",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python"
+      }, {
+        "description" : "A dict keyed by (session_id, turn_id, event_id). The audit is a membership test against it — nothing more.",
+        "documentation" : { },
+        "id" : "4",
+        "name" : "Ownership Registry",
+        "properties" : {
+          "structurizr.dsl.identifier" : "registry"
+        },
+        "tags" : "Element,Container",
+        "technology" : "Python"
+      }, {
+        "description" : "JSON calls and live SSE ingest. No host or port literal appears in the package; an unset base URL is an error, never a guessed default.",
+        "documentation" : { },
+        "id" : "5",
+        "name" : "TrueForge Transport",
+        "properties" : {
+          "structurizr.dsl.identifier" : "transport"
+        },
+        "relationships" : [ {
+          "description" : "Opens the live turn and reads its events",
+          "destinationId" : "15",
+          "id" : "28",
+          "sourceId" : "5",
+          "tags" : "Relationship,Asynchronous",
+          "technology" : "SSE"
+        }, {
+          "description" : "Opens the live turn and reads its events",
+          "destinationId" : "14",
+          "id" : "29",
+          "linkedRelationshipId" : "28",
+          "sourceId" : "5",
+          "technology" : "SSE"
+        }, {
+          "description" : "Replays the session's events",
+          "destinationId" : "16",
+          "id" : "30",
+          "sourceId" : "5",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python"
+      }, {
+        "description" : "Two grouping strategies over the same replay rows: by event id, which is globally unique, or by label, which is CF-262.",
+        "documentation" : { },
+        "id" : "6",
+        "name" : "Eval Grain",
+        "properties" : {
+          "structurizr.dsl.identifier" : "grain"
+        },
+        "tags" : "Element,Container",
+        "technology" : "Python"
+      }, {
+        "description" : "Exactly one terminal verdict per audit, written once and never mutated. Writes the receipt and appends the ledger from the same value it displayed.",
+        "documentation" : { },
+        "id" : "7",
+        "name" : "Verdict Contract",
+        "properties" : {
+          "structurizr.dsl.identifier" : "contract"
+        },
+        "relationships" : [ {
+          "description" : "Tests every claimed span for membership",
+          "destinationId" : "4",
+          "id" : "37",
+          "sourceId" : "7",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Writes the receipt and appends the ledger",
+          "destinationId" : "13",
+          "id" : "38",
+          "sourceId" : "7",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python"
+      }, {
+        "description" : "Routes UNEVALUABLE to TrueForge's native gate. Prompts and blocks; with no TTY and no flag it refuses to proceed rather than choosing for you.",
+        "documentation" : { },
+        "id" : "8",
+        "name" : "Approval Router",
+        "properties" : {
+          "structurizr.dsl.identifier" : "router"
+        },
+        "relationships" : [ {
+          "description" : "Reads the UNEVALUABLE receipt, and records exactly one decision",
+          "destinationId" : "13",
+          "id" : "42",
+          "sourceId" : "8",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Calls score_eval and blocks on the pause",
+          "destinationId" : "18",
+          "id" : "43",
+          "sourceId" : "8",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Calls score_eval and blocks on the pause",
+          "destinationId" : "14",
+          "id" : "44",
+          "linkedRelationshipId" : "43",
+          "sourceId" : "8"
+        }, {
+          "description" : "Shows the foreign spans and their true owners, and waits",
+          "destinationId" : "1",
+          "id" : "46",
+          "sourceId" : "8",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python"
+      }, {
+        "description" : "One approval-gated tool, and the enforcement point: it scores registry-owned spans ONLY, so an approval can never launder a foreign one.",
+        "documentation" : { },
+        "id" : "9",
+        "name" : "score_eval MCP Server",
+        "properties" : {
+          "structurizr.dsl.identifier" : "scoreTool"
+        },
+        "relationships" : [ {
+          "description" : "Scores the owned subset only, read from the receipt",
+          "destinationId" : "13",
+          "id" : "53",
+          "sourceId" : "9",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python · MCP"
+      }, {
+        "description" : "Registers the model provider, an agent, a session, and the remote MCP server.",
+        "documentation" : { },
+        "id" : "10",
+        "name" : "Provisioner",
+        "properties" : {
+          "structurizr.dsl.identifier" : "provisioner"
+        },
+        "relationships" : [ {
+          "description" : "Registers the provider, an agent and a session",
+          "destinationId" : "15",
+          "id" : "23",
+          "sourceId" : "10",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Registers the provider, an agent and a session",
+          "destinationId" : "14",
+          "id" : "24",
+          "linkedRelationshipId" : "23",
+          "sourceId" : "10"
+        }, {
+          "description" : "Registers the remote MCP server",
+          "destinationId" : "17",
+          "id" : "26",
+          "sourceId" : "10",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python"
+      }, {
+        "description" : "Sessions whose span labels collide by construction: every session runs the same number of calls, so 'LLM call 9' exists in all of them and points at a different real event in each.",
+        "documentation" : { },
+        "id" : "11",
+        "name" : "CF-262 Fixture",
+        "properties" : {
+          "structurizr.dsl.identifier" : "fixtureBuilder"
+        },
+        "tags" : "Element,Container",
+        "technology" : "Python"
+      }, {
+        "description" : "modified — hover for details. A deterministic OpenAI-compatible endpoint that stubs the model's text only; every TrueForge object the auditor reads is real.",
+        "documentation" : {
+          "decisions" : [ {
+            "content" : "# 1. The model's text is stubbed; every TrueForge object stays real\n\nDate: 2026-09-19\n\n## Status\n\nAccepted\n\n## Context\n\nThe auditor is about provenance, not about what a judge says. Its claim is that a span can be traced\nto the run that produced it, and nothing in that claim depends on the judge's wording being good —\nor on it costing money, or on it being available during a demo.\n\nBut a stub can quietly hollow out a demo. If the sessions, the turns, the events, the SSE stream or\nthe replay were stubbed, the audit would be reading fixtures it also wrote, and the whole result\nwould be circular in exactly the way this project exists to catch.\n\n## Decision\n\n`tools/stub_model.py` is a deterministic OpenAI-compatible endpoint that stubs **the model's text\nand nothing else**. Every TrueForge object the auditor reads — sessions, turns, events, the SSE\nstream, replay — is real. The swap to a real provider is a configuration change: point the provider\nat a real API instead of the stub.\n\nThe box is marked `Modified` rather than `Proposal` because TrueForge's model-provider seam already\nships. This is our content in somebody else's extension point, which is what that state means; a\n`Proposal` would claim the platform has no seat for it, and it plainly does.\n\n## Consequences\n\nThe demo runs offline, deterministically, and for free, while the property under test stays honest.\n\nThe README labels this a LABELED FALLBACK, and the diagram now says the same thing in the one field\nthe renderer prints inside the box, so a reader looking at the picture is not told a different story\nfrom a reader looking at the prose.\n\nThe limit is worth stating: this model says nothing about judge quality. An eval whose judge is\nwrong will produce a confidently wrong verdict that this auditor will happily certify as SCORED,\nbecause every span in it belongs to the run. Provenance is not correctness.\n\nThis record governs `stubModel`.\n",
+            "date" : "2026-09-19T07:00:00Z",
+            "format" : "Markdown",
+            "id" : "1",
+            "status" : "Accepted",
+            "title" : "The model's text is stubbed; every TrueForge object stays real"
+          } ]
+        },
+        "id" : "12",
+        "name" : "Stub Model",
+        "properties" : {
+          "structurizr.dsl.identifier" : "stubModel"
+        },
+        "tags" : "Element,Container,Modified",
+        "technology" : "Python · HTTP"
+      }, {
+        "description" : "One receipt per run, and receipts/verdicts.jsonl — an append-only ledger where every row cites its receipt.",
+        "documentation" : { },
+        "id" : "13",
+        "name" : "Receipts",
+        "properties" : {
+          "structurizr.dsl.identifier" : "receiptStore"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSON · JSONL"
+      } ],
+      "description" : "modified — hover for details. Audits an eval run for trace ownership. Contamination closes as UNEVALUABLE, and a blind spot closes as UNWITNESSED — neither becomes a score.",
+      "documentation" : { },
+      "id" : "2",
+      "name" : "git-blame-evals",
+      "properties" : {
+        "structurizr.dsl.identifier" : "gitBlameEvals"
+      },
+      "relationships" : [ {
+        "description" : "Ingests live events, replays the claim, and offers score_eval for approval",
+        "destinationId" : "14",
+        "id" : "21",
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Registers the provider, an agent and a session",
+        "destinationId" : "15",
+        "id" : "25",
+        "linkedRelationshipId" : "23",
+        "sourceId" : "2"
+      }, {
+        "description" : "Registers the remote MCP server",
+        "destinationId" : "17",
+        "id" : "27",
+        "linkedRelationshipId" : "26",
+        "sourceId" : "2"
+      }, {
+        "description" : "Replays the session's events",
+        "destinationId" : "16",
+        "id" : "31",
+        "linkedRelationshipId" : "30",
+        "sourceId" : "2"
+      }, {
+        "description" : "Calls score_eval and blocks on the pause",
+        "destinationId" : "18",
+        "id" : "45",
+        "linkedRelationshipId" : "43",
+        "sourceId" : "2"
+      }, {
+        "description" : "Shows the foreign spans and their true owners, and waits",
+        "destinationId" : "1",
+        "id" : "47",
+        "linkedRelationshipId" : "46",
+        "sourceId" : "2"
+      } ],
+      "tags" : "Element,Software System,Modified"
+    }, {
+      "containers" : [ {
+        "description" : "POST /turns with stream=true. The live SSE stream is where ownership is established, because it says what arrived and on whose stream.",
+        "documentation" : { },
+        "id" : "15",
+        "name" : "Sessions & Turns API",
+        "properties" : {
+          "structurizr.dsl.identifier" : "sessionsApi"
+        },
+        "tags" : "Element,Container"
+      }, {
+        "description" : "GET /sessions/{id}/events. The independent second view: what the eval says it scored.",
+        "documentation" : { },
+        "id" : "16",
+        "name" : "Events Replay",
+        "properties" : {
+          "structurizr.dsl.identifier" : "replayApi"
+        },
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Discovers the remote MCP server and attaches score_eval with require_approval_for_tools.",
+        "documentation" : { },
+        "id" : "17",
+        "name" : "MCP Client",
+        "properties" : {
+          "structurizr.dsl.identifier" : "mcpClient"
+        },
+        "relationships" : [ {
+          "description" : "Calls score_eval",
+          "destinationId" : "9",
+          "id" : "50",
+          "sourceId" : "17",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Calls score_eval",
+          "destinationId" : "2",
+          "id" : "51",
+          "linkedRelationshipId" : "50",
+          "sourceId" : "17"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Emits tool.approval_required and pauses the turn. Resumes on a user.tool_approval input carrying allow or deny.",
+        "documentation" : { },
+        "id" : "18",
+        "name" : "Approval Gate",
+        "properties" : {
+          "structurizr.dsl.identifier" : "approvalGate"
+        },
+        "relationships" : [ {
+          "description" : "Releases the paused call on allow",
+          "destinationId" : "17",
+          "id" : "49",
+          "sourceId" : "18",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "The judge model endpoint. Points at the stub here, or at a real provider instead.",
+        "documentation" : { },
+        "id" : "19",
+        "name" : "Model Provider",
+        "properties" : {
+          "structurizr.dsl.identifier" : "modelProvider"
+        },
+        "relationships" : [ {
+          "description" : "Calls the stubbed completion endpoint",
+          "destinationId" : "12",
+          "id" : "39",
+          "sourceId" : "19",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Calls the stubbed completion endpoint",
+          "destinationId" : "2",
+          "id" : "40",
+          "linkedRelationshipId" : "39",
+          "sourceId" : "19"
+        } ],
+        "tags" : "Element,Container"
+      } ],
+      "description" : "The platform the eval runs on: sessions and turns, an SSE stream, event replay, an MCP client and a native tool-approval gate.",
+      "documentation" : { },
+      "id" : "14",
+      "name" : "TrueForge",
+      "properties" : {
+        "structurizr.dsl.identifier" : "trueforge"
+      },
+      "relationships" : [ {
+        "description" : "Pauses the scoring tool until a human decides",
+        "destinationId" : "2",
+        "id" : "22",
+        "sourceId" : "14",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Calls the stubbed completion endpoint",
+        "destinationId" : "12",
+        "id" : "41",
+        "linkedRelationshipId" : "39",
+        "sourceId" : "14"
+      }, {
+        "description" : "Calls score_eval",
+        "destinationId" : "9",
+        "id" : "52",
+        "linkedRelationshipId" : "50",
+        "sourceId" : "14"
+      } ],
+      "tags" : "Element,Software System,Existing System"
+    } ]
+  },
+  "name" : "git-blame-evals",
+  "properties" : {
+    "structurizr.inspection.error" : "80",
+    "structurizr.inspection.info" : "0",
+    "structurizr.inspection.ignore" : "0",
+    "structurizr.inspection.warning" : "0"
+  },
+  "views" : {
+    "configuration" : {
+      "branding" : { },
+      "styles" : {
+        "elements" : [ {
+          "background" : "#5f64af",
+          "shape" : "Pipe",
+          "stroke" : "#b9bdf5",
+          "tag" : "Channel"
+        }, {
+          "background" : "#8b92ce",
+          "color" : "#14162b",
+          "stroke" : "#d2d5fa",
+          "tag" : "Component"
+        }, {
+          "background" : "#5f64af",
+          "stroke" : "#b9bdf5",
+          "tag" : "Container"
+        }, {
+          "tag" : "Container Instance"
+        }, {
+          "background" : "#5f64af",
+          "shape" : "Cylinder",
+          "stroke" : "#b9bdf5",
+          "tag" : "Data Store"
+        }, {
+          "background" : "#1f2226",
+          "color" : "#ffffff",
+          "stroke" : "#9aa4b2",
+          "tag" : "Deployment Node"
+        }, {
+          "color" : "#ffffff",
+          "fontSize" : 26,
+          "strokeWidth" : 2,
+          "tag" : "Element"
+        }, {
+          "background" : "#32433b",
+          "stroke" : "#6fa588",
+          "tag" : "Existing System"
+        }, {
+          "background" : "#5f64af",
+          "color" : "#ffffff",
+          "stroke" : "#b9bdf5",
+          "tag" : "Infrastructure Node"
+        }, {
+          "stroke" : "#ffb454",
+          "strokeWidth" : 4,
+          "tag" : "Modified"
+        }, {
+          "background" : "#32433b",
+          "shape" : "Person",
+          "stroke" : "#6fa588",
+          "tag" : "Person"
+        }, {
+          "stroke" : "#ff2fd0",
+          "strokeWidth" : 6,
+          "tag" : "Proposal"
+        }, {
+          "background" : "#494d97",
+          "stroke" : "#a5a9f0",
+          "tag" : "Software System"
+        }, {
+          "tag" : "Software System Instance"
+        } ],
+        "relationships" : [ {
+          "color" : "#d7dbe3",
+          "dashed" : true,
+          "fontSize" : 24,
+          "tag" : "Asynchronous"
+        }, {
+          "color" : "#d7dbe3",
+          "fontSize" : 24,
+          "tag" : "Relationship"
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "Ten modules: ingest, registry, grain, verdict, gate, and the tool that enforces it.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "auditor",
+      "name" : "Container View: git-blame-evals",
+      "order" : 2,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "24"
+      }, {
+        "id" : "29"
+      }, {
+        "id" : "32"
+      }, {
+        "id" : "33"
+      }, {
+        "id" : "34"
+      }, {
+        "id" : "35"
+      }, {
+        "id" : "36"
+      }, {
+        "id" : "37"
+      }, {
+        "id" : "38"
+      }, {
+        "id" : "41"
+      }, {
+        "id" : "42"
+      }, {
+        "id" : "44"
+      }, {
+        "id" : "46"
+      }, {
+        "id" : "48"
+      }, {
+        "id" : "52"
+      }, {
+        "id" : "53"
+      } ],
+      "softwareSystemId" : "2",
+      "title" : "Inside the auditor"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The platform's own halves: two independent views, an MCP client, and the gate we borrowed.",
+      "elements" : [ {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "16",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "17",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "18",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "trueforge",
+      "name" : "Container View: TrueForge",
+      "order" : 3,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "25"
+      }, {
+        "id" : "27"
+      }, {
+        "id" : "31"
+      }, {
+        "id" : "40"
+      }, {
+        "id" : "45"
+      }, {
+        "id" : "49"
+      }, {
+        "id" : "51"
+      } ],
+      "softwareSystemId" : "14",
+      "title" : "Inside TrueForge"
+    } ],
+    "dynamicViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The eval groups by event id, which is globally unique, so every claimed span resolves to the target.",
+      "elementId" : "2",
+      "elements" : [ {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "16",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "scored",
+      "name" : "Dynamic View: git-blame-evals",
+      "order" : 4,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "description" : "Registers the provider, an agent and a session",
+        "id" : "23",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Ingests the live turn",
+        "id" : "32",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Opens the live turn and reads its events",
+        "id" : "28",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "Fingerprints each live event to (session, turn, event)",
+        "id" : "33",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "Replays the session's events",
+        "id" : "30",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "Groups the replay rows by event id",
+        "id" : "34",
+        "order" : "6",
+        "response" : false
+      }, {
+        "description" : "Hands the registry and the claim over",
+        "id" : "36",
+        "order" : "7",
+        "response" : false
+      }, {
+        "description" : "Every claimed span is owned",
+        "id" : "37",
+        "order" : "8",
+        "response" : false
+      }, {
+        "description" : "Writes SCORED and appends the ledger",
+        "id" : "38",
+        "order" : "9",
+        "response" : false
+      } ],
+      "title" : "Grouped by event id → SCORED"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The same rows grouped by label: 'LLM call 9' exists in three sessions, so foreign spans enter the claim.",
+      "elementId" : "2",
+      "elements" : [ {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "unevaluable",
+      "name" : "Dynamic View: git-blame-evals",
+      "order" : 5,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "description" : "Builds sessions whose labels collide by construction",
+        "id" : "35",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Fingerprints every live event across all of them",
+        "id" : "33",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Groups the replay rows by label — CF-262",
+        "id" : "34",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "Hands the registry and the claim over",
+        "id" : "36",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "18 of 27 claimed spans are held under another session",
+        "id" : "37",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "Writes UNEVALUABLE, naming every foreign span and its true owner",
+        "id" : "38",
+        "order" : "6",
+        "response" : false
+      } ],
+      "title" : "Grouped by label → UNEVALUABLE"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "Scoring is an MCP tool, so the platform's own gate can stop it — and the tool, not the gate, is what foreign spans cannot get past.",
+      "elementId" : "2",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "17",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "18",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "pause",
+      "name" : "Dynamic View: git-blame-evals",
+      "order" : 6,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "description" : "Reads the UNEVALUABLE receipt",
+        "id" : "42",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Calls score_eval, and the turn pauses",
+        "id" : "43",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Shows the foreign spans and their true owners",
+        "id" : "46",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "Types approve, or reject",
+        "id" : "48",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "Releases the paused call on allow",
+        "id" : "49",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "Calls score_eval",
+        "id" : "50",
+        "order" : "6",
+        "response" : false
+      }, {
+        "description" : "Scores the owned subset only — approval widens nothing",
+        "id" : "53",
+        "order" : "7",
+        "response" : false
+      } ],
+      "title" : "The pause, and exactly one decision"
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "Who decides, and whose platform it all runs on.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "context",
+      "name" : "System Context View: git-blame-evals",
+      "order" : 1,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "20"
+      }, {
+        "id" : "21"
+      }, {
+        "id" : "22"
+      }, {
+        "id" : "47"
+      } ],
+      "softwareSystemId" : "2",
+      "title" : "The auditor and its neighbours"
+    } ]
+  }
+}

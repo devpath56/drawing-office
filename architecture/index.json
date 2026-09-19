@@ -2,14 +2,14 @@
   "generated": "checks/diagram-contrast.mjs --index",
   "projects": [
     {
-      "dir": "evalgrain",
-      "name": "Eval-Grain Auditor",
-      "description": "Verifies that the traces an eval scored belong to the target run; contamination closes as UNEVALUABLE."
-    },
-    {
       "dir": "factory",
       "name": "The Factory",
       "description": "Eleven machines inside one governance boundary, modelled 2026-09-15 from the whiteboard of 2026-09-09."
+    },
+    {
+      "dir": "git-blame-evals",
+      "name": "git-blame-evals",
+      "description": "Verifies that every span an eval scored actually belongs to the run being scored."
     },
     {
       "dir": "internet-banking",
