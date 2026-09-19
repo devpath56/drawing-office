@@ -2,7 +2,7 @@
 /* build — regenerate the palette, the two exports and the project index for EVERY model in this
  * repo, or for one named on the command line.
  *
- *   node tools/build.mjs [<project>] [--json]
+ *   node tools/build.mjs [<project>] [--root <repo>] [--json]
  *
  * WHY IT EXISTS, and it is a defect the census names rather than a convenience.
  * NINETEEN modules under checks/ and tools/ discover their subjects: they walk architecture/ and
@@ -26,6 +26,13 @@
  * THE LIST IS COMPUTED, NOT PASSED. Asking the caller which project to build is asking them for
  * something this module is better placed to know — the same red flag as a configuration parameter
  * that exists because nobody worked out the answer. A name narrows it; the default is all of them.
+ *
+ * IT TAKES A --root, AND NOT HAVING ONE WAS THE DEFECT THAT MADE EVERY NEW REPO A REDISCOVERY.
+ * All nineteen checks take `--root`; this module did not, so adopting a repo meant a human doing the
+ * wiring by hand, every time: write the palette by explicit path, invoke structurizr-cli twice with
+ * four paths, then `--index --root`, then the checks with `--root`. Measured 2026-09-19 across three
+ * repos in one session — the same six commands retyped, with the paths as the only thing that
+ * changed. That is the caller supplying what the module is better placed to know.
  *
  * IT NAMES A MISSING TOOL RATHER THAN THROWING, for the reason tools/browser.mjs carries at length.
  * structurizr-cli and Graphviz are separate installs, and without `dot` the static export
@@ -106,6 +113,12 @@ if (process.argv.includes('--negative')) {
   say('a missing Graphviz is named separately, because it is a separate install',
       /Graphviz is not on PATH/.test(need({ run: onlyStructurizr }).why ?? ''), need({ run: onlyStructurizr }));
 
+  /* THE FLAG'S VALUE MUST NOT BE READ AS A PROJECT NAME — the one way --root could break the
+     command it was added to. */
+  const argvOf = (a) => { const i = a.indexOf('--root'); return a.filter((x, n) => !x.startsWith('--') && n !== i + 1); };
+  say('a --root value is not mistaken for a project name', argvOf(['--root', '../other']).length === 0, argvOf(['--root', '../other']));
+  say('a project named alongside --root still reads as the project', argvOf(['--root', '../other', 'payments']).join() === 'payments', argvOf(['--root', '../other', 'payments']));
+
   say('every declared state is one this module can return', STATES.length === 4 && STATES.includes('ABSENT'), STATES);
 
   console.log(`\n${ok} of ${n} held`);
@@ -115,12 +128,18 @@ if (process.argv.includes('--negative')) {
 /* ── the build ───────────────────────────────────────────────────────────────────────────────── */
 const argv = process.argv.slice(2);
 const json = argv.includes('--json');
-const only = argv.find((a) => !a.startsWith('--'));
+/* A FLAG'S VALUE IS NOT A POSITIONAL. `--root <path>` puts a bare path in argv, and a naive scan for
+   the first non-flag word reads it as the project name — so `--root ../other` would have built a
+   model called "../other" and reported it missing. The flag and its value are removed first. */
+const flagAt = argv.indexOf('--root');
+const ROOT = flagAt >= 0 ? path.resolve(argv[flagAt + 1] ?? '') : HERE;
+const positional = argv.filter((a, i) => !a.startsWith('--') && i !== flagAt + 1);
+const only = positional[0];
 
 const gate = need();
 if (gate.why) { console.log(`\n  build · UNEVALUABLE — ${gate.why}`); process.exit(3); }
 
-let list = projects();
+let list = projects(ROOT);
 if (only) {
   list = list.filter((p) => p.name === only);
   if (!list.length) { console.error(`no model named ${only} — architecture/ holds: ${projects().map((p) => p.name).join(', ') || 'none'}`); process.exit(2); }
@@ -140,13 +159,13 @@ for (const p of list) {
 /* THE INDEX IS WRITTEN LAST AND ONCE. It is the file the viewer reads to know what exists, so it is
    derived from the exports rather than from this loop's intentions. */
 let index = 'written';
-try { execFileSync('node', [path.join(HERE, 'checks/diagram-contrast.mjs'), '--index'], { stdio: 'pipe' }); }
+try { execFileSync('node', [path.join(HERE, 'checks/diagram-contrast.mjs'), '--index', '--root', ROOT], { stdio: 'pipe' }); }
 catch (e) { index = `FAILED: ${String(e.stderr ?? e.message).trim().split('\n')[0]}`; }
 
 const bad = rows.filter((r) => r.state === 'FAILED');
 if (json) console.log(JSON.stringify({ state: bad.length ? 'FAILED' : 'written', index, rows }, null, 2));
 else {
-  console.log(`\n  build · ${list.length} model(s) in architecture/`);
+  console.log(`\n  build · ${list.length} model(s) in ${ROOT === HERE ? 'architecture/' : path.join(ROOT, 'architecture')}`);
   for (const r of rows) console.log(`    ${r.state === 'written' ? 'ok  ' : 'FAIL'} ${r.project}${r.why ? `\n         ${r.why}` : '  ·  workspace.json and site/ rewritten'}`);
   console.log(`    ${index === 'written' ? 'ok  ' : 'FAIL'} architecture/index.json${index === 'written' ? '  ·  the list the viewer reads' : `\n         ${index}`}`);
   console.log(`\n  ${bad.length ? `FAILED — ${bad.length} of ${rows.length}` : `written — ${rows.length} of ${rows.length}`}`);
