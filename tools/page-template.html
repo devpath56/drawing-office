@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>%%TITLE%%</title>
+<script>try { const m = localStorage.getItem("c4-page-mode"); if (m === "light" || m === "dark") document.documentElement.dataset.theme = m; } catch { /* storage may be refused */ }</script>
+<style>
+/* Layout: a drawing register. The sheet list runs across the top; each view is a dark drawing plate
+   with its key and title block along the bottom edge, and the trace steps sit beside the plate. */
+:root {
+  /* Every colour below is filled in by tools/page.mjs: from architecture/page-theme.json when the repo
+     has one, otherwise derived from architecture/theme.json. The boxes always keep the model's colours. */
+  /*%%TOKENS%%*/
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { /*%%TOKENS_DARK%%*/ color-scheme: dark; }
+}
+:root[data-theme="dark"] { /*%%TOKENS_DARK%%*/ color-scheme: dark; }
+/* the arrows, boundaries and frames, restyled per mode: they are the only drawn colours a white plate swallows */
+/*%%HOOKS%%*/
+
+* { box-sizing: border-box; }
+/* an element marked hidden stays hidden, whatever display its own rule gives it */
+[hidden] { display: none !important; }
+.masthead { position: relative; }
+.mode { position: absolute; top: 22px; right: 0; width: 36px; height: 36px; display: grid; place-items: center; background: var(--raise); color: var(--ink); border: 1px solid var(--rule); border-radius: 8px; cursor: pointer; }
+.mode:hover { border-color: var(--muted); }
+.mode svg { width: 18px; height: 18px; }
+.mode .sun, :root[data-mode="dark"] .mode .moon { display: none; }
+:root[data-mode="dark"] .mode .sun { display: block; }
+body { background: var(--paper); color: var(--ink); font: 15px/1.55 var(--f-body); }
+.wrap { max-width: 1440px; margin: 0 auto; padding-inline: clamp(16px, 3vw, 40px); padding-bottom: 40px; }
+h1, h2, h3 { font-family: var(--f-display); font-stretch: 82%; line-height: 1.1; text-wrap: balance; margin: 0; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── masthead ── */
+.masthead { padding-block: 28px 18px; display: grid; gap: 6px; }
+.eyebrow { font: 500 11px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.masthead h1 { font-size: clamp(34px, 5vw, 56px); font-weight: 750; letter-spacing: -.01em; }
+.thesis { margin: 0; font-size: 18px; max-width: 60ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; list-style: none; padding: 0; margin: 8px 0 0; font: 12px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta b { color: var(--ink); font-weight: 500; }
+
+/* ── the register of sheets ── */
+.register { display: flex; flex-wrap: wrap; gap: 18px 28px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding-block: 12px; }
+.group { display: grid; gap: 6px; min-width: 0; }
+.group-label { font: 500 10px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+.tab { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: baseline; text-align: left; background: none; border: 1px solid transparent; border-radius: 6px; padding: 6px 10px 7px; cursor: pointer; }
+.tab .no { font: 500 11px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.tab .nm { font: 650 16px var(--f-display); font-stretch: 85%; }
+.tab .sub { grid-column: 2; font-size: 12px; color: var(--muted); }
+.tab:hover { border-color: var(--rule); }
+.tab[aria-selected="true"] { background: var(--raise); border-color: var(--rule); box-shadow: inset 0 -3px 0 var(--accent); }
+.tab[aria-selected="true"] .no { color: var(--accent-ink); }
+
+/* ── the sheet ── */
+.sheet { padding-block: 20px 8px; display: grid; gap: 14px; }
+.sheet-head { display: grid; gap: 4px; }
+.sheet-head h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 700; }
+.sheet-head p { margin: 0; color: var(--muted); max-width: 70ch; }
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font: 12px var(--f-mono); color: var(--muted); min-height: 18px; }
+.crumbs button { background: none; border: 0; padding: 0; font: inherit; color: var(--accent-ink); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.crumbs span[aria-current] { color: var(--ink); }
+.sheet-body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+@media (max-width: 1060px) { .sheet-body { grid-template-columns: minmax(0, 1fr); } }
+
+.plate { margin: 0; background: var(--plate); color: var(--plate-ink); border-radius: 10px; overflow: hidden; border: 1px solid var(--plate-rule); min-width: 0; }
+.plate-tools { display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--plate-rule); background: var(--plate-2); }
+.tool { background: transparent; color: var(--plate-ink); border: 1px solid var(--plate-rule); border-radius: 5px; min-width: 32px; height: 28px; padding: 0 9px; cursor: pointer; font: 500 13px var(--f-mono); }
+.tool:hover { border-color: var(--plate-muted); }
+.tool[aria-pressed="true"] { border-color: var(--plate-accent); color: var(--plate-accent); }
+#zoom-level { font: 12px var(--f-mono); color: var(--plate-muted); min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
+.plate-scroll {
+  height: min(72vh, 820px); overflow: auto; cursor: grab; position: relative; overscroll-behavior: contain;
+  background-color: var(--plate);
+  background-image: linear-gradient(var(--plate-2) 1px, transparent 1px), linear-gradient(90deg, var(--plate-2) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.plate-scroll.dragging { cursor: grabbing; }
+.plate-scroll .drawing { display: block; margin: 12px auto; }
+@media (max-width: 640px) { .plate-scroll { height: 62vh; } }
+
+.plate-foot { display: flex; flex-wrap: wrap; gap: 14px 24px; justify-content: space-between; align-items: flex-end; padding: 12px 14px 14px; border-top: 1px solid var(--plate-rule); background: var(--plate-2); }
+.key { display: flex; flex-wrap: wrap; gap: 8px 16px; list-style: none; margin: 0; padding: 0; font-size: 12px; color: var(--plate-ink); min-width: 0; }
+.key li { display: flex; align-items: center; gap: 7px; }
+.key svg { flex: none; }
+.titleblock { display: grid; grid-template-columns: repeat(3, auto); border: 1px solid var(--plate-rule); margin: 0; font-variant-numeric: tabular-nums; }
+.titleblock div { padding: 5px 10px 6px; border-right: 1px solid var(--plate-rule); border-bottom: 1px solid var(--plate-rule); min-width: 0; }
+.titleblock div:nth-child(3n) { border-right: 0; }
+.titleblock div:nth-last-child(-n+3) { border-bottom: 0; }
+.titleblock dt { font: 500 9px/1.2 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--plate-muted); }
+.titleblock dd { margin: 2px 0 0; font: 600 13px/1.25 var(--f-display); font-stretch: 88%; color: var(--plate-ink); }
+@media (max-width: 640px) { .titleblock { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; } .titleblock div { border-right: 1px solid var(--plate-rule) !important; border-bottom: 1px solid var(--plate-rule) !important; } }
+
+/* the drawing's states */
+.drawing g.node { cursor: pointer; outline: none; }
+.drawing g.node:focus-visible polygon, .drawing g.node:focus-visible path { stroke: var(--plate-accent); stroke-width: 6px; }
+.drawing g.edge, .drawing g.node { transition: opacity .18s ease; }
+.drawing.walking g.edge.future, .drawing.walking g.node:not(.lit) { opacity: .13; }
+.drawing.walking g.edge.past { opacity: .45; }
+.drawing.walking g.edge.now path { stroke: var(--plate-accent); stroke-width: 5px; }
+.drawing.walking g.edge.now polygon { stroke: var(--plate-accent); fill: var(--plate-accent); }
+.drawing.walking g.edge.now text { fill: var(--plate-accent); font-weight: 700; }
+.drawing.walking g.node.at { filter: drop-shadow(0 0 14px var(--plate-accent)); }
+/* a box that opens into the view of what is inside it */
+.drawing g.node[data-drill] { cursor: zoom-in; }
+/* a box picked in the panel, and the traces that pass through it */
+.drawing g.node.picked polygon, .drawing g.node.picked path, .drawing g.node.picked rect { stroke: var(--plate-accent); stroke-width: 5px; }
+
+/* ── the panel beside the plate ── */
+.panel { background: var(--raise); border: 1px solid var(--rule); border-radius: 10px; padding: 14px; display: grid; gap: 12px; min-width: 0; }
+.panel h3 { font-size: 17px; font-weight: 700; }
+.walk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.btn { border: 1px solid var(--rule); background: var(--paper); border-radius: 6px; padding: 5px 11px; cursor: pointer; font-size: 13px; font-weight: 500; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn:disabled { opacity: .45; cursor: default; }
+.count { margin-left: auto; font: 12px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; max-height: min(60vh, 640px); overflow: auto; }
+.step { width: 100%; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 2px 10px; text-align: left; background: none; border: 0; border-radius: 7px; padding: 7px 8px; cursor: pointer; }
+.step:hover { background: var(--paper); }
+.step .n { grid-row: span 3; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--rule); display: grid; place-items: center; font: 500 11px var(--f-mono); font-variant-numeric: tabular-nums; }
+.step .route { font: 500 11px var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+.step .d { font-size: 14px; line-height: 1.35; }
+.step .t { font: 11px var(--f-mono); color: var(--muted); }
+.step.done .n { background: var(--paper); }
+.step[aria-current="step"] { background: var(--paper); box-shadow: inset 3px 0 0 var(--accent); }
+.step[aria-current="step"] .n { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.marked { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.marked li { display: grid; gap: 3px; }
+.marked .nm { font-weight: 600; }
+.marked .why { font-size: 13px; color: var(--muted); }
+.chip { justify-self: start; font: 500 10px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; border-radius: 99px; padding: 4px 8px; border: 1px solid currentColor; }
+.chip.Modified { color: var(--modified-ink); }
+.chip.Proposal, .chip.Proposed { color: var(--proposed); }
+.chip.Accepted { color: var(--accepted); }
+.panel .note { margin: 0; font-size: 13px; color: var(--muted); }
+
+
+
+/* ── details on hover ── */
+.tip { position: fixed; z-index: 10; max-width: min(340px, calc(100vw - 32px)); background: var(--plate-2); color: var(--plate-ink); border: 1px solid var(--plate-muted); border-radius: 8px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .35); display: grid; gap: 5px; pointer-events: none; font-size: 13px; }
+.tip.pinned { pointer-events: auto; padding-right: 40px; }
+.tip .x { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; display: grid; place-items: center; background: none; border: 0; border-radius: 6px; color: var(--plate-muted); cursor: pointer; }
+.tip .x:hover { color: var(--plate-ink); background: var(--plate-rule); }
+.tip .x svg { width: 14px; height: 14px; }
+.tip .k { font: 11px var(--f-mono); color: var(--plate-muted); }
+.tip .nm { font: 700 18px var(--f-display); font-stretch: 85%; }
+.tip p { margin: 0; }
+.tip .st { font-size: 12px; }
+.tip .st b { color: var(--plate-accent); font-weight: 600; }
+.tip .st b.Proposal { color: var(--plate-proposed); }
+.tip .go { justify-self: start; background: none; border: 0; padding: 4px 0 0; font: 600 12px var(--f-mono); color: var(--plate-accent); cursor: pointer; text-align: left; text-decoration: underline; text-underline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) { .drawing g.edge, .drawing g.node { transition: none; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <button class="mode" id="mode" type="button" aria-label="Switch to dark"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    <p class="eyebrow">C4 model · drawing-office</p>
+    <h1>%%NAME%%</h1>
+    <p class="thesis">%%THESIS%%</p>
+    <ul class="meta" id="meta"></ul>
+  </header>
+
+  <nav class="register" aria-label="Sheets" id="register"></nav>
+
+  <main class="sheet" id="sheet">
+    <div class="sheet-head">
+      <nav class="crumbs" id="crumbs" aria-label="Where this sheet sits"></nav>
+      <h2 id="sheet-title"></h2>
+      <p id="sheet-desc"></p>
+    </div>
+    <div class="sheet-body">
+      <figure class="plate">
+        <div class="plate-tools">
+          <button class="tool" id="zoom-fit" type="button" aria-pressed="true">Fit</button>
+          <button class="tool" id="zoom-out" type="button" aria-label="Zoom out">−</button>
+          <output id="zoom-level" aria-live="polite"></output>
+          <button class="tool" id="zoom-in" type="button" aria-label="Zoom in">+</button>
+        </div>
+        <div class="plate-scroll" id="plate-scroll" tabindex="0" aria-label="Diagram"></div>
+        <figcaption class="plate-foot">
+          <ul class="key" aria-label="Key"><!--%%KEY%%--></ul>
+          <dl class="titleblock" id="titleblock"></dl>
+        </figcaption>
+      </figure>
+      <aside class="panel" id="panel" aria-label="Sheet details"></aside>
+    </div>
+  </main>
+
+</div>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<!--%%DRAWINGS%%-->
+<script id="data" type="application/json">/*%%DATA%%*/</script>
+<script>
+(() => {
+  const DATA = JSON.parse(document.getElementById("data").textContent);
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const EL = DATA.elements;
+  const VIEWS = DATA.views;
+  const META = DATA.meta;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const state = { key: null, step: 0, zoom: 1, fit: true, w: 0, h: 0, picked: null, timer: null };
+  const DRILL = DATA.drill;
+  const scroller = $("plate-scroll");
+  let svg = null;
+
+  /* masthead facts: counted from the model, or measured when the page was built */
+  const marked = Object.values(EL).filter((e) => e.state).length;
+    $("meta").innerHTML = [
+    [VIEWS.length, "sheet", "sheets"], [VIEWS.filter((v) => v.level === "Trace").length, "feature trace", "feature traces"], [marked, "box marked for change", "boxes marked for change"],
+  ].filter(([n]) => n > 0).map(([n, one, many]) => `<li><b>${n}</b> ${n === 1 ? one : many}</li>`).join("") + `<li>drawn <b>${esc(META.drawn)}</b></li>`;
+
+  /* the register */
+  /* C4's names: the levels, then the supplementary diagrams */
+  const KIND = { "C4 level 1": "Context", "C4 level 2": "Container", "C4 level 3": "Component", "Trace": "Feature trace", "Deployment": "Deployment", "Landscape": "Landscape" };
+  const C4 = ["C4 level 1", "C4 level 2", "C4 level 3"];
+  const kind = (v) => KIND[v.level] ?? v.level;
+  /* every dynamic view in the model is a feature trace, and they all sit together */
+  const groups = [["C4 levels", VIEWS.filter((v) => C4.includes(v.level))], ["Feature traces", VIEWS.filter((v) => v.level === "Trace")], ["Deployment and landscape", VIEWS.filter((v) => !C4.includes(v.level) && v.level !== "Trace")]].filter(([, vs]) => vs.length);
+  /* steps can share a number (a parallel block), so a walk counts step numbers, not rows */
+  const last = (v) => v.steps.reduce((m, s) => Math.max(m, s.n), 0);
+  $("register").innerHTML = groups.map(([label, vs]) => `
+    <div class="group"><span class="group-label">${label}</span><div class="tabs" role="tablist">
+      ${vs.map((v) => `<button class="tab" type="button" role="tab" id="tab-${v.key}" data-key="${v.key}" aria-selected="false" aria-controls="sheet">
+        <span class="no">${String(VIEWS.indexOf(v) + 1).padStart(2, "0")}</span><span class="nm">${esc(v.key)}</span>
+        <span class="sub">${v.level === "Trace" ? `${last(v)} steps` : esc(kind(v))}</span></button>`).join("")}
+    </div></div>`).join("");
+  document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => open(b.dataset.key, true)));
+
+
+  /* zoom: 1 is Graphviz's own point size; "fit" shows the whole drawing */
+  function fitScale() {
+    const r = scroller.getBoundingClientRect();
+    return Math.min((r.width - 24) / state.w, (r.height - 24) / state.h);
+  }
+  function applyZoom(z, keepCentre = true) {
+    const lo = fitScale(), hi = 2;
+    const next = Math.max(Math.min(z, hi), Math.min(lo, hi));
+    const cx = (scroller.scrollLeft + scroller.clientWidth / 2) / (state.w * state.zoom || 1);
+    const cy = (scroller.scrollTop + scroller.clientHeight / 2) / (state.h * state.zoom || 1);
+    state.zoom = next;
+    svg.style.width = `${state.w * next}px`;
+    svg.style.height = `${state.h * next}px`;
+    if (keepCentre) {
+      scroller.scrollLeft = cx * state.w * next - scroller.clientWidth / 2;
+      scroller.scrollTop = cy * state.h * next - scroller.clientHeight / 2;
+    }
+    $("zoom-level").textContent = `${Math.round(next * 100)}%`;
+    $("zoom-fit").setAttribute("aria-pressed", String(state.fit));
+    $("zoom-out").disabled = next <= lo + 1e-3;
+    $("zoom-in").disabled = next >= hi - 1e-3;
+  }
+  $("zoom-fit").addEventListener("click", () => { state.fit = true; svg.style.margin = ""; applyZoom(fitScale(), false); scroller.scrollTo(0, 0); });
+  $("zoom-in").addEventListener("click", () => { state.fit = false; applyZoom(state.zoom * 1.35); });
+  $("zoom-out").addEventListener("click", () => { state.fit = false; applyZoom(state.zoom / 1.35); });
+  new ResizeObserver(() => { if (svg && state.fit) applyZoom(fitScale(), false); }).observe(scroller);
+
+  /* drag to move, for a mouse; touch scrolls natively */
+  let drag = null;
+  scroller.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest("g.node")) return;
+    drag = { x: e.clientX, y: e.clientY, l: scroller.scrollLeft, t: scroller.scrollTop };
+    scroller.setPointerCapture(e.pointerId);
+    scroller.classList.add("dragging");
+  });
+  scroller.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    scroller.scrollLeft = drag.l - (e.clientX - drag.x);
+    scroller.scrollTop = drag.t - (e.clientY - drag.y);
+    if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) scroller.classList.add("moved");
+  });
+  const endDrag = () => { drag = null; scroller.classList.remove("dragging"); setTimeout(() => scroller.classList.remove("moved"), 0); };
+  scroller.addEventListener("pointerup", endDrag);
+  scroller.addEventListener("pointercancel", endDrag);
+
+  /* light or dark: the reader's choice, remembered; until they choose, the system's */
+  const dim = matchMedia("(prefers-color-scheme: dark)");
+  const mode = () => document.documentElement.dataset.theme ?? (dim.matches ? "dark" : "light");
+  const showMode = () => { const m = mode(); document.documentElement.dataset.mode = m; $("mode").setAttribute("aria-label", m === "dark" ? "Switch to light" : "Switch to dark"); };
+  $("mode").addEventListener("click", () => {
+    const next = mode() === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("c4-page-mode", next); } catch { /* storage may be refused */ }
+    showMode();
+  });
+  dim.addEventListener?.("change", showMode);
+  showMode();
+
+  /* details on hover, focus or tap */
+  const tip = $("tip");
+  let pinned = null;
+  function describe(id) {
+    const e = EL[id];
+    if (!e) return "";
+    const kind = [e.kind, e.tech].filter(Boolean).join(" · ");
+    let st = "";
+    if (e.state) {
+      const why = e.decisions.length
+        ? e.decisions.map((d) => `${esc(d.title)} (${esc(String(d.status ?? "").toLowerCase())})`).join("; ")
+        : e.holds?.length ? `Holds ${esc(e.holds.join(", "))}` : "";
+      st = `<p class="st"><b class="${e.state}">${e.state === "Proposal" ? "Proposal" : "Modified"}</b> · ${why}</p>`;
+    }
+    const whose = e.ours ? "" : `<p class="st">Not ours</p>`;
+    const lenses = (e.perspectives ?? []).map((x) => `<p class="st"><b>${esc(x.name)}</b> · ${esc(x.desc.length > 160 ? x.desc.slice(0, 159) + "…" : x.desc)}</p>`).join("");
+    const inside = DRILL[id] && DRILL[id] !== state.key ? `<button class="go" type="button" data-open="${esc(DRILL[id])}">Open what’s inside: ${esc(VIEWS.find((v) => v.key === DRILL[id])?.title ?? DRILL[id])}</button>` : "";
+    return `<span class="k">${esc(kind)}</span><span class="nm">${esc(e.name)}</span><p>${esc(e.desc)}</p>${st}${whose}${lenses}${inside}`;
+  }
+  function showTip(g) {
+    tip.innerHTML = describe(g.dataset.el);
+    tip.hidden = false;
+    place(g);
+  }
+  function place(g) {
+    const r = g.getBoundingClientRect(), t = tip.getBoundingClientRect();
+    const clampX = (x) => Math.min(Math.max(12, x), innerWidth - t.width - 12);
+    const clampY = (y) => Math.min(Math.max(12, y), innerHeight - t.height - 12);
+    // beside the box if there is room, else below it, else above it; never on top of it
+    const spots = [
+      [r.right + 10, clampY(r.top), r.right + 10 + t.width <= innerWidth - 12],
+      [r.left - t.width - 10, clampY(r.top), r.left - t.width - 10 >= 12],
+      [clampX(r.left), r.bottom + 10, r.bottom + 10 + t.height <= innerHeight - 12],
+      [clampX(r.left), r.top - t.height - 10, r.top - t.height - 10 >= 12],
+    ];
+    const [x, y] = spots.find((s) => s[2]) ?? [clampX(r.right + 10), clampY(r.bottom + 10)];
+    tip.style.left = `${x}px`;
+    tip.style.top = `${y}px`;
+  }
+  const hideTip = () => { if (!pinned) tip.hidden = true; };
+  /* a box's details appear on click, never on hover, so nothing covers the drawing while you read it */
+  function unpin() { pinned = null; tip.classList.remove("pinned"); tip.hidden = true; }
+  /* closing a card also lets go of the box it was opened from */
+  function closeCard() { const id = pinned?.dataset.el; unpin(); if (id && state.picked === id) unpick(); }
+  function pin(g) {
+    pinned = g;
+    tip.classList.add("pinned");
+    showTip(g);
+    tip.insertAdjacentHTML("afterbegin", `<button class="x" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`);
+    tip.querySelector(".x").addEventListener("click", closeCard);
+    tip.querySelector("[data-open]")?.addEventListener("click", (e) => { const to = e.currentTarget.dataset.open; unpin(); open(to, true, g.dataset.el); });
+  }
+  function choose(g) {
+    const id = g.dataset.el;
+    // a second click on the same box puts it down again
+    if (pinned === g) return closeCard();
+    // in a walkthrough a click shows the box's details and the steps stay where they are
+    if (view().steps.length) return pin(g);
+    if (DRILL[id] && DRILL[id] !== state.key) { unpin(); return open(DRILL[id], true, id); }
+    pick(id);
+    pin(g);
+  }
+  scroller.addEventListener("click", (e) => {
+    if (scroller.classList.contains("moved")) return;
+    const g = e.target.closest("g.node");
+    if (g) choose(g);
+  });
+  // a click anywhere but the card or a box puts the card down; a drag across the drawing does not
+  document.addEventListener("click", (e) => {
+    if (!pinned || tip.contains(e.target) || e.target.closest?.("g.node") || scroller.classList.contains("moved")) return;
+    closeCard();
+  });
+  scroller.addEventListener("keydown", (e) => { const g = e.target.closest("g.node"); if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); choose(g); } });
+  // the card stays with its box while the drawing or the page scrolls (a click focuses the box, which can scroll it)
+  const follow = () => { if (pinned && pinned.isConnected) place(pinned); };
+  scroller.addEventListener("scroll", follow, { passive: true });
+  addEventListener("scroll", follow, { passive: true });
+  addEventListener("resize", follow);
+
+  /* the walk through a trace */
+  const view = () => VIEWS.find((v) => v.key === state.key);
+  function paintWalk() {
+    const v = view(), k = state.step, curs = v.steps.filter((s) => s.n === k), cur = curs[0];
+    svg.classList.toggle("walking", k > 0);
+    const lit = new Set();
+    svg.querySelectorAll("g.edge").forEach((g) => {
+      const n = Number(g.dataset.step);
+      g.classList.remove("past", "now", "future");
+      if (k > 0) g.classList.add(n < k ? "past" : n === k ? "now" : "future");
+    });
+    v.steps.filter((s) => s.n <= k).forEach((s) => { lit.add(s.from); lit.add(s.to); });
+    svg.querySelectorAll("g.node").forEach((g) => {
+      g.classList.toggle("lit", lit.has(g.dataset.el));
+      g.classList.toggle("at", curs.some((c) => g.dataset.el === c.from || g.dataset.el === c.to));
+    });
+    document.querySelectorAll(".step").forEach((b) => {
+      const n = Number(b.dataset.step);
+      b.classList.toggle("done", k > 0 && n < k);
+      if (n === k) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+    });
+    const count = $("walk-count");
+    if (count) count.textContent = k > 0 ? `Step ${k} of ${last(v)}` : `${last(v)} steps`;
+    if ($("walk-back")) {
+      $("walk-back").disabled = k <= 1;
+      $("walk-next").disabled = k >= last(v);
+      $("walk-all").disabled = k === 0;
+      $("walk-start").hidden = k > 0;
+    }
+    if (cur) {
+      magnify([...svg.querySelectorAll(`g.edge[data-step="${k}"]`), ...svg.querySelectorAll("g.node.at")]);
+      document.querySelector(`.step[data-step="${k}"]`)?.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
+    } else if (!state.fit) {
+      state.fit = true;
+      svg.style.margin = "";
+      applyZoom(fitScale(), false);
+      scroller.scrollTo({ left: 0, top: 0, behavior: reduced ? "auto" : "smooth" });
+    }
+  }
+  /* zoom to the hop in play — its arrow and its two boxes — and centre it on the plate */
+  function magnify(parts) {
+    if (!parts.length) return;
+    const sr = svg.getBoundingClientRect();
+    let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+    for (const g of parts) { const x = g.getBoundingClientRect(); l = Math.min(l, x.left); t = Math.min(t, x.top); r = Math.max(r, x.right); b = Math.max(b, x.bottom); }
+    const z0 = state.zoom, ux = (l - sr.left) / z0, uy = (t - sr.top) / z0, uw = Math.max(60, (r - l) / z0), uh = Math.max(60, (b - t) / z0);
+    const z = Math.min(2, Math.max(fitScale(), Math.min((scroller.clientWidth * 0.6) / uw, (scroller.clientHeight * 0.6) / uh)));
+    state.fit = false;
+    // room around the drawing, half the plate each way, so a step at its edge can still come to the centre
+    svg.style.margin = `${Math.round(scroller.clientHeight / 2)}px ${Math.round(scroller.clientWidth / 2)}px`;
+    applyZoom(z, false);
+    // where the drawing now sits inside the scroller (an SVG has no offsetLeft/offsetTop, so measure it)
+    const pr = scroller.getBoundingClientRect(), nr = svg.getBoundingClientRect();
+    const left = nr.left - pr.left + scroller.scrollLeft, top = nr.top - pr.top + scroller.scrollTop;
+    scroller.scrollTo({ left: left + (ux + uw / 2) * z - scroller.clientWidth / 2, top: top + (uy + uh / 2) * z - scroller.clientHeight / 2, behavior: reduced ? "auto" : "smooth" });
+  }
+  function go(k, byHand = true) {
+    const v = view();
+    if (!v.steps.length) return;
+    if (byHand) stop();
+    state.step = Math.max(0, Math.min(k, last(v)));
+    paintWalk();
+  }
+  function stop() {
+    if (state.timer) { clearInterval(state.timer); state.timer = null; }
+    const b = $("walk-play");
+    if (b) { b.textContent = "Play"; b.setAttribute("aria-pressed", "false"); }
+  }
+  function play() {
+    const v = view();
+    if (!v?.steps.length) return;
+    if (state.timer) return stop();
+    if (state.step >= last(v)) state.step = 0;
+    go(state.step + 1, false);
+    state.timer = setInterval(() => { if (state.step >= last(view())) stop(); else go(state.step + 1, false); }, 1800);
+    const b = $("walk-play");
+    if (b) { b.textContent = "Pause"; b.setAttribute("aria-pressed", "true"); }
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey || /input|textarea|select/i.test(e.target.tagName)) return;
+    if (e.key === "Escape" && pinned) { closeCard(); return; }
+    if (!view()?.steps.length) return;
+    const k = e.key.toLowerCase();
+    if (e.key === " ") { if (e.target.closest("button, a, [role=button], [role=tab]")) return; e.preventDefault(); play(); }
+    else if (k === "n") go(state.step + 1);
+    else if (k === "b") go(Math.max(1, state.step - 1));
+    else if (e.key === "Escape") go(0);
+  });
+
+  /* the panel beside the plate */
+  function panel(v) {
+    const name = (id) => esc(EL[id]?.name ?? id);
+    if (v.steps.length) {
+      return `
+        <h3>Steps</h3>${v.example ? `<p class="note">Worked example: ${esc(v.example)}</p>` : ""}
+        <div class="walk-bar">
+          <button class="btn primary" id="walk-start" type="button" title="Walk through (N)">Walk through</button>
+          <button class="btn" id="walk-play" type="button" aria-pressed="false" title="Play (Space)">Play</button>
+          <button class="btn" id="walk-back" type="button" title="Back (B)">Back</button>
+          <button class="btn" id="walk-next" type="button" title="Next (N)">Next</button>
+          <button class="btn" id="walk-all" type="button" title="Show all (Esc)">Show all</button>
+          <span class="count" id="walk-count"></span>
+        </div>
+        <ol class="steps">${v.steps.map((s) => `
+          <li><button class="step" type="button" data-step="${s.n}">
+            <span class="n">${s.n}</span>
+            <span class="route">${name(s.from)} → ${name(s.to)}</span>
+            <span class="d">${esc(s.desc)}</span>
+            ${s.tech ? `<span class="t">${esc(s.tech)}${s.async ? " · asynchronous" : ""}</span>` : ""}
+            ${s.example ? `<span class="t ex">e.g. ${esc(s.example)}</span>` : ""}
+          </button></li>`).join("")}
+        </ol>`;
+    }
+    const here = v.elements.map((id) => [id, EL[id]]).filter(([, e]) => e?.state);
+    const list = here.map(([, e]) => {
+      const why = e.decisions.length ? e.decisions.map((d) => esc(d.title)).join("; ") : e.holds?.length ? `Holds ${esc(e.holds.join(", "))}` : "";
+      return `<li><span class="chip ${e.state}">${e.state}</span><span class="nm">${esc(e.name)}</span><span class="why">${why}</span></li>`;
+    }).join("");
+    const ours = v.elements.filter((id) => EL[id]?.ours).length;
+    return `
+      <h3>On this sheet</h3>
+      <p class="note">${v.elements.length} ${v.elements.length === 1 ? "element" : "elements"}${ours === v.elements.length ? "" : `: ${ours} ours, ${v.elements.length - ours} not`}.</p>
+      ${here.length ? `<h3>Marked for change</h3><ul class="marked">${list}</ul>` : `<p class="note">Nothing on this sheet is marked for change.</p>`}`;
+  }
+
+  /* the box and everything inside it, for "which traces pass through here" */
+  const under = (id) => [id, ...Object.keys(EL).filter((k) => EL[k].parent === id).flatMap(under)];
+  function through(id) {
+    const set = new Set(under(EL[id]?.ref ?? id));
+    return VIEWS.filter((v) => v.level === "Trace").map((v) => ({ v, at: v.steps.find((s) => set.has(s.from) || set.has(s.to)) })).filter((t) => t.at);
+  }
+  function tracesList(id) {
+    const ts = through(id);
+    if (!ts.length) return `<p class="note">No trace passes through it.</p>`;
+    return `<ul class="marked">${ts.map(({ v, at }) => `<li><button class="btn" type="button" data-trace="${esc(v.key)}" data-step="${at.n}">${esc(v.title)}</button><span class="why">from step ${at.n} of ${last(v)}</span></li>`).join("")}</ul>`;
+  }
+  function wireTraces(root) {
+    root.querySelectorAll("[data-trace]").forEach((b) => b.addEventListener("click", () => { open(b.dataset.trace, true); go(Number(b.dataset.step)); }));
+  }
+  function pick(id) {
+    const e = EL[id];
+    if (!e) return;
+    stop();
+    state.picked = id;
+    svg.querySelectorAll("g.node").forEach((g) => g.classList.toggle("picked", g.dataset.el === id));
+    const kind = [e.kind, e.tech].filter(Boolean).join(" · ");
+    const st = e.state ? `<span class="chip ${e.state}">${e.state}</span>` : "";
+    const ds = e.decisions.length ? `<ul class="marked">${e.decisions.map((d) => `<li><span class="chip ${esc(d.status)}">${esc(d.status)}</span><span class="nm">${esc(d.title)}</span></li>`).join("")}</ul>` : "";
+    const inside = DRILL[id] && DRILL[id] !== state.key ? `<button class="btn primary" type="button" id="open-inside">Open what’s inside</button>` : "";
+    $("panel").innerHTML = `
+      <p class="note">${esc(kind)}</p>
+      <h3>${esc(e.name)}</h3>
+      ${e.desc ? `<p class="note">${esc(e.desc)}</p>` : ""}
+      ${st}${ds}
+      ${(e.perspectives ?? []).map((x) => `<p class="note"><b>${esc(x.name)}</b> · ${esc(x.desc)}</p>`).join("")}
+      ${inside}
+      <h3>Traces through it</h3>
+      ${tracesList(id)}
+      <button class="btn" type="button" id="unpick">${view().steps.length ? "Back to the steps" : "Back to the sheet"}</button>`;
+    $("open-inside")?.addEventListener("click", () => open(DRILL[id], true, id));
+    $("unpick").addEventListener("click", unpick);
+    wireTraces($("panel"));
+  }
+  function unpick() {
+    state.picked = null;
+    svg.querySelectorAll("g.node.picked").forEach((g) => g.classList.remove("picked"));
+    fillPanel(view());
+  }
+  function fillPanel(v, from) {
+    $("panel").innerHTML = panel(v) + (from && EL[from] ? `<h3>Traces through ${esc(EL[from].name)}</h3>${tracesList(from)}` : "");
+    wireTraces($("panel"));
+    if (v.steps.length) {
+      $("walk-start").addEventListener("click", () => go(1));
+      $("walk-play").addEventListener("click", play);
+      $("walk-next").addEventListener("click", () => go(state.step + 1));
+      $("walk-back").addEventListener("click", () => go(Math.max(1, state.step - 1)));
+      $("walk-all").addEventListener("click", () => go(0));
+      document.querySelectorAll(".step").forEach((b) => b.addEventListener("click", () => go(Number(b.dataset.step))));
+      paintWalk();
+    }
+  }
+
+  /* where a sheet sits: the views above it, each one a click away */
+  function crumbs(v) {
+    const chain = [];
+    for (let at = v; at && !chain.includes(at); at = VIEWS.find((x) => x.key === at.up)) chain.unshift(at);
+    $("crumbs").innerHTML = chain.map((x, i) => i === chain.length - 1
+      ? `<span aria-current="page">${esc(kind(x))} · ${esc(x.title)}</span>`
+      : `<button type="button" data-key="${esc(x.key)}">${esc(x.title)}</button><span aria-hidden="true">›</span>`).join("");
+    $("crumbs").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => open(b.dataset.key, true)));
+  }
+
+  function open(key, fromClick, from) {
+    const v = VIEWS.find((x) => x.key === key) ?? VIEWS[0];
+    stop();
+    state.key = v.key;
+    state.step = 0;
+    state.picked = null;
+    state.fit = true;
+    pinned = null;
+    tip.hidden = true;
+    document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.key === v.key)));
+    $("sheet-title").textContent = v.title;
+    $("sheet-desc").textContent = v.desc;
+    scroller.replaceChildren($(`drawing-${v.key}`).content.cloneNode(true));
+    svg = scroller.querySelector("svg");
+    state.w = Number(svg.dataset.w);
+    state.h = Number(svg.dataset.h);
+    scroller.setAttribute("aria-label", `${v.title} diagram`);
+    const i = VIEWS.indexOf(v) + 1;
+    const cells = [
+      ["Project", META.name], ["Sheet", `${i} of ${VIEWS.length}`], ["View", v.key],
+      ["Kind", v.level === "Trace" ? `Feature trace · ${last(v)} steps` : kind(v)], ["Drawn from", "workspace.dsl"], ["Drawn", META.drawn],
+    ];
+    $("titleblock").innerHTML = cells.map(([k, val]) => `<div><dt>${k}</dt><dd>${esc(val)}</dd></div>`).join("");
+    crumbs(v);
+    fillPanel(v, from);
+    applyZoom(fitScale(), false);
+    scroller.scrollTo(0, 0);
+    if (fromClick) { try { history.replaceState(null, "", `#${v.key}`); } catch { /* the frame may refuse */ } }
+  }
+
+  const asked = (location.hash || "").replace(/^#/, "");
+  open(VIEWS.some((v) => v.key === asked) ? asked : VIEWS[0].key, false);
+})();
+</script>
+</body>
+</html>

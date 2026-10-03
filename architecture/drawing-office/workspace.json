@@ -1,0 +1,1434 @@
+{
+  "configuration" : { },
+  "description" : "Architecture diagrams as a versioned model, with one proposal drawn on top: a page per model.",
+  "documentation" : { },
+  "id" : 0,
+  "model" : {
+    "people" : [ {
+      "description" : "Writes a system's model and its decision records, then builds and checks them.",
+      "id" : "1",
+      "name" : "Model author",
+      "properties" : {
+        "structurizr.dsl.identifier" : "author"
+      },
+      "relationships" : [ {
+        "description" : "Writes the DSL and the decision records in",
+        "destinationId" : "8",
+        "id" : "31",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Writes the DSL and the decision records in",
+        "destinationId" : "7",
+        "id" : "32",
+        "linkedRelationshipId" : "31",
+        "sourceId" : "1"
+      }, {
+        "description" : "Runs npm run build",
+        "destinationId" : "12",
+        "id" : "33",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Runs npm run build",
+        "destinationId" : "11",
+        "id" : "34",
+        "linkedRelationshipId" : "33",
+        "sourceId" : "1"
+      }, {
+        "description" : "Runs npm run check",
+        "destinationId" : "21",
+        "id" : "35",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Runs npm run check",
+        "destinationId" : "20",
+        "id" : "36",
+        "linkedRelationshipId" : "35",
+        "sourceId" : "1"
+      }, {
+        "description" : "Runs npm run page",
+        "destinationId" : "18",
+        "id" : "75",
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Person"
+    }, {
+      "description" : "Reads a model: in the viewer today, or in a page sent to them under the proposal.",
+      "id" : "2",
+      "name" : "Reviewer",
+      "properties" : {
+        "structurizr.dsl.identifier" : "reviewer"
+      },
+      "relationships" : [ {
+        "description" : "Explores a model in, through a local server",
+        "destinationId" : "29",
+        "id" : "73",
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Explores a model in, through a local server",
+        "destinationId" : "7",
+        "id" : "74",
+        "linkedRelationshipId" : "73",
+        "sourceId" : "2"
+      }, {
+        "description" : "Opens from anywhere, walks a trace, opens a box in",
+        "destinationId" : "30",
+        "id" : "90",
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "description" : "Turns the DSL into the workspace JSON, the static site and Graphviz DOT.",
+      "documentation" : { },
+      "id" : "3",
+      "name" : "structurizr-cli",
+      "properties" : {
+        "structurizr.dsl.identifier" : "structurizr"
+      },
+      "relationships" : [ {
+        "description" : "Reads the DSL from",
+        "destinationId" : "8",
+        "id" : "46",
+        "sourceId" : "3",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Reads the DSL from",
+        "destinationId" : "7",
+        "id" : "47",
+        "linkedRelationshipId" : "46",
+        "sourceId" : "3"
+      }, {
+        "description" : "Lays the static site out with",
+        "destinationId" : "4",
+        "id" : "48",
+        "sourceId" : "3",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "description" : "Lays a view out; the static export half-writes without it.",
+      "documentation" : { },
+      "id" : "4",
+      "name" : "Graphviz",
+      "properties" : {
+        "structurizr.dsl.identifier" : "graphviz"
+      },
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "description" : "Renders the served site, so label collisions can be measured and SVGs exported.",
+      "documentation" : { },
+      "id" : "5",
+      "name" : "Playwright and Chromium",
+      "properties" : {
+        "structurizr.dsl.identifier" : "playwright"
+      },
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "description" : "Says which files are tracked, so derived ones can be refused.",
+      "documentation" : { },
+      "id" : "6",
+      "name" : "Git",
+      "properties" : {
+        "structurizr.dsl.identifier" : "git"
+      },
+      "tags" : "Element,Software System,Existing System"
+    }, {
+      "containers" : [ {
+        "description" : "One system per directory: architecture/<name>/workspace.dsl and its decision records.",
+        "documentation" : { },
+        "id" : "8",
+        "name" : "Models",
+        "properties" : {
+          "structurizr.dsl.identifier" : "models"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "Structurizr DSL, Markdown"
+      }, {
+        "description" : "architecture/theme.json: the colours, the ramp, the floors and the delivery strokes every model is drawn in.",
+        "documentation" : { },
+        "id" : "9",
+        "name" : "Palette",
+        "properties" : {
+          "structurizr.dsl.identifier" : "palette"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSON"
+      }, {
+        "description" : "workspace.json, the static site and index.json, rebuilt from the models and never committed.",
+        "documentation" : { },
+        "id" : "10",
+        "name" : "Exports",
+        "properties" : {
+          "structurizr.dsl.identifier" : "exports"
+        },
+        "tags" : "Element,Container,Data Store",
+        "technology" : "JSON, static site"
+      }, {
+        "components" : [ {
+          "description" : "Every model: stamps the palette, exports workspace.json and the site, writes the index.",
+          "documentation" : { },
+          "id" : "12",
+          "name" : "build",
+          "properties" : {
+            "structurizr.dsl.identifier" : "build"
+          },
+          "relationships" : [ {
+            "description" : "Stamps the palette into each model with",
+            "destinationId" : "21",
+            "id" : "37",
+            "sourceId" : "12",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Stamps the palette into each model with",
+            "destinationId" : "20",
+            "id" : "38",
+            "linkedRelationshipId" : "37",
+            "sourceId" : "12"
+          }, {
+            "description" : "Exports workspace.json and the static site with",
+            "destinationId" : "3",
+            "id" : "43",
+            "sourceId" : "12",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Writes workspace.json, the site and index.json to",
+            "destinationId" : "10",
+            "id" : "49",
+            "sourceId" : "12",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "tools/build.mjs"
+        }, {
+          "description" : "Gives each trace the animation frames the exporter does not write.",
+          "documentation" : { },
+          "id" : "13",
+          "name" : "trace-animate",
+          "properties" : {
+            "structurizr.dsl.identifier" : "animate"
+          },
+          "relationships" : [ {
+            "description" : "Writes trace frames into the site in",
+            "destinationId" : "10",
+            "id" : "51",
+            "sourceId" : "13",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "tools/trace-animate.mjs"
+        }, {
+          "description" : "Recommends which features deserve a trace.",
+          "documentation" : { },
+          "id" : "14",
+          "name" : "trace-suggest",
+          "properties" : {
+            "structurizr.dsl.identifier" : "suggest"
+          },
+          "relationships" : [ {
+            "description" : "Reads the workspace from",
+            "destinationId" : "10",
+            "id" : "52",
+            "sourceId" : "14",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "tools/trace-suggest.mjs"
+        }, {
+          "description" : "One SVG per view, with its diagram key.",
+          "documentation" : { },
+          "id" : "15",
+          "name" : "diagram-export",
+          "properties" : {
+            "structurizr.dsl.identifier" : "svgExport"
+          },
+          "relationships" : [ {
+            "description" : "Renders each view with",
+            "destinationId" : "5",
+            "id" : "72",
+            "sourceId" : "15",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "tools/diagram-export.mjs"
+        }, {
+          "description" : "Measures the served page for labels lying across boxes.",
+          "documentation" : { },
+          "id" : "16",
+          "name" : "diagram-collisions",
+          "properties" : {
+            "structurizr.dsl.identifier" : "collisions"
+          },
+          "relationships" : [ {
+            "description" : "Renders the served site with",
+            "destinationId" : "5",
+            "id" : "69",
+            "sourceId" : "16",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "tools/diagram-collisions.mjs"
+        }, {
+          "description" : "Serves the viewer and the site on localhost:8015.",
+          "documentation" : { },
+          "id" : "17",
+          "name" : "serve",
+          "properties" : {
+            "structurizr.dsl.identifier" : "serve"
+          },
+          "relationships" : [ {
+            "description" : "Serves on localhost:8015",
+            "destinationId" : "29",
+            "id" : "66",
+            "sourceId" : "17",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "tools/serve.mjs"
+        }, {
+          "description" : "One self-contained page per model: every view, traces to walk or play, boxes that open, traces through a box. proposed — hover for details",
+          "documentation" : {
+            "decisions" : [ {
+              "content" : "# 1. A page per model is drawn as a Proposal\n\nDate: 2026-10-03\n\n## Status\n\nProposed\n\n## Context\n\nThe viewer is the working surface and it needs the exported site beside it: a vendored renderer, a base64 workspace and a static server, because it fetches JSON and `file://` will not do. That suits the person drawing the model. The person it is drawn for usually has neither, so showing a reviewer a model has meant sending a folder and a command.\n\n## Decision\n\nAdd tools/page.mjs: one self-contained page per model, `architecture/<name>/page.html`, that opens from anywhere and asks the network for nothing. A reader can walk a feature trace or play it, with the hop in play magnified and centred; click a system or container to open the view inside it; click any other box for its details and every trace that passes through it; and switch between light and dark. Everything on it is derived from workspace.json: drill targets are the views' own softwareSystemId and containerId, steps are the dynamic views' own order. The drawings are Graphviz from structurizr-cli's DOT export, so positions differ from the viewer's browser layout while the boxes and arrows are the same.\n\n## Consequences\n\nThe page needs structurizr-cli and Graphviz, as the build does, and no browser, so it builds in CI. It checks its own joins before it writes: a trace step with no arrow, a box with no element, or a view with no drawing leaves that model's page unwritten (exit 1). It is derived, so it is git-ignored and registered in checks/derived.mjs.\n",
+              "date" : "2026-10-03T00:00:00Z",
+              "format" : "Markdown",
+              "id" : "1",
+              "status" : "Proposed",
+              "title" : "A page per model is drawn as a Proposal"
+            } ]
+          },
+          "id" : "18",
+          "name" : "page",
+          "properties" : {
+            "structurizr.dsl.identifier" : "page"
+          },
+          "relationships" : [ {
+            "description" : "Reads each model's workspace.json from",
+            "destinationId" : "10",
+            "id" : "76",
+            "sourceId" : "18",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Exports every view as Graphviz DOT with",
+            "destinationId" : "3",
+            "id" : "77",
+            "sourceId" : "18",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Lays each view out with",
+            "destinationId" : "4",
+            "id" : "78",
+            "sourceId" : "18",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Takes the colours and the key from",
+            "destinationId" : "9",
+            "id" : "81",
+            "sourceId" : "18",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Fills",
+            "destinationId" : "19",
+            "id" : "83",
+            "sourceId" : "18",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Writes one page per model as",
+            "destinationId" : "30",
+            "id" : "84",
+            "sourceId" : "18",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Proposal",
+          "technology" : "tools/page.mjs"
+        }, {
+          "description" : "The page's layout and its script; the colours are filled in from the palette. proposed — hover for details",
+          "documentation" : {
+            "decisions" : [ {
+              "content" : "# 1. The page's template takes its colours from the palette\n\nDate: 2026-10-03\n\n## Status\n\nProposed\n\n## Context\n\nThe page's layout comes from a page already in use for one model: a register of sheets across the top, each view on a dark drawing plate with its key and a title block, the trace's steps in a panel beside it. That page hard-coded one project's palette.\n\n## Decision\n\ntools/page-template.html keeps the layout and the script and carries no colour of its own. tools/page.mjs fills every colour in from theme.json: the accent is the ramp, the delivery states are their own strokes, and a text colour that would not read on its surface is moved toward black or white until it does. A repo that keeps an architecture/page-theme.json (a light and a dark set in the shape of a shadcn or 21st.dev theme) dresses the page around the drawings in it instead. Either way the boxes keep theme.json's colours. The plate follows the reader's light or dark choice: the dark plate is the canvas, and the few drawn colours a white plate swallows (arrows, the system boundary, canvas-filled frames) are restyled per mode, keyed on the exact colours the export writes.\n\n## Consequences\n\nOne template serves every repo that adopts drawing-office, each in its own palette, and a contrast fault — in either mode, with or without a page theme — is caught in the page's planted faults rather than by eye. A malformed page theme is refused with the reason, never half-applied.\n",
+              "date" : "2026-10-03T00:00:00Z",
+              "format" : "Markdown",
+              "id" : "1",
+              "status" : "Proposed",
+              "title" : "The page's template takes its colours from the palette"
+            } ]
+          },
+          "id" : "19",
+          "name" : "page template",
+          "properties" : {
+            "structurizr.dsl.identifier" : "template"
+          },
+          "tags" : "Element,Component,Proposal",
+          "technology" : "tools/page-template.html"
+        } ],
+        "description" : "tools/: each script writes something (the exports, trace frames, SVGs and, proposed, the page) or recommends; none passes judgement. modified — hover for details",
+        "documentation" : { },
+        "id" : "11",
+        "name" : "Tool scripts",
+        "properties" : {
+          "structurizr.dsl.identifier" : "tools"
+        },
+        "relationships" : [ {
+          "description" : "Stamps the palette into each model with",
+          "destinationId" : "21",
+          "id" : "39",
+          "linkedRelationshipId" : "37",
+          "sourceId" : "11"
+        }, {
+          "description" : "Stamps the palette into each model with",
+          "destinationId" : "20",
+          "id" : "40",
+          "linkedRelationshipId" : "37",
+          "sourceId" : "11"
+        }, {
+          "description" : "Exports workspace.json and the static site with",
+          "destinationId" : "3",
+          "id" : "44",
+          "linkedRelationshipId" : "43",
+          "sourceId" : "11"
+        }, {
+          "description" : "Writes workspace.json, the site and index.json to",
+          "destinationId" : "10",
+          "id" : "50",
+          "linkedRelationshipId" : "49",
+          "sourceId" : "11"
+        }, {
+          "description" : "Serves on localhost:8015",
+          "destinationId" : "29",
+          "id" : "67",
+          "linkedRelationshipId" : "66",
+          "sourceId" : "11"
+        }, {
+          "description" : "Renders the served site with",
+          "destinationId" : "5",
+          "id" : "70",
+          "linkedRelationshipId" : "69",
+          "sourceId" : "11"
+        }, {
+          "description" : "Lays each view out with",
+          "destinationId" : "4",
+          "id" : "79",
+          "linkedRelationshipId" : "78",
+          "sourceId" : "11"
+        }, {
+          "description" : "Takes the colours and the key from",
+          "destinationId" : "9",
+          "id" : "82",
+          "linkedRelationshipId" : "81",
+          "sourceId" : "11"
+        }, {
+          "description" : "Writes one page per model as",
+          "destinationId" : "30",
+          "id" : "85",
+          "linkedRelationshipId" : "84",
+          "sourceId" : "11"
+        } ],
+        "tags" : "Element,Container,Modified",
+        "technology" : "Node command-line scripts"
+      }, {
+        "components" : [ {
+          "description" : "Palette drift, contrast floors, the lightness ladder and contiguous trace steps.",
+          "documentation" : { },
+          "id" : "21",
+          "name" : "diagram-contrast",
+          "properties" : {
+            "structurizr.dsl.identifier" : "contrast"
+          },
+          "relationships" : [ {
+            "description" : "Reads the colours and the floors from",
+            "destinationId" : "9",
+            "id" : "41",
+            "sourceId" : "21",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "checks/diagram-contrast.mjs"
+        }, {
+          "description" : "The one door every check discovers models and the palette through.",
+          "documentation" : { },
+          "id" : "22",
+          "name" : "projects",
+          "properties" : {
+            "structurizr.dsl.identifier" : "projects"
+          },
+          "relationships" : [ {
+            "description" : "Finds every exported model in",
+            "destinationId" : "10",
+            "id" : "53",
+            "sourceId" : "22",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "checks/projects.mjs"
+        }, {
+          "description" : "A box marked Proposal or Modified must carry the decision that says why.",
+          "documentation" : { },
+          "id" : "23",
+          "name" : "delivery",
+          "properties" : {
+            "structurizr.dsl.identifier" : "delivery"
+          },
+          "relationships" : [ {
+            "description" : "Discovers models through",
+            "destinationId" : "22",
+            "id" : "55",
+            "sourceId" : "23",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "checks/delivery.mjs"
+        }, {
+          "description" : "Every decision has a status in Nygard's vocabulary and governs a drawn box.",
+          "documentation" : { },
+          "id" : "24",
+          "name" : "decisions",
+          "properties" : {
+            "structurizr.dsl.identifier" : "decisions"
+          },
+          "relationships" : [ {
+            "description" : "Discovers models through",
+            "destinationId" : "22",
+            "id" : "56",
+            "sourceId" : "24",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "checks/decisions.mjs"
+        }, {
+          "description" : "Every style a view draws is on its key, and every key row is drawn somewhere.",
+          "documentation" : { },
+          "id" : "25",
+          "name" : "diagram-key",
+          "properties" : {
+            "structurizr.dsl.identifier" : "diagramKey"
+          },
+          "relationships" : [ {
+            "description" : "Discovers models through",
+            "destinationId" : "22",
+            "id" : "57",
+            "sourceId" : "25",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "checks/diagram-key.mjs"
+        }, {
+          "description" : "Queues and topics are containers; a message bus never is.",
+          "documentation" : { },
+          "id" : "26",
+          "name" : "pubsub",
+          "properties" : {
+            "structurizr.dsl.identifier" : "pubsub"
+          },
+          "relationships" : [ {
+            "description" : "Discovers models through",
+            "destinationId" : "22",
+            "id" : "58",
+            "sourceId" : "26",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "checks/pubsub.mjs"
+        }, {
+          "description" : "Nothing the exporter makes is committed; it now knows the page and its scratch too. modified — hover for details",
+          "documentation" : {
+            "decisions" : [ {
+              "content" : "# 1. The derived check is modified to know the page\n\nDate: 2026-10-03\n\n## Status\n\nProposed\n\n## Context\n\nchecks/derived.mjs refuses anything the exporter makes that is under version control, and any derived shape .gitignore does not name. The proposal adds two derived shapes: the page itself, and the scratch directory a failed run can leave behind.\n\n## Decision\n\nRegister `architecture/*/page.html` and `architecture/*/.page/` as derived rows, each with the command that rebuilds it, and plant both in the check's negative cases. The negative now counts its own cases rather than comparing with a hard-coded total, which was the line the new cases broke.\n\n## Consequences\n\nA committed page is refused the way a committed site is. Adding a derived row no longer needs a second edit to a number.\n",
+              "date" : "2026-10-03T00:00:00Z",
+              "format" : "Markdown",
+              "id" : "1",
+              "status" : "Proposed",
+              "title" : "The derived check is modified to know the page"
+            } ]
+          },
+          "id" : "27",
+          "name" : "derived",
+          "properties" : {
+            "structurizr.dsl.identifier" : "derived"
+          },
+          "relationships" : [ {
+            "description" : "Asks which files are tracked",
+            "destinationId" : "6",
+            "id" : "59",
+            "sourceId" : "27",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Refuses a committed copy of",
+            "destinationId" : "30",
+            "id" : "88",
+            "sourceId" : "27",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Modified",
+          "technology" : "checks/derived.mjs"
+        }, {
+          "description" : "The control over tools/ that have none of their own; it now runs the page's planted faults. modified — hover for details",
+          "documentation" : {
+            "decisions" : [ {
+              "content" : "# 1. The control over tools runs the page's planted faults\n\nDate: 2026-10-03\n\n## Status\n\nProposed\n\n## Context\n\nchecks/test-tools.mjs is the control for the modules in tools/ that have none of their own: it runs each one's --negative and fails if any planted fault is missed. A new tool that is not on its list is never run by `npm run check`.\n\n## Decision\n\nAdd tools/page.mjs to the list, beside build, trace-suggest and trace-animate.\n\n## Consequences\n\n`npm run check` runs the page's planted faults: the drill targets, the breadcrumb, the seams, the label escaping, the key and the palette.\n",
+              "date" : "2026-10-03T00:00:00Z",
+              "format" : "Markdown",
+              "id" : "1",
+              "status" : "Proposed",
+              "title" : "The control over tools runs the page's planted faults"
+            } ]
+          },
+          "id" : "28",
+          "name" : "test-tools",
+          "properties" : {
+            "structurizr.dsl.identifier" : "testTools"
+          },
+          "relationships" : [ {
+            "description" : "Runs the planted faults of",
+            "destinationId" : "12",
+            "id" : "62",
+            "sourceId" : "28",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Runs the planted faults of",
+            "destinationId" : "11",
+            "id" : "63",
+            "linkedRelationshipId" : "62",
+            "sourceId" : "28"
+          }, {
+            "description" : "Runs the planted faults of",
+            "destinationId" : "18",
+            "id" : "86",
+            "sourceId" : "28",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Modified",
+          "technology" : "checks/test-tools.mjs"
+        } ],
+        "description" : "checks/: each script reads the models and exports and exits non-zero when one breaks a rule (colours, step order, decisions, derived files); npm run check runs them all. modified — hover for details",
+        "documentation" : { },
+        "id" : "20",
+        "name" : "Check scripts",
+        "properties" : {
+          "structurizr.dsl.identifier" : "checks"
+        },
+        "relationships" : [ {
+          "description" : "Reads the colours and the floors from",
+          "destinationId" : "9",
+          "id" : "42",
+          "linkedRelationshipId" : "41",
+          "sourceId" : "20"
+        }, {
+          "description" : "Finds every exported model in",
+          "destinationId" : "10",
+          "id" : "54",
+          "linkedRelationshipId" : "53",
+          "sourceId" : "20"
+        }, {
+          "description" : "Asks which files are tracked",
+          "destinationId" : "6",
+          "id" : "60",
+          "linkedRelationshipId" : "59",
+          "sourceId" : "20"
+        }, {
+          "description" : "Runs the planted faults of",
+          "destinationId" : "12",
+          "id" : "64",
+          "linkedRelationshipId" : "62",
+          "sourceId" : "20"
+        }, {
+          "description" : "Runs the planted faults of",
+          "destinationId" : "11",
+          "id" : "65",
+          "linkedRelationshipId" : "62",
+          "sourceId" : "20"
+        }, {
+          "description" : "Runs the planted faults of",
+          "destinationId" : "18",
+          "id" : "87",
+          "linkedRelationshipId" : "86",
+          "sourceId" : "20"
+        }, {
+          "description" : "Refuses a committed copy of",
+          "destinationId" : "30",
+          "id" : "89",
+          "linkedRelationshipId" : "88",
+          "sourceId" : "20"
+        } ],
+        "tags" : "Element,Container,Modified",
+        "technology" : "Node command-line scripts"
+      }, {
+        "description" : "architecture/viewer.html: a rail of every model, the site's renderer, the traces stepped frame by frame.",
+        "documentation" : { },
+        "id" : "29",
+        "name" : "Viewer",
+        "properties" : {
+          "structurizr.dsl.identifier" : "viewer"
+        },
+        "relationships" : [ {
+          "description" : "Reads index.json and the site from",
+          "destinationId" : "10",
+          "id" : "68",
+          "sourceId" : "29",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "HTML, JavaScript"
+      }, {
+        "description" : "architecture/<name>/page.html: one file per model that opens from anywhere, offline. proposed — hover for details",
+        "documentation" : {
+          "decisions" : [ {
+            "content" : "# 1. The page is one file per model, opened from anywhere\n\nDate: 2026-10-03\n\n## Status\n\nProposed\n\n## Context\n\nA reviewer reads a model once, often away from the repo: from a link, an attachment or a shared drive. A page that needs a server or a network call fails exactly there.\n\n## Decision\n\nEach model gets one HTML file with every drawing inlined as SVG and the model inlined as JSON. It declares UTF-8 before any text, requests no fonts or scripts, and takes its colours from the repo's theme.json (or its page theme, when it keeps one), so a repo that adopts drawing-office gets a page in its own palette.\n\n## Consequences\n\nThe file is a few hundred kilobytes and is rewritten whole by any change to the model, which is why it is never committed. Rebuilding it is `npm run page`.\n",
+            "date" : "2026-10-03T00:00:00Z",
+            "format" : "Markdown",
+            "id" : "1",
+            "status" : "Proposed",
+            "title" : "The page is one file per model, opened from anywhere"
+          } ]
+        },
+        "id" : "30",
+        "name" : "Model page",
+        "properties" : {
+          "structurizr.dsl.identifier" : "modelPage"
+        },
+        "tags" : "Element,Container,Proposal",
+        "technology" : "HTML"
+      } ],
+      "description" : "Diagrams as a versioned model: the palette, the step order and the label collisions are checked. modified — hover for details",
+      "documentation" : { },
+      "id" : "7",
+      "name" : "Drawing Office",
+      "properties" : {
+        "structurizr.dsl.identifier" : "office"
+      },
+      "relationships" : [ {
+        "description" : "Exports workspace.json and the static site with",
+        "destinationId" : "3",
+        "id" : "45",
+        "linkedRelationshipId" : "43",
+        "sourceId" : "7"
+      }, {
+        "description" : "Asks which files are tracked",
+        "destinationId" : "6",
+        "id" : "61",
+        "linkedRelationshipId" : "59",
+        "sourceId" : "7"
+      }, {
+        "description" : "Renders the served site with",
+        "destinationId" : "5",
+        "id" : "71",
+        "linkedRelationshipId" : "69",
+        "sourceId" : "7"
+      }, {
+        "description" : "Lays each view out with",
+        "destinationId" : "4",
+        "id" : "80",
+        "linkedRelationshipId" : "78",
+        "sourceId" : "7"
+      } ],
+      "tags" : "Element,Software System,Modified"
+    } ]
+  },
+  "name" : "Drawing Office",
+  "properties" : {
+    "structurizr.inspection.error" : "63",
+    "structurizr.inspection.info" : "0",
+    "structurizr.inspection.ignore" : "0",
+    "structurizr.inspection.warning" : "0"
+  },
+  "views" : {
+    "componentViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "containerId" : "11",
+      "description" : "Components of the tool scripts: what ships, and the page tool the proposal adds.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "16",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "17",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "18",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "ToolScripts",
+      "name" : "Component View: Drawing Office - Tool scripts",
+      "order" : 3,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "33"
+      }, {
+        "id" : "36"
+      }, {
+        "id" : "38"
+      }, {
+        "id" : "42"
+      }, {
+        "id" : "43"
+      }, {
+        "id" : "48"
+      }, {
+        "id" : "49"
+      }, {
+        "id" : "51"
+      }, {
+        "id" : "52"
+      }, {
+        "id" : "54"
+      }, {
+        "id" : "64"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "68"
+      }, {
+        "id" : "69"
+      }, {
+        "id" : "72"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "76"
+      }, {
+        "id" : "77"
+      }, {
+        "id" : "78"
+      }, {
+        "id" : "81"
+      }, {
+        "id" : "83"
+      }, {
+        "id" : "84"
+      }, {
+        "id" : "87"
+      }, {
+        "id" : "89"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "containerId" : "20",
+      "description" : "Components of the check scripts: what ships, two of them modified by the proposal.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "21",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "22",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "23",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "25",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "26",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "CheckScripts",
+      "name" : "Component View: Drawing Office - Check scripts",
+      "order" : 4,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "34"
+      }, {
+        "id" : "35"
+      }, {
+        "id" : "39"
+      }, {
+        "id" : "41"
+      }, {
+        "id" : "50"
+      }, {
+        "id" : "53"
+      }, {
+        "id" : "55"
+      }, {
+        "id" : "56"
+      }, {
+        "id" : "57"
+      }, {
+        "id" : "58"
+      }, {
+        "id" : "59"
+      }, {
+        "id" : "63"
+      }, {
+        "id" : "82"
+      }, {
+        "id" : "85"
+      }, {
+        "id" : "88"
+      } ]
+    } ],
+    "configuration" : {
+      "branding" : { },
+      "styles" : {
+        "elements" : [ {
+          "background" : "#5f64af",
+          "shape" : "Pipe",
+          "stroke" : "#b9bdf5",
+          "tag" : "Channel"
+        }, {
+          "background" : "#8b92ce",
+          "color" : "#14162b",
+          "stroke" : "#d2d5fa",
+          "tag" : "Component"
+        }, {
+          "background" : "#5f64af",
+          "stroke" : "#b9bdf5",
+          "tag" : "Container"
+        }, {
+          "tag" : "Container Instance"
+        }, {
+          "background" : "#5f64af",
+          "shape" : "Cylinder",
+          "stroke" : "#b9bdf5",
+          "tag" : "Data Store"
+        }, {
+          "background" : "#1f2226",
+          "color" : "#ffffff",
+          "stroke" : "#9aa4b2",
+          "tag" : "Deployment Node"
+        }, {
+          "color" : "#ffffff",
+          "fontSize" : 26,
+          "strokeWidth" : 2,
+          "tag" : "Element"
+        }, {
+          "background" : "#32433b",
+          "stroke" : "#6fa588",
+          "tag" : "Existing System"
+        }, {
+          "background" : "#5f64af",
+          "color" : "#ffffff",
+          "stroke" : "#b9bdf5",
+          "tag" : "Infrastructure Node"
+        }, {
+          "stroke" : "#ffb454",
+          "strokeWidth" : 4,
+          "tag" : "Modified"
+        }, {
+          "background" : "#32433b",
+          "shape" : "Person",
+          "stroke" : "#6fa588",
+          "tag" : "Person"
+        }, {
+          "stroke" : "#ff2fd0",
+          "strokeWidth" : 6,
+          "tag" : "Proposal"
+        }, {
+          "background" : "#494d97",
+          "stroke" : "#a5a9f0",
+          "tag" : "Software System"
+        }, {
+          "tag" : "Software System Instance"
+        } ],
+        "relationships" : [ {
+          "color" : "#d7dbe3",
+          "dashed" : true,
+          "fontSize" : 24,
+          "tag" : "Asynchronous"
+        }, {
+          "color" : "#d7dbe3",
+          "fontSize" : 24,
+          "tag" : "Relationship"
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "Models, palette and exports; the tool scripts that produce and the check scripts that refuse; the viewer, and the proposed model page.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "Containers",
+      "name" : "Container View: Drawing Office",
+      "order" : 2,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "31"
+      }, {
+        "id" : "34"
+      }, {
+        "id" : "36"
+      }, {
+        "id" : "40"
+      }, {
+        "id" : "42"
+      }, {
+        "id" : "44"
+      }, {
+        "id" : "46"
+      }, {
+        "id" : "48"
+      }, {
+        "id" : "50"
+      }, {
+        "id" : "54"
+      }, {
+        "id" : "60"
+      }, {
+        "id" : "65"
+      }, {
+        "id" : "67"
+      }, {
+        "id" : "68"
+      }, {
+        "id" : "70"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "79"
+      }, {
+        "id" : "82"
+      }, {
+        "id" : "85"
+      }, {
+        "id" : "89"
+      }, {
+        "id" : "90"
+      } ],
+      "softwareSystemId" : "7"
+    } ],
+    "dynamicViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "What ships: a model written, built, checked and explored in the viewer.",
+      "elementId" : "7",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "BuildAndCheck",
+      "name" : "Dynamic View: Drawing Office",
+      "order" : 5,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "description" : "Writes the model and its decision records",
+        "id" : "31",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Runs npm run build",
+        "id" : "34",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Exports workspace.json and the static site",
+        "id" : "44",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "Writes the exports and the index",
+        "id" : "50",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "Runs npm run check",
+        "id" : "36",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "Reads every workspace.json",
+        "id" : "54",
+        "order" : "6",
+        "response" : false
+      }, {
+        "description" : "Opens the viewer through npm run serve",
+        "id" : "73",
+        "order" : "7",
+        "response" : false
+      }, {
+        "description" : "Reads the index and the site",
+        "id" : "68",
+        "order" : "8",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "The proposal: a model turned into one page and sent to someone who has neither the site nor a server.",
+      "elementId" : "11",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "18",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "SharePage",
+      "name" : "Dynamic View: Drawing Office - Tool scripts",
+      "order" : 6,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "description" : "Runs npm run page",
+        "id" : "75",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Reads workspace.json",
+        "id" : "76",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Exports every view as DOT",
+        "id" : "77",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "Lays each view out",
+        "id" : "78",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "Takes the colours and the key",
+        "id" : "81",
+        "order" : "5",
+        "response" : false
+      }, {
+        "description" : "Fills the layout and its script",
+        "id" : "83",
+        "order" : "6",
+        "response" : false
+      }, {
+        "description" : "Writes architecture/<name>/page.html",
+        "id" : "84",
+        "order" : "7",
+        "response" : false
+      }, {
+        "description" : "Opens it, plays a trace, opens a box",
+        "id" : "90",
+        "order" : "8",
+        "response" : false
+      } ]
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 400,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 500,
+        "vertices" : false
+      },
+      "description" : "Who uses Drawing Office, and the four outside systems it stands on.",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "SystemContext",
+      "name" : "System Context View: Drawing Office",
+      "order" : 1,
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "relationships" : [ {
+        "id" : "32"
+      }, {
+        "id" : "45"
+      }, {
+        "id" : "47"
+      }, {
+        "id" : "48"
+      }, {
+        "id" : "61"
+      }, {
+        "id" : "71"
+      }, {
+        "id" : "74"
+      }, {
+        "id" : "80"
+      } ],
+      "softwareSystemId" : "7"
+    } ]
+  }
+}
