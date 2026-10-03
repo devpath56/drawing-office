@@ -60,6 +60,18 @@ export const DERIVED = Object.freeze([
     why: 'exported SVGs, regenerated from the site on demand and never read as text',
     rebuild: 'npm run svg',
   },
+  {
+    match: /(^|\/)architecture\/[^/]+\/page\.html$/,
+    ignore: 'architecture/*/page.html',
+    why: 'the shareable page — every drawing inlined as SVG beside the model as JSON, rewritten whole by any change to the model',
+    rebuild: 'npm run page',
+  },
+  {
+    match: /(^|\/)architecture\/[^/]+\/\.page\//,
+    ignore: 'architecture/*/.page/',
+    why: "the page's scratch: Graphviz DOT and SVG per view, removed when the page is written and left only by a run that failed",
+    rebuild: 'npm run page',
+  },
 ]);
 
 /** Every file git is tracking, or null when git cannot answer. */
@@ -115,8 +127,8 @@ if (IS_MAIN) {
   const root = flag('--root', HERE);
 
   if (argv.includes('--negative')) {
-    let ok = 0;
-    const say = (n, pass, saw) => { console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${n}${pass ? '' : `\n       saw: ${JSON.stringify(saw)?.slice(0, 260)}`}`); if (pass) ok++; };
+    let ok = 0; let total = 0;
+    const say = (n, pass, saw) => { total++; console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${n}${pass ? '' : `\n       saw: ${JSON.stringify(saw)?.slice(0, 260)}`}`); if (pass) ok++; };
     const allIgnored = DERIVED.map((r) => r.ignore);
     const rules = (files, ig = allIgnored) => inspect(files, ig).findings.map((f) => f.rule);
 
@@ -126,6 +138,8 @@ if (IS_MAIN) {
     say('the exported site is caught', rules([...clean, 'architecture/payments/site/js/jquery-3.7.1.min.js']).includes('tracked-derived'), rules([...clean, 'architecture/payments/site/js/jquery-3.7.1.min.js']));
     say('the one-line base64 bundle is caught', rules([...clean, 'architecture/internet-banking/site/workspace.js']).includes('tracked-derived'), rules([...clean, 'architecture/internet-banking/site/workspace.js']));
     say('exported SVGs are caught', rules([...clean, 'architecture/svg/Containers.svg']).includes('tracked-derived'), rules([...clean, 'architecture/svg/Containers.svg']));
+    say('a built page is caught', rules([...clean, 'architecture/payments/page.html']).includes('tracked-derived'), rules([...clean, 'architecture/payments/page.html']));
+    say("a page's leftover scratch is caught", rules([...clean, 'architecture/payments/.page/structurizr-Settle.dot']).includes('tracked-derived'), rules([...clean, 'architecture/payments/.page/structurizr-Settle.dot']));
 
     /* THE MODEL MUST NOT BE CAUGHT. workspace.json is derived and stays tracked on purpose: the
        checks and the wrapper read it, and its diff is legible. A rule that swept it up would be
@@ -139,8 +153,8 @@ if (IS_MAIN) {
 
     say('git being unavailable is UNEVALUABLE rather than an empty pass', tracked('/nonexistent-' + Date.now()) === null, tracked('/nonexistent-x'));
 
-    console.log(`\n${ok} of 9 held`);
-    process.exit(ok === 9 ? 0 : 1);
+    console.log(`\n${ok} of ${total} held`);
+    process.exit(ok === total ? 0 : 1);
   }
 
   const files = tracked(root);

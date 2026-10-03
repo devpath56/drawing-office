@@ -38,6 +38,7 @@ They were one directory until a review pointed out that one folder was carrying 
 | `tools/trace-suggest` | nothing — it *recommends*. Which features deserve a trace is a product judgement |
 | `tools/trace-animate` | nothing — it writes the animation frames the exporter does not |
 | `tools/diagram-export` | nothing — it writes one SVG per view, with its diagram key |
+| `tools/page` | nothing — it writes one self-contained page per model; a page whose trace steps, boxes or drawings do not join up is not written (exit 1), as `tools/build` reports a failed export |
 
 Every one of them has a `--negative` that plants faults and must catch all of them. Run it: a check
 nobody has seen refuse is a check nobody should trust.
@@ -64,6 +65,7 @@ macOS: `brew install structurizr-cli graphviz && npm install && npx playwright i
 npm run build     # EVERY model in architecture/: palette, workspace.json, the site, and the index
 npm run check     # palette, ladder, step order, and the controls over tools/
 npm run serve     # then open http://localhost:8015/architecture/viewer.html
+npm run page      # one file per model to send someone: architecture/<name>/page.html
 ```
 
 `npm run build <name>` narrows it to one model.
@@ -84,6 +86,38 @@ own description — which is the site's caption block, not the drawing. Raising 
 node separation does not move either, because the static site lays out in the browser and does not
 use those hints. A check shipped green by lowering its bar is worth nothing; this one ships with its
 reading showing.
+
+## A page per model, to send to someone
+
+The viewer is where a model is drawn and checked; it needs the exported site and a server. The
+person the model is drawn *for* usually has neither. `npm run page` writes one file per model,
+`architecture/<name>/page.html`, that opens from anywhere: an attachment, a shared drive, `file://`.
+
+| on the page | what it does |
+|---|---|
+| sheets | every view on one register, in two groups: **C4 levels** (context, container, component) and **Feature traces** (every dynamic view); a deployment or landscape view gets a third group of its own. Each sheet has its key and a title block |
+| walk a trace | Back / Next / Show all through a feature trace's steps, or **Play** to step through by itself; the hop in play is magnified and centred, and the rest dims |
+| open a box | click a software system or container that has a view of its own to move to what is inside it; a breadcrumb climbs back out |
+| a box's details | on click, never on hover, so nothing covers the drawing mid-walk: its kind, description, delivery state and the decision behind it, its perspectives, and every trace that touches it or anything inside it. A second click on the box, the ×, Esc, or a click anywhere else puts the card down |
+| light or dark | a switch at the top, remembered in the browser; until a reader chooses, the system's setting |
+
+Each step shows its worked example (`drawing-office.example.<hop>`). Graphviz lays the drawings out
+from structurizr-cli's DOT export, so positions differ from the viewer's browser layout; the boxes,
+labels and arrows are the same. The page asks the network for nothing.
+
+Its colours are the repo's. The boxes are always `theme.json`'s: the page never re-tints a model.
+The plate behind them follows the reader's light or dark choice, and only the colours that vanish on
+a white plate — arrows and their labels, the system boundary, a deployment node's canvas-filled
+frame — are restyled per mode, keyed on the exact colours the export writes. The page around the
+drawings is derived from `theme.json` too (the accent from its ramp, the delivery states from its
+strokes, every text colour moved until it reads), unless the repo keeps an
+`architecture/page-theme.json`: a `light` and a `dark` set of `background`, `foreground`, `card`,
+`primary`, `primary-foreground`, `border`, `muted-foreground` and, optionally, `font-sans` and
+`font-mono` — the shape of a shadcn or 21st.dev community theme — which the page then wears. A page
+theme that is malformed is refused with the reason, never half-applied.
+
+It needs `structurizr-cli` and Graphviz, like the build, and no browser. The page is derived, so it
+is git-ignored.
 
 ---
 
